@@ -13,9 +13,15 @@ const RECORDING_SECONDS = 60;
 
 type Phase = "idle" | "countdown" | "recording" | "review";
 
-type RecordingEntry = {
-  question: string;
+type Recording = {
+  id: string;
   videoUrl: string;
+  createdAt: number;
+};
+
+type QuestionRecording = {
+  question: string;
+  recordings: Recording[];
 };
 
 function formatSeconds(totalSeconds: number) {
@@ -35,23 +41,50 @@ function getSupportedMimeType() {
   return mimeTypes.find((mimeType) => MediaRecorder.isTypeSupported(mimeType));
 }
 
+function createQuestionRecordings() {
+  return QUESTIONS.map((question) => ({
+    question,
+    recordings: [],
+  }));
+}
+
 export default function InterviewTrainer() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [recordingTimeLeft, setRecordingTimeLeft] = useState(RECORDING_SECONDS);
-  const [recordings, setRecordings] = useState<RecordingEntry[]>([]);
+  const [recordings, setRecordings] = useState<QuestionRecording[]>(
+    createQuestionRecordings,
+  );
   const [error, setError] = useState("");
   const [isPreparing, setIsPreparing] = useState(false);
+  const [retakeQuestionIndex, setRetakeQuestionIndex] = useState<number | null>(
+    null,
+  );
+  const [latestRecordingId, setLatestRecordingId] = useState<string | null>(
+    null,
+  );
 
   const previewRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const recordingsRef = useRef<RecordingEntry[]>([]);
+  const recordingsRef = useRef<QuestionRecording[]>(createQuestionRecordings());
   const stopRequestedRef = useRef(false);
 
   const currentQuestion = QUESTIONS[currentQuestionIndex];
+  const isRetaking = retakeQuestionIndex !== null;
+
+  const revokeRecordingUrls = useCallback(
+    (recordingGroups: QuestionRecording[]) => {
+      for (const recordingGroup of recordingGroups) {
+        for (const recording of recordingGroup.recordings) {
+          URL.revokeObjectURL(recording.videoUrl);
+        }
+      }
+    },
+    [],
+  );
 
   const stopPreviewStream = useCallback(() => {
     const stream = streamRef.current;
@@ -128,6 +161,14 @@ export default function InterviewTrainer() {
     recorder.stop();
   }, []);
 
+  const startRetake = useCallback(
+    async (questionIndex: number) => {
+      setRetakeQuestionIndex(questionIndex);
+      await prepareQuestion(questionIndex);
+    },
+    [prepareQuestion],
+  );
+
   const startRecording = useCallback(() => {
     const stream = streamRef.current;
 
@@ -145,6 +186,8 @@ export default function InterviewTrainer() {
     stopRequestedRef.current = false;
 
     const mimeType = getSupportedMimeType();
+    const questionIndex = currentQuestionIndex;
+    const isRetakeAttempt = retakeQuestionIndex !== null;
     const recorder = mimeType
       ? new MediaRecorder(stream, { mimeType })
       : new MediaRecorder(stream);
@@ -159,15 +202,38 @@ export default function InterviewTrainer() {
       const blobType = mimeType ?? "video/webm";
       const videoBlob = new Blob(chunksRef.current, { type: blobType });
       const videoUrl = URL.createObjectURL(videoBlob);
-      const question = QUESTIONS[currentQuestionIndex];
+      const recordingId = crypto.randomUUID();
 
-      setRecordings((previous) => [...previous, { question, videoUrl }]);
+      setRecordings((previous) =>
+        previous.map((recordingGroup, index) =>
+          index === questionIndex
+            ? {
+                ...recordingGroup,
+                recordings: [
+                  ...recordingGroup.recordings,
+                  {
+                    id: recordingId,
+                    videoUrl,
+                    createdAt: Date.now(),
+                  },
+                ],
+              }
+            : recordingGroup,
+        ),
+      );
+      setLatestRecordingId(recordingId);
 
       recorderRef.current = null;
       chunksRef.current = [];
       stopPreviewStream();
 
-      const nextQuestionIndex = currentQuestionIndex + 1;
+      if (isRetakeAttempt) {
+        setRetakeQuestionIndex(null);
+        setPhase("review");
+        return;
+      }
+
+      const nextQuestionIndex = questionIndex + 1;
 
       if (nextQuestionIndex >= QUESTIONS.length) {
         setPhase("review");
@@ -188,16 +254,20 @@ export default function InterviewTrainer() {
     setRecordingTimeLeft(RECORDING_SECONDS);
     setPhase("recording");
     recorder.start();
-  }, [currentQuestionIndex, prepareQuestion, stopPreviewStream]);
+  }, [
+    currentQuestionIndex,
+    prepareQuestion,
+    retakeQuestionIndex,
+    stopPreviewStream,
+  ]);
 
   const startInterview = useCallback(async () => {
-    for (const recording of recordingsRef.current) {
-      URL.revokeObjectURL(recording.videoUrl);
-    }
-
-    setRecordings([]);
+    revokeRecordingUrls(recordingsRef.current);
+    setRetakeQuestionIndex(null);
+    setLatestRecordingId(null);
+    setRecordings(createQuestionRecordings());
     await prepareQuestion(0);
-  }, [prepareQuestion]);
+  }, [prepareQuestion, revokeRecordingUrls]);
 
   useEffect(() => {
     recordingsRef.current = recordings;
@@ -260,11 +330,9 @@ export default function InterviewTrainer() {
 
       stopPreviewStream();
 
-      for (const recording of recordingsRef.current) {
-        URL.revokeObjectURL(recording.videoUrl);
-      }
+      revokeRecordingUrls(recordingsRef.current);
     };
-  }, [stopPreviewStream]);
+  }, [revokeRecordingUrls, stopPreviewStream]);
 
   const isLocked = phase === "countdown" || phase === "recording";
 
@@ -282,8 +350,9 @@ export default function InterviewTrainer() {
           </div>
           {phase !== "review" ? (
             <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
-              Question {Math.min(currentQuestionIndex + 1, QUESTIONS.length)} of{" "}
-              {QUESTIONS.length}
+              {isRetaking
+                ? `Retake for Question ${currentQuestionIndex + 1}`
+                : `Question ${Math.min(currentQuestionIndex + 1, QUESTIONS.length)} of ${QUESTIONS.length}`}
             </div>
           ) : null}
         </header>
@@ -300,8 +369,8 @@ export default function InterviewTrainer() {
                     Replay every answer
                   </h2>
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                    Each recording stayed in memory only for this session and is
-                    paired with its interview prompt.
+                    Every attempt stays in memory for this session so you can
+                    compare the original answer with each retake.
                   </p>
                 </div>
                 <button
@@ -313,32 +382,84 @@ export default function InterviewTrainer() {
                 </button>
               </div>
 
-              {recordings.map((recording, index) => (
-                <article
-                  className="space-y-5 rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/30"
-                  key={`${recording.question}-${index}`}
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm uppercase tracking-[0.25em] text-cyan-300">
-                      Question {index + 1}
-                    </p>
-                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">
-                      {RECORDING_SECONDS}s limit
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-medium leading-8 text-white">
-                    {recording.question}
-                  </h3>
-                  {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
-                  <video
-                    className="w-full rounded-2xl border border-white/10 bg-black"
-                    controls
-                    playsInline
-                    preload="metadata"
-                    src={recording.videoUrl}
-                  />
-                </article>
-              ))}
+              {recordings.map((questionRecording, index) => {
+                const latestAttemptIndex =
+                  questionRecording.recordings.length - 1;
+
+                return (
+                  <article
+                    className="space-y-5 rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/30"
+                    key={questionRecording.question}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm uppercase tracking-[0.25em] text-cyan-300">
+                        Question {index + 1}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">
+                          {RECORDING_SECONDS}s limit
+                        </span>
+                        <button
+                          className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+                          disabled={isPreparing || isLocked}
+                          onClick={() => startRetake(index)}
+                          type="button"
+                        >
+                          Retake
+                        </button>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-medium leading-8 text-white">
+                      {questionRecording.question}
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {questionRecording.recordings.map(
+                        (recording, attemptIndex) => {
+                          const isLatestAttempt =
+                            attemptIndex === latestAttemptIndex;
+
+                          return (
+                            <div
+                              className={`space-y-3 rounded-2xl border p-4 ${
+                                isLatestAttempt
+                                  ? "border-cyan-400/50 bg-cyan-400/5"
+                                  : "border-white/10 bg-white/5"
+                              }`}
+                              key={recording.id}
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm font-medium text-white">
+                                  Attempt {attemptIndex + 1}
+                                  {attemptIndex === 0 ? " (Original)" : ""}
+                                </p>
+                                {isLatestAttempt ? (
+                                  <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-xs text-cyan-300">
+                                    Latest
+                                  </span>
+                                ) : null}
+                              </div>
+                              <p className="text-xs text-slate-400">
+                                {new Date(
+                                  recording.createdAt,
+                                ).toLocaleTimeString()}
+                              </p>
+                              {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
+                              <video
+                                autoPlay={recording.id === latestRecordingId}
+                                className="w-full rounded-2xl border border-white/10 bg-black"
+                                controls
+                                playsInline
+                                preload="metadata"
+                                src={recording.videoUrl}
+                              />
+                            </div>
+                          );
+                        },
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -348,7 +469,9 @@ export default function InterviewTrainer() {
                 ) : null}
 
                 <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-                  Current prompt
+                  {isRetaking
+                    ? `Retaking Question ${currentQuestionIndex + 1}`
+                    : "Current prompt"}
                 </p>
                 <div className="flex min-h-[320px] items-center justify-center">
                   <h2 className="max-w-3xl text-center text-3xl font-semibold leading-tight text-white md:text-5xl">
@@ -361,10 +484,18 @@ export default function InterviewTrainer() {
                     <button
                       className="rounded-full bg-cyan-400 px-8 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-200"
                       disabled={isPreparing}
-                      onClick={startInterview}
+                      onClick={() =>
+                        isRetaking
+                          ? startRetake(currentQuestionIndex)
+                          : startInterview()
+                      }
                       type="button"
                     >
-                      {isPreparing ? "Preparing camera..." : "Start interview"}
+                      {isPreparing
+                        ? "Preparing camera..."
+                        : isRetaking
+                          ? "Retry retake"
+                          : "Start interview"}
                     </button>
                   ) : null}
 
