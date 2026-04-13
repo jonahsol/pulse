@@ -24,6 +24,12 @@ type QuestionRecording = {
   recordings: Recording[];
 };
 
+type TranscriptState = {
+  status: "idle" | "loading" | "ready" | "error";
+  text?: string;
+  error?: string;
+};
+
 function formatSeconds(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -50,6 +56,8 @@ function createQuestionRecordings() {
 
 export default function InterviewTrainer() {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [isPaused, setIsPaused] = useState(false);
+  const [endedEarly, setEndedEarly] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [recordingTimeLeft, setRecordingTimeLeft] = useState(RECORDING_SECONDS);
@@ -64,12 +72,16 @@ export default function InterviewTrainer() {
   const [latestRecordingId, setLatestRecordingId] = useState<string | null>(
     null,
   );
+  const [transcripts, setTranscripts] = useState<
+    Record<string, TranscriptState>
+  >({});
 
   const previewRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordingsRef = useRef<QuestionRecording[]>(createQuestionRecordings());
+  const endEarlyRequestedRef = useRef(false);
   const stopRequestedRef = useRef(false);
 
   const currentQuestion = QUESTIONS[currentQuestionIndex];
@@ -116,6 +128,8 @@ export default function InterviewTrainer() {
 
       setIsPreparing(true);
       setError("");
+      setIsPaused(false);
+      endEarlyRequestedRef.current = false;
       stopRequestedRef.current = false;
       stopPreviewStream();
 
@@ -161,6 +175,58 @@ export default function InterviewTrainer() {
     recorder.stop();
   }, []);
 
+  const togglePause = useCallback(() => {
+    if (phase !== "countdown" && phase !== "recording") {
+      return;
+    }
+
+    if (isPaused) {
+      if (phase === "recording" && recorderRef.current?.state === "paused") {
+        try {
+          recorderRef.current.resume();
+        } catch {
+          setError("Unable to resume recording right now.");
+          return;
+        }
+      }
+
+      setError("");
+      setIsPaused(false);
+      return;
+    }
+
+    if (phase === "recording" && recorderRef.current?.state === "recording") {
+      try {
+        recorderRef.current.pause();
+      } catch {
+        setError("Unable to pause recording right now.");
+        return;
+      }
+    }
+
+    setError("");
+    setIsPaused(true);
+  }, [isPaused, phase]);
+
+  const endInterviewEarly = useCallback(() => {
+    if (phase !== "countdown" && phase !== "recording") {
+      return;
+    }
+
+    setError("");
+    setIsPaused(false);
+    setEndedEarly(true);
+    endEarlyRequestedRef.current = true;
+
+    if (phase === "recording") {
+      stopRecording();
+      return;
+    }
+
+    stopPreviewStream();
+    setPhase("review");
+  }, [phase, stopPreviewStream, stopRecording]);
+
   const startRetake = useCallback(
     async (questionIndex: number) => {
       setRetakeQuestionIndex(questionIndex);
@@ -168,6 +234,63 @@ export default function InterviewTrainer() {
     },
     [prepareQuestion],
   );
+
+  const generateTranscript = useCallback(async (recording: Recording) => {
+    setTranscripts((previous) => ({
+      ...previous,
+      [recording.id]: {
+        status: "loading",
+      },
+    }));
+
+    try {
+      const videoResponse = await fetch(recording.videoUrl);
+
+      if (!videoResponse.ok) {
+        throw new Error("Unable to read the recording for transcription.");
+      }
+
+      const videoBlob = await videoResponse.blob();
+      const fileExtension = videoBlob.type.includes("mp4") ? "mp4" : "webm";
+      const formData = new FormData();
+
+      formData.append("file", videoBlob, `${recording.id}.${fileExtension}`);
+
+      const response = await fetch("/api/transcript", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await response.json()) as
+        | {
+            transcript?: string;
+            error?: string;
+          }
+        | undefined;
+
+      if (!response.ok || !data?.transcript) {
+        throw new Error(data?.error ?? "Transcription failed.");
+      }
+
+      setTranscripts((previous) => ({
+        ...previous,
+        [recording.id]: {
+          status: "ready",
+          text: data.transcript,
+        },
+      }));
+    } catch (error) {
+      setTranscripts((previous) => ({
+        ...previous,
+        [recording.id]: {
+          status: "error",
+          error:
+            error instanceof Error
+              ? error.message
+              : "Unable to generate a transcript right now.",
+        },
+      }));
+    }
+  }, []);
 
   const startRecording = useCallback(() => {
     const stream = streamRef.current;
@@ -203,7 +326,9 @@ export default function InterviewTrainer() {
       const videoBlob = new Blob(chunksRef.current, { type: blobType });
       const videoUrl = URL.createObjectURL(videoBlob);
       const recordingId = crypto.randomUUID();
+      const endEarlyRequested = endEarlyRequestedRef.current;
 
+      setIsPaused(false);
       setRecordings((previous) =>
         previous.map((recordingGroup, index) =>
           index === questionIndex
@@ -227,6 +352,12 @@ export default function InterviewTrainer() {
       chunksRef.current = [];
       stopPreviewStream();
 
+      if (endEarlyRequested) {
+        endEarlyRequestedRef.current = false;
+        setPhase("review");
+        return;
+      }
+
       if (isRetakeAttempt) {
         setRetakeQuestionIndex(null);
         setPhase("review");
@@ -245,12 +376,14 @@ export default function InterviewTrainer() {
 
     recorder.onerror = () => {
       setError("Recording failed. Please refresh and try again.");
+      setIsPaused(false);
       recorderRef.current = null;
       stopPreviewStream();
       setPhase("idle");
     };
 
     recorderRef.current = recorder;
+    setIsPaused(false);
     setRecordingTimeLeft(RECORDING_SECONDS);
     setPhase("recording");
     recorder.start();
@@ -263,8 +396,12 @@ export default function InterviewTrainer() {
 
   const startInterview = useCallback(async () => {
     revokeRecordingUrls(recordingsRef.current);
+    endEarlyRequestedRef.current = false;
+    setEndedEarly(false);
+    setIsPaused(false);
     setRetakeQuestionIndex(null);
     setLatestRecordingId(null);
+    setTranscripts({});
     setRecordings(createQuestionRecordings());
     await prepareQuestion(0);
   }, [prepareQuestion, revokeRecordingUrls]);
@@ -289,7 +426,7 @@ export default function InterviewTrainer() {
   }, [phase]);
 
   useEffect(() => {
-    if (phase !== "countdown") {
+    if (phase !== "countdown" || isPaused) {
       return;
     }
 
@@ -303,10 +440,10 @@ export default function InterviewTrainer() {
     }, 1000);
 
     return () => window.clearTimeout(timeoutId);
-  }, [countdown, phase, startRecording]);
+  }, [countdown, isPaused, phase, startRecording]);
 
   useEffect(() => {
-    if (phase !== "recording") {
+    if (phase !== "recording" || isPaused) {
       return;
     }
 
@@ -320,7 +457,7 @@ export default function InterviewTrainer() {
     }, 1000);
 
     return () => window.clearTimeout(timeoutId);
-  }, [phase, recordingTimeLeft, stopRecording]);
+  }, [isPaused, phase, recordingTimeLeft, stopRecording]);
 
   useEffect(() => {
     return () => {
@@ -335,6 +472,9 @@ export default function InterviewTrainer() {
   }, [revokeRecordingUrls, stopPreviewStream]);
 
   const isLocked = phase === "countdown" || phase === "recording";
+  const hasInterviewStarted = phase !== "idle" || isRetaking;
+  const canTogglePause = phase === "countdown" || phase === "recording";
+  const canEndEarly = canTogglePause && !isRetaking;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
@@ -348,11 +488,31 @@ export default function InterviewTrainer() {
               Timed mock interview with real recording
             </h1>
           </div>
-          {phase !== "review" ? (
-            <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
-              {isRetaking
-                ? `Retake for Question ${currentQuestionIndex + 1}`
-                : `Question ${Math.min(currentQuestionIndex + 1, QUESTIONS.length)} of ${QUESTIONS.length}`}
+          {phase !== "review" && hasInterviewStarted ? (
+            <div className="flex items-center gap-3">
+              <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+                {isRetaking
+                  ? `Retake for Question ${currentQuestionIndex + 1}`
+                  : `Question ${Math.min(currentQuestionIndex + 1, QUESTIONS.length)} of ${QUESTIONS.length}`}
+              </div>
+              {canTogglePause ? (
+                <button
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-300 hover:text-cyan-200"
+                  onClick={togglePause}
+                  type="button"
+                >
+                  {isPaused ? "Resume" : "Pause"}
+                </button>
+              ) : null}
+              {canEndEarly ? (
+                <button
+                  className="rounded-full border border-rose-400/30 bg-rose-400/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-300 hover:bg-rose-400/20"
+                  onClick={endInterviewEarly}
+                  type="button"
+                >
+                  End Early
+                </button>
+              ) : null}
             </div>
           ) : null}
         </header>
@@ -369,9 +529,15 @@ export default function InterviewTrainer() {
                     Replay every answer
                   </h2>
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                    Every attempt stays in memory for this session so you can
+                    Every take stays in memory for this session so you can
                     compare the original answer with each retake.
                   </p>
+                  {endedEarly ? (
+                    <p className="mt-4 text-sm leading-6 text-amber-200">
+                      The interview was ended early, so unanswered questions are
+                      marked as having no response.
+                    </p>
+                  ) : null}
                 </div>
                 <button
                   className="rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
@@ -385,6 +551,7 @@ export default function InterviewTrainer() {
               {recordings.map((questionRecording, index) => {
                 const latestAttemptIndex =
                   questionRecording.recordings.length - 1;
+                const hasNoResponse = questionRecording.recordings.length === 0;
 
                 return (
                   <article
@@ -405,58 +572,104 @@ export default function InterviewTrainer() {
                           onClick={() => startRetake(index)}
                           type="button"
                         >
-                          Retake
+                          Add Take
                         </button>
                       </div>
                     </div>
                     <h3 className="text-xl font-medium leading-8 text-white">
                       {questionRecording.question}
                     </h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {questionRecording.recordings.map(
-                        (recording, attemptIndex) => {
-                          const isLatestAttempt =
-                            attemptIndex === latestAttemptIndex;
+                    {hasNoResponse && endedEarly ? (
+                      <div className="rounded-2xl border border-dashed border-amber-300/40 bg-amber-300/10 p-5">
+                        <p className="text-sm font-medium text-amber-100">
+                          No response recorded
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
+                          The interview was ended early before this question was
+                          answered.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {questionRecording.recordings.map(
+                          (recording, attemptIndex) => {
+                            const isLatestAttempt =
+                              attemptIndex === latestAttemptIndex;
 
-                          return (
-                            <div
-                              className={`space-y-3 rounded-2xl border p-4 ${
-                                isLatestAttempt
-                                  ? "border-cyan-400/50 bg-cyan-400/5"
-                                  : "border-white/10 bg-white/5"
-                              }`}
-                              key={recording.id}
-                            >
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-medium text-white">
-                                  Attempt {attemptIndex + 1}
-                                  {attemptIndex === 0 ? " (Original)" : ""}
+                            return (
+                              <div
+                                className={`space-y-3 rounded-2xl border p-4 ${
+                                  isLatestAttempt
+                                    ? "border-cyan-400/50 bg-cyan-400/5"
+                                    : "border-white/10 bg-white/5"
+                                }`}
+                                key={recording.id}
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-sm font-medium text-white">
+                                    Take {attemptIndex + 1}
+                                    {attemptIndex === 0 ? " (Original)" : ""}
+                                  </p>
+                                  {isLatestAttempt ? (
+                                    <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-xs text-cyan-300">
+                                      Latest
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <p className="text-xs text-slate-400">
+                                  {new Date(
+                                    recording.createdAt,
+                                  ).toLocaleTimeString()}
                                 </p>
-                                {isLatestAttempt ? (
-                                  <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-xs text-cyan-300">
-                                    Latest
-                                  </span>
+                                <button
+                                  className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-500"
+                                  disabled={
+                                    transcripts[recording.id]?.status ===
+                                    "loading"
+                                  }
+                                  onClick={() => generateTranscript(recording)}
+                                  type="button"
+                                >
+                                  {transcripts[recording.id]?.status ===
+                                  "loading"
+                                    ? "Generating transcript..."
+                                    : transcripts[recording.id]?.status ===
+                                        "ready"
+                                      ? "Regenerate transcript"
+                                      : "Transcript"}
+                                </button>
+                                {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
+                                <video
+                                  autoPlay={recording.id === latestRecordingId}
+                                  className="w-full rounded-2xl border border-white/10 bg-black"
+                                  controls
+                                  playsInline
+                                  preload="metadata"
+                                  src={recording.videoUrl}
+                                />
+                                {transcripts[recording.id]?.status ===
+                                "ready" ? (
+                                  <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                                    <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
+                                      Transcript
+                                    </p>
+                                    <p className="text-sm leading-6 text-slate-200">
+                                      {transcripts[recording.id]?.text}
+                                    </p>
+                                  </div>
+                                ) : null}
+                                {transcripts[recording.id]?.status ===
+                                "error" ? (
+                                  <p className="text-sm text-rose-300">
+                                    {transcripts[recording.id]?.error}
+                                  </p>
                                 ) : null}
                               </div>
-                              <p className="text-xs text-slate-400">
-                                {new Date(
-                                  recording.createdAt,
-                                ).toLocaleTimeString()}
-                              </p>
-                              {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
-                              <video
-                                autoPlay={recording.id === latestRecordingId}
-                                className="w-full rounded-2xl border border-white/10 bg-black"
-                                controls
-                                playsInline
-                                preload="metadata"
-                                src={recording.videoUrl}
-                              />
-                            </div>
-                          );
-                        },
-                      )}
-                    </div>
+                            );
+                          },
+                        )}
+                      </div>
+                    )}
                   </article>
                 );
               })}
@@ -469,14 +682,23 @@ export default function InterviewTrainer() {
                 ) : null}
 
                 <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-                  {isRetaking
-                    ? `Retaking Question ${currentQuestionIndex + 1}`
-                    : "Current prompt"}
+                  {hasInterviewStarted
+                    ? isRetaking
+                      ? `Retaking Question ${currentQuestionIndex + 1}`
+                      : "Current prompt"
+                    : "Ready when you are"}
                 </p>
                 <div className="flex min-h-[320px] items-center justify-center">
-                  <h2 className="max-w-3xl text-center text-3xl font-semibold leading-tight text-white md:text-5xl">
-                    {currentQuestion}
-                  </h2>
+                  {hasInterviewStarted ? (
+                    <h2 className="max-w-3xl text-center text-3xl font-semibold leading-tight text-white md:text-5xl">
+                      {currentQuestion}
+                    </h2>
+                  ) : (
+                    <p className="max-w-2xl text-center text-lg leading-8 text-slate-300 md:text-xl">
+                      Start the interview to see each prompt one at a time,
+                      record your answer, and review every attempt afterward.
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-center pt-6">
@@ -502,22 +724,44 @@ export default function InterviewTrainer() {
                   {phase === "countdown" ? (
                     <div className="text-center">
                       <p className="text-sm uppercase tracking-[0.3em] text-slate-300">
-                        Recording starts in
+                        {isPaused ? "Interview paused" : "Recording starts in"}
                       </p>
                       <div className="mt-3 text-8xl font-semibold text-cyan-300">
                         {countdown}
                       </div>
+                      {isPaused ? (
+                        <p className="mt-4 text-sm leading-6 text-slate-300">
+                          Take a moment to regroup, then resume when you are
+                          ready to begin recording.
+                        </p>
+                      ) : null}
                     </div>
                   ) : null}
 
                   {phase === "recording" ? (
                     <div className="text-center">
-                      <p className="text-sm uppercase tracking-[0.3em] text-red-300">
-                        Recording live
+                      <p
+                        className={`text-sm uppercase tracking-[0.3em] ${
+                          isPaused ? "text-amber-300" : "text-red-300"
+                        }`}
+                      >
+                        {isPaused ? "Recording paused" : "Recording live"}
                       </p>
                       <div className="mt-3 text-5xl font-semibold text-white">
                         {formatSeconds(recordingTimeLeft)}
                       </div>
+                      {isPaused ? (
+                        <p className="mt-4 text-sm leading-6 text-slate-300">
+                          Notes time is off the clock until you resume.
+                        </p>
+                      ) : null}
+                      <button
+                        className="mt-6 rounded-full border border-cyan-400/40 bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                        onClick={stopRecording}
+                        type="button"
+                      >
+                        Done
+                      </button>
                     </div>
                   ) : null}
                 </div>
@@ -551,8 +795,15 @@ export default function InterviewTrainer() {
                       />
                       {phase === "countdown" ? (
                         <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm leading-6 text-slate-100">
-                          Camera is ready. Recording will begin automatically
-                          after the countdown.
+                          {isPaused
+                            ? "The countdown is paused while you collect your thoughts."
+                            : "Camera is ready. Recording will begin automatically after the countdown."}
+                        </div>
+                      ) : null}
+                      {phase === "recording" && isPaused ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/35 px-6 text-center text-sm leading-6 text-slate-100">
+                          Recording is paused. Resume when you are ready to
+                          continue.
                         </div>
                       ) : null}
                     </>
@@ -585,7 +836,8 @@ export default function InterviewTrainer() {
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300">
                   The interface locks during the timed flow so you can focus on
-                  answering under pressure.
+                  answering under pressure, but you can pause the live interview
+                  whenever you need a moment to regroup.
                 </div>
               </aside>
             </div>
