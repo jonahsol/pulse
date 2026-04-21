@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { PulseLogo } from "@/app/components/interview-trainer/pulse-logo";
 
 type PulseShellProps = {
   children: ReactNode;
@@ -20,9 +21,7 @@ export function PulseShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex shrink-0 items-center justify-between gap-4 px-5 py-4 md:px-8">
-        <span className="text-sm font-semibold tracking-tight text-foreground">
-          Pulse
-        </span>
+        <PulseLogo />
         <Button
           disabled={disableNewSession || isPreparing}
           onClick={onNewSession}
