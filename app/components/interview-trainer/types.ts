@@ -6,6 +6,12 @@ export type Recording = {
   createdAt: number;
 };
 
+export type SavedTake = Recording & {
+  question: string;
+  questionIndex: number;
+  savedAt: number;
+};
+
 export type QuestionRecording = {
   question: string;
   recordings: Recording[];

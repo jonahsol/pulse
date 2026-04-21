@@ -16,10 +16,12 @@ type InterviewPhaseProps = {
   isRetaking: boolean;
   onDoneRecording: () => void;
   onPrimaryAction: () => void;
+  onViewSavedTakes: () => void;
   phase: Phase;
   previewRef: RefObject<HTMLVideoElement | null>;
   recordingSeconds: number;
   recordingTimeLeft: number;
+  savedTakeCount: number;
   startCountdownSeconds: number;
 };
 
@@ -42,10 +44,12 @@ export function InterviewPhase({
   isRetaking,
   onDoneRecording,
   onPrimaryAction,
+  onViewSavedTakes,
   phase,
   previewRef,
   recordingSeconds,
   recordingTimeLeft,
+  savedTakeCount,
   startCountdownSeconds,
 }: InterviewPhaseProps) {
   return (
@@ -101,8 +105,8 @@ export function InterviewPhase({
               </div>
               {isPaused ? (
                 <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Take a moment to regroup, then resume when you are ready to
-                  begin recording.
+                  Take a moment to gather your thoughts, then resume when you
+                  are ready to begin recording.
                 </p>
               ) : null}
             </div>
@@ -201,8 +205,28 @@ export function InterviewPhase({
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300">
           The interface locks during the timed flow so you can focus on
           answering under pressure, but you can pause the live interview
-          whenever you need a moment to regroup.
+          whenever you need a moment to gather your thoughts.
         </div>
+
+        {phase === "idle" && savedTakeCount > 0 ? (
+          <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4">
+            <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
+              Saved takes
+            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-100">
+              {savedTakeCount} bookmarked{" "}
+              {savedTakeCount === 1 ? "take is" : "takes are"} available on this
+              device for later review.
+            </p>
+            <button
+              className="mt-4 rounded-full border border-cyan-300/40 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:text-white"
+              onClick={onViewSavedTakes}
+              type="button"
+            >
+              Review saved takes
+            </button>
+          </div>
+        ) : null}
       </aside>
     </div>
   );

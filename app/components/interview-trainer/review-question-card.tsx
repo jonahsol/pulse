@@ -6,25 +6,58 @@ type ReviewQuestionCardProps = {
   endedEarly: boolean;
   isLocked: boolean;
   isPreparing: boolean;
+  isSavingRecordingId: string | null;
   latestRecordingId: string | null;
   onGenerateTranscript: (recording: Recording) => void;
   onStartRetake: (questionIndex: number) => void;
+  onToggleBookmark: (input: {
+    question: string;
+    questionIndex: number;
+    recording: Recording;
+  }) => void;
   questionIndex: number;
   questionRecording: QuestionRecording;
   recordingSeconds: number;
+  savedTakeIds: string[];
   transcripts: Record<string, TranscriptState>;
 };
+
+function BookmarkIcon({
+  className,
+  filled = false,
+}: {
+  className?: string;
+  filled?: boolean;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M7 4.75A1.75 1.75 0 0 1 8.75 3h6.5A1.75 1.75 0 0 1 17 4.75V21l-5-3.2L7 21V4.75Z" />
+    </svg>
+  );
+}
 
 export function ReviewQuestionCard({
   endedEarly,
   isLocked,
   isPreparing,
+  isSavingRecordingId,
   latestRecordingId,
   onGenerateTranscript,
   onStartRetake,
+  onToggleBookmark,
   questionIndex,
   questionRecording,
   recordingSeconds,
+  savedTakeIds,
   transcripts,
 }: ReviewQuestionCardProps) {
   const latestAttemptIndex = questionRecording.recordings.length - 1;
@@ -55,19 +88,23 @@ export function ReviewQuestionCard({
         {questionRecording.question}
       </h3>
 
-      {hasNoResponse && endedEarly ? (
+      {hasNoResponse ? (
         <div className="rounded-2xl border border-dashed border-amber-300/40 bg-amber-300/10 p-5">
           <p className="text-sm font-medium text-amber-100">
-            No response recorded
+            {endedEarly ? "No response recorded" : "No takes recorded yet"}
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            The interview was ended early before this question was answered.
+            {endedEarly
+              ? "The interview was ended early before this question was answered."
+              : "Record an answer for this prompt to start building a review history."}
           </p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {questionRecording.recordings.map((recording, attemptIndex) => {
             const isLatestAttempt = attemptIndex === latestAttemptIndex;
+            const isSaved = savedTakeIds.includes(recording.id);
+            const isSaving = isSavingRecordingId === recording.id;
 
             return (
               <div
@@ -92,18 +129,44 @@ export function ReviewQuestionCard({
                 <p className="text-xs text-slate-400">
                   {new Date(recording.createdAt).toLocaleTimeString()}
                 </p>
-                <button
-                  className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-500"
-                  disabled={transcripts[recording.id]?.status === "loading"}
-                  onClick={() => onGenerateTranscript(recording)}
-                  type="button"
-                >
-                  {transcripts[recording.id]?.status === "loading"
-                    ? "Generating transcript..."
-                    : transcripts[recording.id]?.status === "ready"
-                      ? "Regenerate transcript"
-                      : "Transcript"}
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    aria-pressed={isSaved}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed ${
+                      isSaved
+                        ? "border-cyan-300/40 bg-cyan-400/10 text-cyan-100 hover:border-cyan-200"
+                        : "border-white/10 text-slate-100 hover:border-cyan-300 hover:text-cyan-200"
+                    } disabled:border-white/10 disabled:text-slate-500`}
+                    disabled={isSaving}
+                    onClick={() =>
+                      onToggleBookmark({
+                        question: questionRecording.question,
+                        questionIndex,
+                        recording,
+                      })
+                    }
+                    type="button"
+                  >
+                    <BookmarkIcon className="h-4 w-4" filled={isSaved} />
+                    {isSaving
+                      ? "Saving..."
+                      : isSaved
+                        ? "Bookmarked"
+                        : "Bookmark"}
+                  </button>
+                  <button
+                    className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-500"
+                    disabled={transcripts[recording.id]?.status === "loading"}
+                    onClick={() => onGenerateTranscript(recording)}
+                    type="button"
+                  >
+                    {transcripts[recording.id]?.status === "loading"
+                      ? "Generating transcript..."
+                      : transcripts[recording.id]?.status === "ready"
+                        ? "Regenerate transcript"
+                        : "Transcript"}
+                  </button>
+                </div>
                 {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
                 <video
                   autoPlay={recording.id === latestRecordingId}

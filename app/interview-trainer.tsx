@@ -9,17 +9,20 @@ import type {
   Phase,
   QuestionRecording,
   Recording,
+  SavedTake,
   TranscriptState,
 } from "./components/interview-trainer/types";
 
 const QUESTIONS = [
   "Tell me about yourself and the kind of work that energizes you.",
   "Describe a challenging project you owned and how you handled trade-offs.",
+  "Describe a time you had to deliver a project on a very tight deadline.",
   "Why are you interested in this role, and what would you want to accomplish first?",
 ];
 
 const COUNTDOWN_SECONDS = 5;
 const RECORDING_SECONDS = 60;
+const BOOKMARKED_TAKES_STORAGE_KEY = "interview-trainer:bookmarked-takes";
 
 function getSupportedMimeType() {
   const mimeTypes = [
@@ -36,6 +39,84 @@ function createQuestionRecordings() {
     question,
     recordings: [],
   }));
+}
+
+function isSavedTake(value: unknown): value is SavedTake {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<SavedTake>;
+
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.videoUrl === "string" &&
+    typeof candidate.createdAt === "number" &&
+    typeof candidate.question === "string" &&
+    typeof candidate.questionIndex === "number" &&
+    typeof candidate.savedAt === "number"
+  );
+}
+
+function sortSavedTakes(savedTakes: SavedTake[]) {
+  return [...savedTakes].sort((left, right) => right.savedAt - left.savedAt);
+}
+
+function readSavedTakesFromStorage() {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const rawSavedTakes = window.localStorage.getItem(
+      BOOKMARKED_TAKES_STORAGE_KEY,
+    );
+
+    if (!rawSavedTakes) {
+      return [];
+    }
+
+    const parsedSavedTakes = JSON.parse(rawSavedTakes) as unknown;
+
+    if (!Array.isArray(parsedSavedTakes)) {
+      return [];
+    }
+
+    return sortSavedTakes(parsedSavedTakes.filter(isSavedTake));
+  } catch {
+    return [];
+  }
+}
+
+function writeSavedTakesToStorage(savedTakes: SavedTake[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(
+    BOOKMARKED_TAKES_STORAGE_KEY,
+    JSON.stringify(savedTakes),
+  );
+}
+
+function blobToDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("Unable to read the saved take."));
+    };
+    reader.onerror = () => {
+      reject(new Error("Unable to read the saved take."));
+    };
+
+    reader.readAsDataURL(blob);
+  });
 }
 
 export default function InterviewTrainer() {
@@ -59,6 +140,11 @@ export default function InterviewTrainer() {
   const [transcripts, setTranscripts] = useState<
     Record<string, TranscriptState>
   >({});
+  const [savedTakes, setSavedTakes] = useState<SavedTake[]>([]);
+  const [bookmarkError, setBookmarkError] = useState("");
+  const [isSavingRecordingId, setIsSavingRecordingId] = useState<string | null>(
+    null,
+  );
 
   const previewRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -217,6 +303,77 @@ export default function InterviewTrainer() {
       await prepareQuestion(questionIndex);
     },
     [prepareQuestion],
+  );
+
+  const persistSavedTakes = useCallback((nextSavedTakes: SavedTake[]) => {
+    const sortedSavedTakes = sortSavedTakes(nextSavedTakes);
+
+    setSavedTakes(sortedSavedTakes);
+    writeSavedTakesToStorage(sortedSavedTakes);
+  }, []);
+
+  const removeBookmark = useCallback((savedTakeId: string) => {
+    setBookmarkError("");
+
+    setSavedTakes((previous) => {
+      const nextSavedTakes = previous.filter(
+        (savedTake) => savedTake.id !== savedTakeId,
+      );
+
+      writeSavedTakesToStorage(nextSavedTakes);
+
+      return nextSavedTakes;
+    });
+  }, []);
+
+  const toggleBookmark = useCallback(
+    async ({
+      question,
+      questionIndex,
+      recording,
+    }: {
+      question: string;
+      questionIndex: number;
+      recording: Recording;
+    }) => {
+      setBookmarkError("");
+
+      if (savedTakes.some((savedTake) => savedTake.id === recording.id)) {
+        removeBookmark(recording.id);
+        return;
+      }
+
+      setIsSavingRecordingId(recording.id);
+
+      try {
+        const videoResponse = await fetch(recording.videoUrl);
+
+        if (!videoResponse.ok) {
+          throw new Error("Unable to read this take for bookmarking.");
+        }
+
+        const videoBlob = await videoResponse.blob();
+        const savedVideoUrl = await blobToDataUrl(videoBlob);
+        const savedTake: SavedTake = {
+          ...recording,
+          question,
+          questionIndex,
+          savedAt: Date.now(),
+          videoUrl: savedVideoUrl,
+        };
+
+        persistSavedTakes([...savedTakes, savedTake]);
+      } catch (error) {
+        setBookmarkError(
+          error instanceof Error
+            ? error.message
+            : "Unable to bookmark this take right now.",
+        );
+      } finally {
+        setIsSavingRecordingId(null);
+      }
+    },
+    [persistSavedTakes, removeBookmark, savedTakes],
   );
 
   const generateTranscript = useCallback(async (recording: Recording) => {
@@ -383,6 +540,7 @@ export default function InterviewTrainer() {
     endEarlyRequestedRef.current = false;
     setEndedEarly(false);
     setIsPaused(false);
+    setBookmarkError("");
     setRetakeQuestionIndex(null);
     setLatestRecordingId(null);
     setTranscripts({});
@@ -390,9 +548,23 @@ export default function InterviewTrainer() {
     await prepareQuestion(0);
   }, [prepareQuestion, revokeRecordingUrls]);
 
+  const viewSavedTakes = useCallback(() => {
+    setBookmarkError("");
+    setError("");
+    setEndedEarly(false);
+    setIsPaused(false);
+    setRetakeQuestionIndex(null);
+    setLatestRecordingId(null);
+    setPhase("review");
+  }, []);
+
   useEffect(() => {
     recordingsRef.current = recordings;
   }, [recordings]);
+
+  useEffect(() => {
+    setSavedTakes(readSavedTakesFromStorage());
+  }, []);
 
   useEffect(() => {
     if (
@@ -489,15 +661,20 @@ export default function InterviewTrainer() {
         <section className="flex flex-1 items-center justify-center py-10">
           {phase === "review" ? (
             <ReviewPhase
+              bookmarkError={bookmarkError}
               endedEarly={endedEarly}
               isLocked={isLocked}
               isPreparing={isPreparing}
+              isSavingRecordingId={isSavingRecordingId}
               latestRecordingId={latestRecordingId}
               onGenerateTranscript={generateTranscript}
+              onRemoveBookmark={removeBookmark}
               onRestartInterview={startInterview}
               onStartRetake={startRetake}
+              onToggleBookmark={toggleBookmark}
               recordings={recordings}
               recordingSeconds={RECORDING_SECONDS}
+              savedTakes={savedTakes}
               transcripts={transcripts}
             />
           ) : (
@@ -517,10 +694,12 @@ export default function InterviewTrainer() {
                   ? startRetake(currentQuestionIndex)
                   : startInterview()
               }
+              onViewSavedTakes={viewSavedTakes}
               phase={phase}
               previewRef={previewRef}
               recordingSeconds={RECORDING_SECONDS}
               recordingTimeLeft={recordingTimeLeft}
+              savedTakeCount={savedTakes.length}
               startCountdownSeconds={COUNTDOWN_SECONDS}
             />
           )}

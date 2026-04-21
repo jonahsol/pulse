@@ -9,6 +9,7 @@ The current product is a single-purpose web application for timed mock interview
 - sequential interview prompts
 - webcam and microphone recording
 - in-session playback of recorded takes
+- bookmark-based saving of selected takes to local browser storage
 - optional transcript generation through a server endpoint
 
 It is not yet a multi-area product with authentication, persistence, dashboards, or a content management layer.
@@ -27,12 +28,13 @@ The implemented system is centered on one primary experience:
 2. Move through prompts one at a time.
 3. Record each answer with a fixed time limit.
 4. Review all recorded takes.
-5. Optionally retake a question or request a transcript.
+5. Bookmark selected takes for later.
+6. Optionally retake a question or request a transcript.
 
 ### Architecture style
 
 - Frontend-first single-route experience
-- Client-managed session state
+- Client-managed session state with local browser persistence for bookmarked takes
 - One server endpoint for transcription
 - No database-backed domain model
 - No user accounts or stored sessions
@@ -62,6 +64,7 @@ The implemented system is centered on one primary experience:
 | Active interview screen | `InterviewPhase` | Start, countdown, recording, live preview, and guidance |
 | Review screen | `ReviewPhase` | Session recap and list of question review cards |
 | Question review card | `ReviewQuestionCard` | Replay takes, request transcript, and add a retake |
+| Saved takes panel | `SavedTakesPanel` | Shows bookmarked takes restored from local browser storage |
 
 ## Screen and State Model
 
@@ -74,7 +77,7 @@ The system behaves more like a guided workflow than a multi-page site. The core 
 | `idle` | Interview has not started | Understand the experience and begin |
 | `countdown` | Camera is ready and recording is about to start | Prepare for the answer |
 | `recording` | Active timed response capture | Deliver the answer |
-| `review` | User has completed or exited the flow | Replay, compare, retake, and transcribe |
+| `review` | User has completed or exited the flow, or opened saved takes | Replay, compare, bookmark, retake, and transcribe |
 
 ### State transitions
 
@@ -118,10 +121,12 @@ review
 #### `review`
 
 - Review introduction and restart action
+- Saved takes panel for bookmarked answers restored from local storage
 - One review card per question
 - Each card contains:
   - question prompt
   - recorded takes
+  - bookmark action
   - playback controls
   - transcript action and transcript output state
   - retake action
@@ -135,6 +140,7 @@ review
 | Interview | A single session spanning all prompts | In memory only |
 | Question | A fixed prompt in the interview sequence | Hard-coded in the client |
 | Recording | A captured answer attempt for one question | Browser blob URL only |
+| Saved Take | A bookmarked recording persisted in the browser | `localStorage` |
 | Transcript | Generated text for a recording | In memory only |
 
 ### Object relationships
@@ -145,6 +151,8 @@ Interview
 Question
   -> many Recordings
 Recording
+  -> can become a Saved Take
+Saved Take
   -> zero or one Transcript state at a time
 ```
 
@@ -155,6 +163,7 @@ Recording
 | Question list | `QUESTIONS` constant in `app/interview-trainer.tsx` |
 | Interview phase | React state in `app/interview-trainer.tsx` |
 | Recording collections | React state in `app/interview-trainer.tsx` |
+| Saved takes | `localStorage` plus React state hydration in `app/interview-trainer.tsx` |
 | Transcript request/result state | React state in `app/interview-trainer.tsx` |
 | Transcript text | Response from `POST /api/transcript` |
 
@@ -168,7 +177,16 @@ Recording
 4. User sees question-by-question countdown and recording flow.
 5. Each finished answer becomes a new recording under its question.
 6. After all questions, or after ending early, the app moves to review.
-7. User replays answers, generates transcripts, or retakes individual questions.
+7. User replays answers, bookmarks selected takes, generates transcripts, or retakes individual questions.
+
+### Bookmark flow
+
+1. User opens review.
+2. User selects `Bookmark` on a take.
+3. Client reads the recording blob and converts it to a persistent data URL.
+4. Client stores the saved take in `localStorage`.
+5. On later visits, the app hydrates bookmarked takes from `localStorage`.
+6. User can open `Review saved takes` from the idle screen or view them inside review.
 
 ### Retake flow
 
@@ -194,10 +212,12 @@ The app currently has almost no conventional site navigation.
 - The top header is contextual, not global navigation.
 - Movement through the product happens through workflow controls:
   - start interview
+  - review saved takes
   - pause/resume
   - done
   - end early
   - restart interview
+  - bookmark
   - add take
   - transcript
 
@@ -212,6 +232,7 @@ Acts as the orchestration layer:
 - owns the interview state machine
 - manages media stream lifecycle
 - creates and stores recordings
+- hydrates and persists bookmarked takes in local storage
 - handles pause/resume and early exit
 - requests transcripts
 - switches between active interview and review UI
@@ -224,12 +245,14 @@ Owns the active-session presentation:
 - start/countdown/recording UI
 - live preview area
 - timing summary and helper copy
+- entry point to review saved takes from the idle state
 
 ### `app/components/interview-trainer/review-phase.tsx`
 
 Owns the review-level summary:
 
 - review intro
+- saved takes summary and persistence messaging
 - restart action
 - rendering of per-question review cards
 
@@ -238,10 +261,20 @@ Owns the review-level summary:
 Owns question-level review detail:
 
 - take list
+- bookmark action
 - playback
 - transcript action states
 - retake entry point
 - unanswered state after early exit
+
+### `app/components/interview-trainer/saved-takes-panel.tsx`
+
+Owns persistent saved-take review:
+
+- restored saved take list
+- playback of bookmarked answers
+- remove-bookmark action
+- transcript entry point for saved takes
 
 ## Integration Architecture
 
@@ -253,6 +286,7 @@ Owns question-level review detail:
 | `MediaRecorder` | Captures interview responses |
 | `URL.createObjectURL` | Creates local playback URLs for recordings |
 | `URL.revokeObjectURL` | Cleans up local recording URLs |
+| `localStorage` | Persists bookmarked takes between visits on the same device |
 
 ### Server-side integration
 
@@ -270,21 +304,20 @@ Owns question-level review detail:
 
 ### What persists
 
-Very little persists today.
-
 - Source code
 - hard-coded prompts
 - app metadata and styling
+- bookmarked takes stored in `localStorage`
 
 ### What does not persist
 
 - interviews
-- recordings
+- non-bookmarked recordings
 - transcripts
 - question progress
 - retake history across reloads
 
-Everything user-generated is session-local and disappears on refresh or restart.
+Only bookmarked takes persist across visits. Other user-generated state disappears on refresh or restart.
 
 ## Known Structural Boundaries
 
@@ -314,15 +347,16 @@ These files create a secondary structural layer in the repo, but they do not rep
 - Very clear single-user journey
 - Low cognitive load because the product is centered on one task
 - Review architecture supports comparison across original and retake attempts
+- Bookmarked takes now create a lightweight persistent review layer without requiring accounts
 - State names and UI boundaries are aligned with the actual workflow
 
 ### Current limitations
 
-- No persisted content model
 - No separation between domain logic and container logic in the main page component
 - No route-level segmentation for future areas such as history, settings, or prompt management
 - Hard-coded questions limit extensibility
-- IA is workflow-centric but not yet content- or account-centric
+- Persistence is local-only and device-specific
+- IA is still workflow-centric rather than account- or library-centric
 
 ## Recommended Future IA Expansion
 
