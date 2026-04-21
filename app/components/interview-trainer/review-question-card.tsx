@@ -1,5 +1,10 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import type { QuestionRecording, Recording, TranscriptState } from "./types";
 
 type ReviewQuestionCardProps = {
@@ -64,138 +69,142 @@ export function ReviewQuestionCard({
   const hasNoResponse = questionRecording.recordings.length === 0;
 
   return (
-    <article className="space-y-5 rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/30">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm uppercase tracking-[0.25em] text-cyan-300">
-          Question {questionIndex + 1}
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">
-            {recordingSeconds}s limit
-          </span>
-          <button
-            className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+    <Card className="border-border/80 bg-card/90 shadow-none backdrop-blur-sm">
+      <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
+          <Badge variant="secondary">Question {questionIndex + 1}</Badge>
+          <CardTitle className="text-lg font-medium leading-snug">
+            {questionRecording.question}
+          </CardTitle>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">{recordingSeconds}s limit</Badge>
+          <Button
             disabled={isPreparing || isLocked}
             onClick={() => onStartRetake(questionIndex)}
+            size="sm"
             type="button"
           >
-            Add Take
-          </button>
+            Add take
+          </Button>
         </div>
-      </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {hasNoResponse ? (
+          <Alert>
+            <AlertTitle>
+              {endedEarly ? "No response recorded" : "No takes yet"}
+            </AlertTitle>
+            <AlertDescription>
+              {endedEarly
+                ? "The interview ended before this prompt was answered."
+                : "Record an answer to build a history for this prompt."}
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="grid gap-4">
+            {questionRecording.recordings.map((recording, attemptIndex) => {
+              const isLatestAttempt = attemptIndex === latestAttemptIndex;
+              const isSaved = savedTakeIds.includes(recording.id);
+              const isSaving = isSavingRecordingId === recording.id;
 
-      <h3 className="text-xl font-medium leading-8 text-white">
-        {questionRecording.question}
-      </h3>
-
-      {hasNoResponse ? (
-        <div className="rounded-2xl border border-dashed border-amber-300/40 bg-amber-300/10 p-5">
-          <p className="text-sm font-medium text-amber-100">
-            {endedEarly ? "No response recorded" : "No takes recorded yet"}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            {endedEarly
-              ? "The interview was ended early before this question was answered."
-              : "Record an answer for this prompt to start building a review history."}
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {questionRecording.recordings.map((recording, attemptIndex) => {
-            const isLatestAttempt = attemptIndex === latestAttemptIndex;
-            const isSaved = savedTakeIds.includes(recording.id);
-            const isSaving = isSavingRecordingId === recording.id;
-
-            return (
-              <div
-                className={`space-y-3 rounded-2xl border p-4 ${
-                  isLatestAttempt
-                    ? "border-cyan-400/50 bg-cyan-400/5"
-                    : "border-white/10 bg-white/5"
-                }`}
-                key={recording.id}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-white">
-                    Take {attemptIndex + 1}
-                    {attemptIndex === 0 ? " (Original)" : ""}
-                  </p>
-                  {isLatestAttempt ? (
-                    <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-xs text-cyan-300">
-                      Latest
+              return (
+                <Card
+                  className={
+                    isLatestAttempt
+                      ? "border-primary/40 bg-primary/5 shadow-none"
+                      : "bg-muted/30 shadow-none"
+                  }
+                  key={recording.id}
+                  size="sm"
+                >
+                  <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium">
+                        Take {attemptIndex + 1}
+                        {attemptIndex === 0 ? " · Original" : ""}
+                      </span>
+                      {isLatestAttempt ? (
+                        <Badge variant="secondary">Latest</Badge>
+                      ) : null}
+                    </div>
+                    <span className="text-muted-foreground text-xs">
+                      {new Date(recording.createdAt).toLocaleTimeString()}
                     </span>
-                  ) : null}
-                </div>
-                <p className="text-xs text-slate-400">
-                  {new Date(recording.createdAt).toLocaleTimeString()}
-                </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    aria-pressed={isSaved}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed ${
-                      isSaved
-                        ? "border-cyan-300/40 bg-cyan-400/10 text-cyan-100 hover:border-cyan-200"
-                        : "border-white/10 text-slate-100 hover:border-cyan-300 hover:text-cyan-200"
-                    } disabled:border-white/10 disabled:text-slate-500`}
-                    disabled={isSaving}
-                    onClick={() =>
-                      onToggleBookmark({
-                        question: questionRecording.question,
-                        questionIndex,
-                        recording,
-                      })
-                    }
-                    type="button"
-                  >
-                    <BookmarkIcon className="h-4 w-4" filled={isSaved} />
-                    {isSaving
-                      ? "Saving..."
-                      : isSaved
-                        ? "Bookmarked"
-                        : "Bookmark"}
-                  </button>
-                  <button
-                    className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-500"
-                    disabled={transcripts[recording.id]?.status === "loading"}
-                    onClick={() => onGenerateTranscript(recording)}
-                    type="button"
-                  >
-                    {transcripts[recording.id]?.status === "loading"
-                      ? "Generating transcript..."
-                      : transcripts[recording.id]?.status === "ready"
-                        ? "Regenerate transcript"
-                        : "Transcript"}
-                  </button>
-                </div>
-                {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
-                <video
-                  autoPlay={recording.id === latestRecordingId}
-                  className="w-full rounded-2xl border border-white/10 bg-black"
-                  controls
-                  playsInline
-                  preload="metadata"
-                  src={recording.videoUrl}
-                />
-                {transcripts[recording.id]?.status === "ready" ? (
-                  <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                    <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
-                      Transcript
-                    </p>
-                    <p className="text-sm leading-6 text-slate-200">
-                      {transcripts[recording.id]?.text}
-                    </p>
-                  </div>
-                ) : null}
-                {transcripts[recording.id]?.status === "error" ? (
-                  <p className="text-sm text-rose-300">
-                    {transcripts[recording.id]?.error}
-                  </p>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </article>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        aria-pressed={isSaved}
+                        disabled={isSaving}
+                        onClick={() =>
+                          onToggleBookmark({
+                            question: questionRecording.question,
+                            questionIndex,
+                            recording,
+                          })
+                        }
+                        size="sm"
+                        type="button"
+                        variant={isSaved ? "secondary" : "outline"}
+                      >
+                        <BookmarkIcon className="size-4" filled={isSaved} />
+                        {isSaving
+                          ? "Saving…"
+                          : isSaved
+                            ? "Bookmarked"
+                            : "Bookmark"}
+                      </Button>
+                      <Button
+                        disabled={
+                          transcripts[recording.id]?.status === "loading"
+                        }
+                        onClick={() => onGenerateTranscript(recording)}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        {transcripts[recording.id]?.status === "loading"
+                          ? "Generating transcript…"
+                          : transcripts[recording.id]?.status === "ready"
+                            ? "Regenerate transcript"
+                            : "Transcript"}
+                      </Button>
+                    </div>
+                    {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
+                    <video
+                      autoPlay={recording.id === latestRecordingId}
+                      className="w-full rounded-lg border border-border bg-black"
+                      controls
+                      playsInline
+                      preload="metadata"
+                      src={recording.videoUrl}
+                    />
+                    {transcripts[recording.id]?.status === "ready" ? (
+                      <div className="bg-muted/40 space-y-2 rounded-lg border border-border/80 p-3">
+                        <p className="text-primary text-xs tracking-wide uppercase">
+                          Transcript
+                        </p>
+                        <p className="text-sm leading-relaxed">
+                          {transcripts[recording.id]?.text}
+                        </p>
+                      </div>
+                    ) : null}
+                    {transcripts[recording.id]?.status === "error" ? (
+                      <Alert variant="destructive">
+                        <AlertTitle>Transcript</AlertTitle>
+                        <AlertDescription>
+                          {transcripts[recording.id]?.error}
+                        </AlertDescription>
+                      </Alert>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

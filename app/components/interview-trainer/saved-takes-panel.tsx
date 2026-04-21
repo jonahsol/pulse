@@ -1,5 +1,16 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import type { Recording, SavedTake, TranscriptState } from "./types";
 
 type SavedTakesPanelProps = {
@@ -43,101 +54,93 @@ export function SavedTakesPanel({
   }
 
   return (
-    <section className="space-y-5 rounded-3xl border border-cyan-400/20 bg-cyan-400/5 p-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-            Saved takes
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">
-            Bookmarked for later review
-          </h3>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Saved takes stay in local browser storage on this device, so you can
-            come back and review them across sessions.
-          </p>
+    <Card className="border-primary/30 bg-primary/5 shadow-none backdrop-blur-sm">
+      <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
+          <CardTitle className="text-lg">Saved takes</CardTitle>
+          <CardDescription>
+            Stored in this browser so you can revisit them later.
+          </CardDescription>
         </div>
-        <span className="rounded-full border border-cyan-400/30 px-4 py-2 text-sm text-cyan-100">
+        <Badge variant="secondary">
           {savedTakes.length} saved {savedTakes.length === 1 ? "take" : "takes"}
-        </span>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
+        </Badge>
+      </CardHeader>
+      <CardContent className="grid gap-4">
         {savedTakes.map((savedTake) => (
-          <article
-            className="space-y-4 rounded-2xl border border-white/10 bg-slate-950/60 p-4"
-            key={savedTake.id}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
+          <Card className="bg-card/90 shadow-none" key={savedTake.id} size="sm">
+            <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <Badge variant="outline">
                   Question {savedTake.questionIndex + 1}
-                </p>
-                <p className="mt-2 text-sm font-medium text-white">
+                </Badge>
+                <CardTitle className="text-base font-medium leading-snug">
                   {savedTake.question}
-                </p>
+                </CardTitle>
               </div>
-              <button
+              <Button
                 aria-label="Remove bookmark"
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 px-3 py-2 text-sm font-medium text-cyan-100 transition hover:border-cyan-200 hover:text-white"
                 onClick={() => onRemoveBookmark(savedTake.id)}
+                size="sm"
                 type="button"
+                variant="outline"
               >
-                <BookmarkIcon className="h-4 w-4" filled />
+                <BookmarkIcon className="size-4" filled />
                 Saved
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-400">
-              Recorded {new Date(savedTake.createdAt).toLocaleString()}
-            </p>
-
-            {/* biome-ignore lint/a11y/useMediaCaption: Saved interview recordings do not have generated captions in this prototype. */}
-            <video
-              className="w-full rounded-2xl border border-white/10 bg-black"
-              controls
-              playsInline
-              preload="metadata"
-              src={savedTake.videoUrl}
-            />
-
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-500"
-                disabled={transcripts[savedTake.id]?.status === "loading"}
-                onClick={() => onGenerateTranscript(savedTake)}
-                type="button"
-              >
-                {transcripts[savedTake.id]?.status === "loading"
-                  ? "Generating transcript..."
-                  : transcripts[savedTake.id]?.status === "ready"
-                    ? "Regenerate transcript"
-                    : "Transcript"}
-              </button>
-              <p className="text-xs text-slate-400">
-                Saved {new Date(savedTake.savedAt).toLocaleString()}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-muted-foreground text-xs">
+                Recorded {new Date(savedTake.createdAt).toLocaleString()}
               </p>
-            </div>
-
-            {transcripts[savedTake.id]?.status === "ready" ? (
-              <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
-                  Transcript
-                </p>
-                <p className="text-sm leading-6 text-slate-200">
-                  {transcripts[savedTake.id]?.text}
-                </p>
+              {/* biome-ignore lint/a11y/useMediaCaption: Saved interview recordings do not have generated captions in this prototype. */}
+              <video
+                className="w-full rounded-lg border border-border bg-black"
+                controls
+                playsInline
+                preload="metadata"
+                src={savedTake.videoUrl}
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  disabled={transcripts[savedTake.id]?.status === "loading"}
+                  onClick={() => onGenerateTranscript(savedTake)}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  {transcripts[savedTake.id]?.status === "loading"
+                    ? "Generating transcript…"
+                    : transcripts[savedTake.id]?.status === "ready"
+                      ? "Regenerate transcript"
+                      : "Transcript"}
+                </Button>
+                <span className="text-muted-foreground text-xs">
+                  Saved {new Date(savedTake.savedAt).toLocaleString()}
+                </span>
               </div>
-            ) : null}
-
-            {transcripts[savedTake.id]?.status === "error" ? (
-              <p className="text-sm text-rose-300">
-                {transcripts[savedTake.id]?.error}
-              </p>
-            ) : null}
-          </article>
+              {transcripts[savedTake.id]?.status === "ready" ? (
+                <div className="bg-muted/40 space-y-2 rounded-lg border border-border/80 p-3">
+                  <p className="text-primary text-xs tracking-wide uppercase">
+                    Transcript
+                  </p>
+                  <p className="text-sm leading-relaxed">
+                    {transcripts[savedTake.id]?.text}
+                  </p>
+                </div>
+              ) : null}
+              {transcripts[savedTake.id]?.status === "error" ? (
+                <Alert variant="destructive">
+                  <AlertTitle>Transcript</AlertTitle>
+                  <AlertDescription>
+                    {transcripts[savedTake.id]?.error}
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+            </CardContent>
+          </Card>
         ))}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

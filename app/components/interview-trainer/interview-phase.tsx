@@ -2,9 +2,22 @@
 
 import type { RefObject } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
 import type { Phase } from "./types";
 
 type InterviewPhaseProps = {
+  canEndEarly: boolean;
+  canTogglePause: boolean;
   countdown: number;
   currentQuestion: string;
   currentQuestionIndex: number;
@@ -15,12 +28,15 @@ type InterviewPhaseProps = {
   isPreparing: boolean;
   isRetaking: boolean;
   onDoneRecording: () => void;
+  onEndEarly: () => void;
   onPrimaryAction: () => void;
+  onTogglePause: () => void;
   onViewSavedTakes: () => void;
   phase: Phase;
   previewRef: RefObject<HTMLVideoElement | null>;
+  questionCount: number;
+  recordingElapsedSeconds: number;
   recordingSeconds: number;
-  recordingTimeLeft: number;
   savedTakeCount: number;
   startCountdownSeconds: number;
 };
@@ -33,6 +49,8 @@ function formatSeconds(totalSeconds: number) {
 }
 
 export function InterviewPhase({
+  canEndEarly,
+  canTogglePause,
   countdown,
   currentQuestion,
   currentQuestionIndex,
@@ -43,191 +61,256 @@ export function InterviewPhase({
   isPreparing,
   isRetaking,
   onDoneRecording,
+  onEndEarly,
   onPrimaryAction,
+  onTogglePause,
   onViewSavedTakes,
   phase,
   previewRef,
+  questionCount,
+  recordingElapsedSeconds,
   recordingSeconds,
-  recordingTimeLeft,
   savedTakeCount,
   startCountdownSeconds,
 }: InterviewPhaseProps) {
-  return (
-    <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 md:p-12">
-        {isLocked ? (
-          <div className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-cyan-400/20" />
-        ) : null}
+  const showSessionTools = canTogglePause;
+  const questionHeading =
+    hasInterviewStarted && !isRetaking
+      ? `Question ${Math.min(currentQuestionIndex + 1, questionCount)} of ${questionCount}`
+      : isRetaking
+        ? `Retake · Question ${currentQuestionIndex + 1}`
+        : null;
 
-        <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-          {hasInterviewStarted
-            ? isRetaking
-              ? `Retaking Question ${currentQuestionIndex + 1}`
-              : "Current prompt"
-            : "Ready when you are"}
-        </p>
-        <div className="flex min-h-[320px] items-center justify-center">
+  return (
+    <Card className="relative w-full border-border/80 bg-card/80 shadow-none backdrop-blur-sm transition-opacity duration-300">
+      {isLocked ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[1] rounded-xl ring-1 ring-primary/25 ring-inset"
+        />
+      ) : null}
+      <CardHeader className="gap-4 space-y-0 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="font-normal tracking-wide" variant="secondary">
+              {isRetaking ? "Retake" : hasInterviewStarted ? "Live" : "Ready"}
+            </Badge>
+            {questionHeading ? (
+              <span className="text-muted-foreground text-xs">
+                {questionHeading}
+              </span>
+            ) : null}
+          </div>
+          {showSessionTools ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                onClick={onTogglePause}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                {isPaused ? "Resume" : "Pause"}
+              </Button>
+              {canEndEarly ? (
+                <Button
+                  onClick={onEndEarly}
+                  size="sm"
+                  type="button"
+                  variant="destructive"
+                >
+                  End early
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        <Separator />
+
+        <div
+          className={`transition-all duration-300 ${
+            phase === "recording" ? "text-center" : "text-center md:px-2"
+          }`}
+        >
           {hasInterviewStarted ? (
-            <h2 className="max-w-3xl text-center text-3xl font-semibold leading-tight text-white md:text-5xl">
+            <h2
+              className={`font-semibold leading-tight tracking-tight transition-all duration-300 ${
+                phase === "recording"
+                  ? "text-foreground/90 text-lg md:text-xl"
+                  : "text-3xl md:text-4xl"
+              }`}
+            >
               {currentQuestion}
             </h2>
           ) : (
-            <p className="max-w-2xl text-center text-lg leading-8 text-slate-300 md:text-xl">
-              Start the interview to see each prompt one at a time, record your
-              answer, and review every attempt afterward.
+            <p className="text-muted-foreground text-base leading-relaxed md:text-lg">
+              One prompt at a time, timed recording, then review. Start when you
+              are ready.
             </p>
           )}
         </div>
+      </CardHeader>
 
-        <div className="flex items-center justify-center pt-6">
+      <CardContent className="space-y-8">
+        <div className="flex min-h-[200px] flex-col items-center justify-center transition-opacity duration-300">
           {phase === "idle" ? (
-            <button
-              className="rounded-full bg-cyan-400 px-8 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-200"
+            <Button
+              className="rounded-full px-8 py-6 text-base"
               disabled={isPreparing}
               onClick={onPrimaryAction}
+              size="lg"
               type="button"
             >
               {isPreparing
-                ? "Preparing camera..."
+                ? "Preparing camera…"
                 : isRetaking
                   ? "Retry retake"
-                  : "Start interview"}
-            </button>
+                  : "Start"}
+            </Button>
           ) : null}
 
           {phase === "countdown" ? (
             <div className="text-center">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-300">
-                {isPaused ? "Interview paused" : "Recording starts in"}
+              <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+                {isPaused ? "Paused" : "Starting in"}
               </p>
-              <div className="mt-3 text-8xl font-semibold text-cyan-300">
+              <div className="text-primary mt-2 text-7xl font-semibold tabular-nums md:text-8xl">
                 {countdown}
               </div>
               {isPaused ? (
-                <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Take a moment to gather your thoughts, then resume when you
-                  are ready to begin recording.
+                <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-relaxed">
+                  Resume when you are ready to continue the countdown.
                 </p>
               ) : null}
             </div>
           ) : null}
 
           {phase === "recording" ? (
-            <div className="text-center">
-              <p
-                className={`text-sm uppercase tracking-[0.3em] ${
-                  isPaused ? "text-amber-300" : "text-red-300"
-                }`}
-              >
-                {isPaused ? "Recording paused" : "Recording live"}
-              </p>
-              <div className="mt-3 text-5xl font-semibold text-white">
-                {formatSeconds(recordingTimeLeft)}
+            <div className="flex w-full flex-col items-center gap-6 text-center">
+              <div className="flex items-center gap-2 text-sm">
+                <span
+                  aria-hidden
+                  className={`size-2 shrink-0 rounded-full bg-destructive ${
+                    isPaused ? "opacity-40" : "animate-pulse"
+                  }`}
+                />
+                <span
+                  className={
+                    isPaused
+                      ? "text-muted-foreground"
+                      : "text-destructive font-medium"
+                  }
+                >
+                  {isPaused ? "Recording paused" : "Recording"}
+                </span>
               </div>
+              <div className="text-5xl font-semibold tabular-nums tracking-tight md:text-6xl">
+                {formatSeconds(recordingElapsedSeconds)}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Stops automatically at {formatSeconds(recordingSeconds)}
+              </p>
               {isPaused ? (
-                <p className="mt-4 text-sm leading-6 text-slate-300">
-                  Notes time is off the clock until you resume.
+                <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
+                  Timer is paused until you resume.
                 </p>
               ) : null}
-              <button
-                className="mt-6 rounded-full border border-cyan-400/40 bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+              <Button
+                className="rounded-full"
                 onClick={onDoneRecording}
                 type="button"
+                variant="default"
               >
                 Done
-              </button>
+              </Button>
             </div>
           ) : null}
         </div>
 
-        {error ? (
-          <p className="pt-6 text-center text-sm text-rose-300">{error}</p>
-        ) : null}
-      </div>
-
-      <aside className="space-y-6 rounded-[2rem] border border-white/10 bg-slate-900/90 p-6">
-        <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-            Camera
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold">Live preview</h3>
-        </div>
-
-        <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-black">
+        <div
+          className={`relative overflow-hidden rounded-2xl border border-border bg-black transition-opacity duration-300 ${
+            phase === "countdown" ? "opacity-90" : "opacity-100"
+          }`}
+        >
           {phase === "countdown" || phase === "recording" ? (
             <>
               <video
                 autoPlay
-                className={`aspect-video w-full object-cover ${
-                  phase === "countdown" ? "opacity-60 blur-[2px]" : ""
+                className={`aspect-video w-full object-cover transition-all duration-300 ${
+                  phase === "countdown" ? "scale-[1.02] blur-[1px]" : ""
                 }`}
                 muted
                 playsInline
                 ref={previewRef}
               />
               {phase === "countdown" ? (
-                <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm leading-6 text-slate-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-background/20 px-6 text-center text-sm leading-relaxed text-foreground">
                   {isPaused
-                    ? "The countdown is paused while you collect your thoughts."
-                    : "Camera is ready. Recording will begin automatically after the countdown."}
+                    ? "Countdown is paused."
+                    : "Recording begins automatically after the countdown."}
                 </div>
               ) : null}
               {phase === "recording" && isPaused ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/35 px-6 text-center text-sm leading-6 text-slate-100">
-                  Recording is paused. Resume when you are ready to continue.
+                <div className="absolute inset-0 flex items-center justify-center bg-background/35 px-6 text-center text-sm leading-relaxed">
+                  Recording is paused. Resume to continue.
                 </div>
               ) : null}
             </>
           ) : (
-            <div className="flex aspect-video items-center justify-center px-6 text-center text-sm leading-6 text-slate-400">
-              Start the interview to enable webcam and microphone recording.
+            <div className="text-muted-foreground flex aspect-video items-center justify-center px-6 text-center text-sm leading-relaxed">
+              Camera preview appears when you start.
             </div>
           )}
         </div>
+      </CardContent>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
+      <CardFooter className="flex flex-col gap-6 pt-2">
+        <div className="grid w-full grid-cols-2 gap-3 text-sm">
+          <div className="bg-muted/40 rounded-xl border border-border/60 px-4 py-3">
+            <p className="text-muted-foreground text-xs tracking-wide uppercase">
               Countdown
             </p>
-            <p className="mt-3 text-2xl font-semibold">
+            <p className="mt-1 font-semibold tabular-nums">
               {startCountdownSeconds}s
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-              Answer time
+          <div className="bg-muted/40 rounded-xl border border-border/60 px-4 py-3">
+            <p className="text-muted-foreground text-xs tracking-wide uppercase">
+              Answer limit
             </p>
-            <p className="mt-3 text-2xl font-semibold">{recordingSeconds}s</p>
+            <p className="mt-1 font-semibold tabular-nums">
+              {recordingSeconds}s
+            </p>
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300">
-          The interface locks during the timed flow so you can focus on
-          answering under pressure, but you can pause the live interview
-          whenever you need a moment to gather your thoughts.
         </div>
 
         {phase === "idle" && savedTakeCount > 0 ? (
-          <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
+          <div className="bg-primary/10 w-full rounded-xl border border-primary/25 p-4">
+            <p className="text-primary text-xs tracking-wide uppercase">
               Saved takes
             </p>
-            <p className="mt-3 text-sm leading-6 text-slate-100">
+            <p className="mt-2 text-sm leading-relaxed">
               {savedTakeCount} bookmarked{" "}
-              {savedTakeCount === 1 ? "take is" : "takes are"} available on this
-              device for later review.
+              {savedTakeCount === 1 ? "take" : "takes"} on this device.
             </p>
-            <button
-              className="mt-4 rounded-full border border-cyan-300/40 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:text-white"
+            <Button
+              className="mt-3"
               onClick={onViewSavedTakes}
               type="button"
+              variant="outline"
             >
               Review saved takes
-            </button>
+            </Button>
           </div>
         ) : null}
-      </aside>
-    </div>
+
+        {error ? (
+          <Alert variant="destructive">
+            <AlertTitle>Unable to continue</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+      </CardFooter>
+    </Card>
   );
 }

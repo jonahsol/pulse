@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-import { InterviewHeader } from "./components/interview-trainer/interview-header";
 import { InterviewPhase } from "./components/interview-trainer/interview-phase";
 import { ReviewPhase } from "./components/interview-trainer/review-phase";
 import type {
@@ -12,6 +10,7 @@ import type {
   SavedTake,
   TranscriptState,
 } from "./components/interview-trainer/types";
+import { PulseShell } from "./components/pulse-shell";
 
 const QUESTIONS = [
   "Tell me about yourself and the kind of work that energizes you.",
@@ -632,33 +631,18 @@ export default function InterviewTrainer() {
   const canTogglePause = phase === "countdown" || phase === "recording";
   const canEndEarly = canTogglePause && !isRetaking;
 
-  return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
-        <header className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-              Interview Trainer
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-              Timed mock interview with real recording
-            </h1>
-          </div>
-          {phase !== "review" && hasInterviewStarted ? (
-            <InterviewHeader
-              canEndEarly={canEndEarly}
-              canTogglePause={canTogglePause}
-              currentQuestionIndex={currentQuestionIndex}
-              isPaused={isPaused}
-              isRetaking={isRetaking}
-              onEndEarly={endInterviewEarly}
-              onTogglePause={togglePause}
-              questionCount={QUESTIONS.length}
-            />
-          ) : null}
-        </header>
+  const recordingElapsedSeconds = RECORDING_SECONDS - recordingTimeLeft;
 
-        <section className="flex flex-1 items-center justify-center py-10">
+  return (
+    <main className="bg-background text-foreground min-h-screen">
+      <PulseShell
+        disableNewSession={isLocked}
+        isPreparing={isPreparing}
+        onNewSession={() => {
+          void startInterview();
+        }}
+      >
+        <div className="flex flex-1 flex-col justify-center py-6 md:py-10">
           {phase === "review" ? (
             <ReviewPhase
               bookmarkError={bookmarkError}
@@ -679,6 +663,8 @@ export default function InterviewTrainer() {
             />
           ) : (
             <InterviewPhase
+              canEndEarly={canEndEarly}
+              canTogglePause={canTogglePause}
               countdown={countdown}
               currentQuestion={currentQuestion}
               currentQuestionIndex={currentQuestionIndex}
@@ -689,22 +675,25 @@ export default function InterviewTrainer() {
               isPreparing={isPreparing}
               isRetaking={isRetaking}
               onDoneRecording={stopRecording}
+              onEndEarly={endInterviewEarly}
               onPrimaryAction={() =>
                 isRetaking
                   ? startRetake(currentQuestionIndex)
                   : startInterview()
               }
+              onTogglePause={togglePause}
               onViewSavedTakes={viewSavedTakes}
               phase={phase}
               previewRef={previewRef}
+              questionCount={QUESTIONS.length}
+              recordingElapsedSeconds={recordingElapsedSeconds}
               recordingSeconds={RECORDING_SECONDS}
-              recordingTimeLeft={recordingTimeLeft}
               savedTakeCount={savedTakes.length}
               startCountdownSeconds={COUNTDOWN_SECONDS}
             />
           )}
-        </section>
-      </div>
+        </div>
+      </PulseShell>
     </main>
   );
 }
