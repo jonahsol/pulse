@@ -3,7 +3,7 @@ import { LocaleSwitch } from "@/app/components/locale-switch";
 import { ThemeToggle } from "@/app/components/theme-switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { IconBookmark, IconPlus } from "@tabler/icons-react";
+import { IconBookmark } from "@tabler/icons-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -48,7 +48,7 @@ async function Header() {
 
       <div className="flex items-center ml-auto">
         <div className="flex">
-          <Button
+          {/* <Button
             size="sm"
             type="button"
             variant="ghost"
@@ -59,7 +59,7 @@ async function Header() {
               <IconPlus />
               {t("newSession")}
             </Link>
-          </Button>
+          </Button> */}
           <Button
             size="sm"
             type="button"
