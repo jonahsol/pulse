@@ -1,22 +1,16 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { InterviewPhase } from "./components/interview-trainer/interview-phase";
-import { ReviewPhase } from "./components/interview-trainer/review-phase";
+import { InterviewPhase } from "./interview-trainer/interview-phase";
+import { ReviewPhase } from "./interview-trainer/review-phase";
 import type {
   Phase,
   QuestionRecording,
   Recording,
   SavedTake,
   TranscriptState,
-} from "./components/interview-trainer/types";
-
-const QUESTIONS = [
-  "Tell me about yourself and the kind of work that energizes you.",
-  "Describe a challenging project you owned and how you handled trade-offs.",
-  "Describe a time you had to deliver a project on a very tight deadline.",
-  "Why are you interested in this role, and what would you want to accomplish first?",
-];
+} from "./interview-trainer/types";
 
 const COUNTDOWN_SECONDS = 5;
 const RECORDING_SECONDS = 60;
@@ -32,8 +26,8 @@ function getSupportedMimeType() {
   return mimeTypes.find((mimeType) => MediaRecorder.isTypeSupported(mimeType));
 }
 
-function createQuestionRecordings() {
-  return QUESTIONS.map((question) => ({
+function createQuestionRecordings(questions: string[]) {
+  return questions.map((question) => ({
     question,
     recordings: [],
   }));
@@ -118,14 +112,16 @@ function blobToDataUrl(blob: Blob) {
 }
 
 export default function InterviewTrainer() {
+  const t = useTranslations("InterviewTrainer");
+  const questions = t.raw("questions") as string[];
   const [phase, setPhase] = useState<Phase>("idle");
   const [isPaused, setIsPaused] = useState(false);
   const [endedEarly, setEndedEarly] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [recordingTimeLeft, setRecordingTimeLeft] = useState(RECORDING_SECONDS);
-  const [recordings, setRecordings] = useState<QuestionRecording[]>(
-    createQuestionRecordings,
+  const [recordings, setRecordings] = useState<QuestionRecording[]>(() =>
+    createQuestionRecordings(questions),
   );
   const [error, setError] = useState("");
   const [isPreparing, setIsPreparing] = useState(false);
@@ -148,11 +144,13 @@ export default function InterviewTrainer() {
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const recordingsRef = useRef<QuestionRecording[]>(createQuestionRecordings());
+  const recordingsRef = useRef<QuestionRecording[]>(
+    createQuestionRecordings(questions),
+  );
   const endEarlyRequestedRef = useRef(false);
   const stopRequestedRef = useRef(false);
 
-  const currentQuestion = QUESTIONS[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
   const isRetaking = retakeQuestionIndex !== null;
 
   const revokeRecordingUrls = useCallback(
@@ -189,7 +187,7 @@ export default function InterviewTrainer() {
         !navigator.mediaDevices?.getUserMedia ||
         typeof MediaRecorder === "undefined"
       ) {
-        setError("This browser does not support camera recording.");
+        setError(t("errors.browserNotSupported"));
         setPhase("idle");
         return;
       }
@@ -218,14 +216,14 @@ export default function InterviewTrainer() {
           await previewRef.current.play().catch(() => undefined);
         }
       } catch {
-        setError("Camera and microphone access are required to start.");
+        setError(t("errors.cameraAccessRequired"));
         setPhase("idle");
         stopPreviewStream();
       } finally {
         setIsPreparing(false);
       }
     },
-    [stopPreviewStream],
+    [stopPreviewStream, t],
   );
 
   const stopRecording = useCallback(() => {
@@ -253,7 +251,7 @@ export default function InterviewTrainer() {
         try {
           recorderRef.current.resume();
         } catch {
-          setError("Unable to resume recording right now.");
+          setError(t("errors.resumeRecording"));
           return;
         }
       }
@@ -267,14 +265,14 @@ export default function InterviewTrainer() {
       try {
         recorderRef.current.pause();
       } catch {
-        setError("Unable to pause recording right now.");
+        setError(t("errors.pauseRecording"));
         return;
       }
     }
 
     setError("");
     setIsPaused(true);
-  }, [isPaused, phase]);
+  }, [isPaused, phase, t]);
 
   const endInterviewEarly = useCallback(() => {
     if (phase !== "countdown" && phase !== "recording") {
@@ -347,7 +345,7 @@ export default function InterviewTrainer() {
         const videoResponse = await fetch(recording.videoUrl);
 
         if (!videoResponse.ok) {
-          throw new Error("Unable to read this take for bookmarking.");
+          throw new Error(t("errors.readTakeForBookmark"));
         }
 
         const videoBlob = await videoResponse.blob();
@@ -363,73 +361,74 @@ export default function InterviewTrainer() {
         persistSavedTakes([...savedTakes, savedTake]);
       } catch (error) {
         setBookmarkError(
-          error instanceof Error
-            ? error.message
-            : "Unable to bookmark this take right now.",
+          error instanceof Error ? error.message : t("errors.bookmarkTake"),
         );
       } finally {
         setIsSavingRecordingId(null);
       }
     },
-    [persistSavedTakes, removeBookmark, savedTakes],
+    [persistSavedTakes, removeBookmark, savedTakes, t],
   );
 
-  const generateTranscript = useCallback(async (recording: Recording) => {
-    setTranscripts((previous) => ({
-      ...previous,
-      [recording.id]: {
-        status: "loading",
-      },
-    }));
-
-    try {
-      const videoResponse = await fetch(recording.videoUrl);
-
-      if (!videoResponse.ok) {
-        throw new Error("Unable to read the recording for transcription.");
-      }
-
-      const videoBlob = await videoResponse.blob();
-      const fileExtension = videoBlob.type.includes("mp4") ? "mp4" : "webm";
-      const formData = new FormData();
-
-      formData.append("file", videoBlob, `${recording.id}.${fileExtension}`);
-
-      const response = await fetch("/api/transcript", {
-        method: "POST",
-        body: formData,
-      });
-      const data = (await response.json()) as
-        | {
-            transcript?: string;
-            error?: string;
-          }
-        | undefined;
-
-      if (!response.ok || !data?.transcript) {
-        throw new Error(data?.error ?? "Transcription failed.");
-      }
-
+  const generateTranscript = useCallback(
+    async (recording: Recording) => {
       setTranscripts((previous) => ({
         ...previous,
         [recording.id]: {
-          status: "ready",
-          text: data.transcript,
+          status: "loading",
         },
       }));
-    } catch (error) {
-      setTranscripts((previous) => ({
-        ...previous,
-        [recording.id]: {
-          status: "error",
-          error:
-            error instanceof Error
-              ? error.message
-              : "Unable to generate a transcript right now.",
-        },
-      }));
-    }
-  }, []);
+
+      try {
+        const videoResponse = await fetch(recording.videoUrl);
+
+        if (!videoResponse.ok) {
+          throw new Error(t("errors.readRecordingForTranscription"));
+        }
+
+        const videoBlob = await videoResponse.blob();
+        const fileExtension = videoBlob.type.includes("mp4") ? "mp4" : "webm";
+        const formData = new FormData();
+
+        formData.append("file", videoBlob, `${recording.id}.${fileExtension}`);
+
+        const response = await fetch("/api/transcript", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await response.json()) as
+          | {
+              transcript?: string;
+              error?: string;
+            }
+          | undefined;
+
+        if (!response.ok || !data?.transcript) {
+          throw new Error(data?.error ?? t("errors.transcriptionFailed"));
+        }
+
+        setTranscripts((previous) => ({
+          ...previous,
+          [recording.id]: {
+            status: "ready",
+            text: data.transcript,
+          },
+        }));
+      } catch (error) {
+        setTranscripts((previous) => ({
+          ...previous,
+          [recording.id]: {
+            status: "error",
+            error:
+              error instanceof Error
+                ? error.message
+                : t("errors.generateTranscript"),
+          },
+        }));
+      }
+    },
+    [t],
+  );
 
   const startRecording = useCallback(() => {
     const stream = streamRef.current;
@@ -439,7 +438,7 @@ export default function InterviewTrainer() {
     }
 
     if (!stream) {
-      setError("Unable to access the camera stream for this question.");
+      setError(t("errors.cameraStreamUnavailable"));
       setPhase("idle");
       return;
     }
@@ -505,7 +504,7 @@ export default function InterviewTrainer() {
 
       const nextQuestionIndex = questionIndex + 1;
 
-      if (nextQuestionIndex >= QUESTIONS.length) {
+      if (nextQuestionIndex >= questions.length) {
         setPhase("review");
         return;
       }
@@ -514,7 +513,7 @@ export default function InterviewTrainer() {
     };
 
     recorder.onerror = () => {
-      setError("Recording failed. Please refresh and try again.");
+      setError(t("errors.recordingFailed"));
       setIsPaused(false);
       recorderRef.current = null;
       stopPreviewStream();
@@ -529,8 +528,10 @@ export default function InterviewTrainer() {
   }, [
     currentQuestionIndex,
     prepareQuestion,
+    questions.length,
     retakeQuestionIndex,
     stopPreviewStream,
+    t,
   ]);
 
   const startInterview = useCallback(async () => {
@@ -542,9 +543,9 @@ export default function InterviewTrainer() {
     setRetakeQuestionIndex(null);
     setLatestRecordingId(null);
     setTranscripts({});
-    setRecordings(createQuestionRecordings());
+    setRecordings(createQuestionRecordings(questions));
     await prepareQuestion(0);
-  }, [prepareQuestion, revokeRecordingUrls]);
+  }, [prepareQuestion, questions, revokeRecordingUrls]);
 
   const viewSavedTakes = useCallback(() => {
     setBookmarkError("");
@@ -674,7 +675,7 @@ export default function InterviewTrainer() {
           onViewSavedTakes={viewSavedTakes}
           phase={phase}
           previewRef={previewRef}
-          questionCount={QUESTIONS.length}
+          questionCount={questions.length}
           recordingElapsedSeconds={recordingElapsedSeconds}
           recordingSeconds={RECORDING_SECONDS}
           savedTakeCount={savedTakes.length}

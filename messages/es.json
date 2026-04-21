@@ -1,0 +1,138 @@
+{
+  "AppShell": {
+    "newSession": "Nueva sesión",
+    "madeWith": "Hecho con ❤️ por",
+    "viewProject": "Ver proyecto en"
+  },
+  "InterviewTrainer": {
+    "questions": [
+      "Cuéntame sobre ti y el tipo de trabajo que te entusiasma.",
+      "Describe un proyecto desafiante que lideraste y cómo gestionaste las concesiones (trade-offs).",
+      "Describe una ocasión en la que tuviste que entregar un proyecto en un plazo muy ajustado.",
+      "¿Por qué te interesa este puesto y qué te gustaría lograr primero?"
+    ],
+    "errors": {
+      "browserNotSupported": "Este navegador no permite la grabación con cámara.",
+      "cameraAccessRequired": "Se requiere acceso a la cámara y al micrófono para comenzar.",
+      "resumeRecording": "No se puede reanudar la grabación en este momento.",
+      "pauseRecording": "No se puede pausar la grabación en este momento.",
+      "readTakeForBookmark": "No se pudo leer esta toma para guardarla en favoritos.",
+      "bookmarkTake": "No se puede guardar esta toma en favoritos en este momento.",
+      "readRecordingForTranscription": "No se pudo leer la grabación para la transcripción.",
+      "transcriptionFailed": "Error en la transcripción.",
+      "generateTranscript": "No se pudo generar la transcripción en este momento.",
+      "cameraStreamUnavailable": "No se puede acceder a la señal de la cámara para esta pregunta.",
+      "recordingFailed": "Error en la grabación. Por favor, actualiza la página e inténtalo de nuevo."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Pregunta {current} de {total}",
+      "retake": "Reintento · Pregunta {current}"
+    },
+    "badge": {
+      "retake": "Reintento",
+      "live": "En vivo",
+      "ready": "Listo"
+    },
+    "intro": "Una pregunta a la vez, grabación cronometrada y luego revisión. Comienza cuando estés listo.",
+    "actions": {
+      "resume": "Reanudar",
+      "pause": "Pausar",
+      "endEarly": "Finalizar antes",
+      "preparingCamera": "Preparando cámara…",
+      "retryRetake": "Reintentar toma",
+      "start": "Comenzar",
+      "done": "Listo"
+    },
+    "countdown": {
+      "paused": "Pausado",
+      "startingIn": "Comenzando en",
+      "resumeHelp": "Reanuda cuando estés listo para continuar la cuenta regresiva."
+    },
+    "recording": {
+      "paused": "Grabación pausada",
+      "active": "Grabando",
+      "stopsAt": "Se detiene automáticamente en {limit}",
+      "timerPaused": "El temporizador está pausado hasta que reanudes."
+    },
+    "preview": {
+      "countdownPaused": "Cuenta regresiva pausada.",
+      "countdownAutoStart": "La grabación comenzará automáticamente al terminar la cuenta regresiva.",
+      "recordingPaused": "La grabación está pausada. Reanuda para continuar.",
+      "idle": "La vista previa de la cámara aparecerá al comenzar."
+    },
+    "metrics": {
+      "countdown": "Cuenta regresiva",
+      "answerLimit": "Límite de respuesta"
+    },
+    "savedTakes": {
+      "title": "Tomas guardadas",
+      "count": "{count, plural, one {# toma guardada en este dispositivo.} other {# tomas guardadas en este dispositivo.}}",
+      "reviewAction": "Revisar tomas guardadas"
+    },
+    "errors": {
+      "title": "No se puede continuar"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Revisión",
+    "description": "Las tomas de la sesión permanecen en memoria hasta que inicies una nueva. Las tomas guardadas permanecen en este dispositivo.",
+    "endedEarly": {
+      "title": "Finalizado antes de tiempo",
+      "description": "Las preguntas no contestadas se marcaron como sin respuesta."
+    },
+    "bookmarks": {
+      "title": "Favoritos"
+    },
+    "actions": {
+      "startNewInterview": "Comenzar nueva entrevista"
+    },
+    "emptyState": "Aún no hay tomas en esta sesión. Comienza una nueva entrevista desde el encabezado o abre las tomas guardadas arriba."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Pregunta {question}",
+    "limit": "Límite de {seconds}s",
+    "actions": {
+      "addTake": "Añadir toma"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "No se grabó respuesta",
+      "title": "Sin tomas aún",
+      "endedEarlyDescription": "La entrevista terminó antes de responder a esta pregunta.",
+      "description": "Graba una respuesta para crear un historial para esta pregunta."
+    },
+    "take": "Toma {number}",
+    "originalSuffix": "· Original",
+    "latest": "Última",
+    "bookmark": {
+      "saving": "Guardando…",
+      "saved": "Guardada",
+      "default": "Guardar"
+    },
+    "transcript": {
+      "generating": "Generando transcripción…",
+      "regenerate": "Regenerar transcripción",
+      "default": "Transcripción",
+      "label": "Transcripción"
+    }
+  },
+  "SavedTakesPanel": {
+    "title": "Tomas guardadas",
+    "description": "Almacenadas en este navegador para que puedas revisarlas más tarde.",
+    "savedCount": "{count, plural, one {# toma guardada} other {# tomas guardadas}}",
+    "questionBadge": "Pregunta {question}",
+    "actions": {
+      "removeBookmarkAria": "Eliminar de favoritos"
+    },
+    "saved": "Guardado",
+    "recordedAt": "Grabado el {date}",
+    "savedAt": "Guardado el {date}",
+    "transcript": {
+      "generating": "Generando transcripción…",
+      "regenerate": "Regenerar transcripción",
+      "default": "Transcripción",
+      "label": "Transcripción"
+    }
+  }
+}

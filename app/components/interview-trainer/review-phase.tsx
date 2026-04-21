@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +61,7 @@ export function ReviewPhase({
   savedTakes,
   transcripts,
 }: ReviewPhaseProps) {
+  const t = useTranslations("ReviewPhase");
   const hasCurrentSessionTakes = recordings.some(
     (questionRecording) => questionRecording.recordings.length > 0,
   );
@@ -69,24 +71,21 @@ export function ReviewPhase({
       <div className="space-y-6 pb-8">
         <Card className="border-border/80 bg-card/80 shadow-none backdrop-blur-sm">
           <CardHeader className="gap-2">
-            <CardTitle>Review</CardTitle>
-            <CardDescription>
-              Session takes stay in memory until you start a new session.
-              Bookmarked takes remain on this device.
-            </CardDescription>
+            <CardTitle>{t("title")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {endedEarly ? (
               <Alert>
-                <AlertTitle>Ended early</AlertTitle>
+                <AlertTitle>{t("endedEarly.title")}</AlertTitle>
                 <AlertDescription>
-                  Unanswered questions are marked as having no response.
+                  {t("endedEarly.description")}
                 </AlertDescription>
               </Alert>
             ) : null}
             {bookmarkError ? (
               <Alert variant="destructive">
-                <AlertTitle>Bookmarks</AlertTitle>
+                <AlertTitle>{t("bookmarks.title")}</AlertTitle>
                 <AlertDescription>{bookmarkError}</AlertDescription>
               </Alert>
             ) : null}
@@ -99,7 +98,7 @@ export function ReviewPhase({
               }}
               type="button"
             >
-              Start new interview
+              {t("actions.startNewInterview")}
             </Button>
           </CardContent>
         </Card>
@@ -133,10 +132,7 @@ export function ReviewPhase({
         ) : (
           <Card className="border-dashed border-border/80 bg-muted/20 shadow-none">
             <CardContent className="text-muted-foreground space-y-4 py-8 text-sm leading-relaxed">
-              <p>
-                No takes in this session yet. Start a new interview from the
-                header, or open saved takes above.
-              </p>
+              <p>{t("emptyState")}</p>
             </CardContent>
           </Card>
         )}

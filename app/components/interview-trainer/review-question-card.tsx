@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export function ReviewQuestionCard({
   savedTakeIds,
   transcripts,
 }: ReviewQuestionCardProps) {
+  const t = useTranslations("ReviewQuestionCard");
   const latestAttemptIndex = questionRecording.recordings.length - 1;
   const hasNoResponse = questionRecording.recordings.length === 0;
 
@@ -72,20 +74,24 @@ export function ReviewQuestionCard({
     <Card className="border-border/80 bg-card/90 shadow-none backdrop-blur-sm">
       <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <Badge variant="secondary">Question {questionIndex + 1}</Badge>
+          <Badge variant="secondary">
+            {t("questionBadge", { question: questionIndex + 1 })}
+          </Badge>
           <CardTitle className="text-lg font-medium leading-snug">
             {questionRecording.question}
           </CardTitle>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{recordingSeconds}s limit</Badge>
+          <Badge variant="outline">
+            {t("limit", { seconds: recordingSeconds })}
+          </Badge>
           <Button
             disabled={isPreparing || isLocked}
             onClick={() => onStartRetake(questionIndex)}
             size="sm"
             type="button"
           >
-            Add take
+            {t("actions.addTake")}
           </Button>
         </div>
       </CardHeader>
@@ -93,12 +99,14 @@ export function ReviewQuestionCard({
         {hasNoResponse ? (
           <Alert>
             <AlertTitle>
-              {endedEarly ? "No response recorded" : "No takes yet"}
+              {endedEarly
+                ? t("noResponse.endedEarlyTitle")
+                : t("noResponse.title")}
             </AlertTitle>
             <AlertDescription>
               {endedEarly
-                ? "The interview ended before this prompt was answered."
-                : "Record an answer to build a history for this prompt."}
+                ? t("noResponse.endedEarlyDescription")
+                : t("noResponse.description")}
             </AlertDescription>
           </Alert>
         ) : (
@@ -121,11 +129,11 @@ export function ReviewQuestionCard({
                   <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium">
-                        Take {attemptIndex + 1}
-                        {attemptIndex === 0 ? " · Original" : ""}
+                        {t("take", { number: attemptIndex + 1 })}
+                        {attemptIndex === 0 ? ` ${t("originalSuffix")}` : ""}
                       </span>
                       {isLatestAttempt ? (
-                        <Badge variant="secondary">Latest</Badge>
+                        <Badge variant="secondary">{t("latest")}</Badge>
                       ) : null}
                     </div>
                     <span className="text-muted-foreground text-xs">
@@ -150,10 +158,10 @@ export function ReviewQuestionCard({
                       >
                         <BookmarkIcon className="size-4" filled={isSaved} />
                         {isSaving
-                          ? "Saving…"
+                          ? t("bookmark.saving")
                           : isSaved
-                            ? "Bookmarked"
-                            : "Bookmark"}
+                            ? t("bookmark.saved")
+                            : t("bookmark.default")}
                       </Button>
                       <Button
                         disabled={
@@ -165,10 +173,10 @@ export function ReviewQuestionCard({
                         variant="outline"
                       >
                         {transcripts[recording.id]?.status === "loading"
-                          ? "Generating transcript…"
+                          ? t("transcript.generating")
                           : transcripts[recording.id]?.status === "ready"
-                            ? "Regenerate transcript"
-                            : "Transcript"}
+                            ? t("transcript.regenerate")
+                            : t("transcript.default")}
                       </Button>
                     </div>
                     {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
@@ -183,7 +191,7 @@ export function ReviewQuestionCard({
                     {transcripts[recording.id]?.status === "ready" ? (
                       <div className="bg-muted/40 space-y-2 rounded-lg border border-border/80 p-3">
                         <p className="text-primary text-xs tracking-wide uppercase">
-                          Transcript
+                          {t("transcript.label")}
                         </p>
                         <p className="text-sm leading-relaxed">
                           {transcripts[recording.id]?.text}
@@ -192,7 +200,7 @@ export function ReviewQuestionCard({
                     ) : null}
                     {transcripts[recording.id]?.status === "error" ? (
                       <Alert variant="destructive">
-                        <AlertTitle>Transcript</AlertTitle>
+                        <AlertTitle>{t("transcript.label")}</AlertTitle>
                         <AlertDescription>
                           {transcripts[recording.id]?.error}
                         </AlertDescription>

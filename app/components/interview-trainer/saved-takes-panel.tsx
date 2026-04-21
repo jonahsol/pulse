@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,8 @@ export function SavedTakesPanel({
   savedTakes,
   transcripts,
 }: SavedTakesPanelProps) {
+  const t = useTranslations("SavedTakesPanel");
+
   if (savedTakes.length === 0) {
     return null;
   }
@@ -57,13 +60,11 @@ export function SavedTakesPanel({
     <Card className="border-primary/30 bg-primary/5 shadow-none backdrop-blur-sm">
       <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <CardTitle className="text-lg">Saved takes</CardTitle>
-          <CardDescription>
-            Stored in this browser so you can revisit them later.
-          </CardDescription>
+          <CardTitle className="text-lg">{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </div>
         <Badge variant="secondary">
-          {savedTakes.length} saved {savedTakes.length === 1 ? "take" : "takes"}
+          {t("savedCount", { count: savedTakes.length })}
         </Badge>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -72,26 +73,30 @@ export function SavedTakesPanel({
             <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <Badge variant="outline">
-                  Question {savedTake.questionIndex + 1}
+                  {t("questionBadge", {
+                    question: savedTake.questionIndex + 1,
+                  })}
                 </Badge>
                 <CardTitle className="text-base font-medium leading-snug">
                   {savedTake.question}
                 </CardTitle>
               </div>
               <Button
-                aria-label="Remove bookmark"
+                aria-label={t("actions.removeBookmarkAria")}
                 onClick={() => onRemoveBookmark(savedTake.id)}
                 size="sm"
                 type="button"
                 variant="outline"
               >
                 <BookmarkIcon className="size-4" filled />
-                Saved
+                {t("saved")}
               </Button>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-muted-foreground text-xs">
-                Recorded {new Date(savedTake.createdAt).toLocaleString()}
+                {t("recordedAt", {
+                  date: new Date(savedTake.createdAt).toLocaleString(),
+                })}
               </p>
               {/* biome-ignore lint/a11y/useMediaCaption: Saved interview recordings do not have generated captions in this prototype. */}
               <video
@@ -110,19 +115,21 @@ export function SavedTakesPanel({
                   variant="outline"
                 >
                   {transcripts[savedTake.id]?.status === "loading"
-                    ? "Generating transcript…"
+                    ? t("transcript.generating")
                     : transcripts[savedTake.id]?.status === "ready"
-                      ? "Regenerate transcript"
-                      : "Transcript"}
+                      ? t("transcript.regenerate")
+                      : t("transcript.default")}
                 </Button>
                 <span className="text-muted-foreground text-xs">
-                  Saved {new Date(savedTake.savedAt).toLocaleString()}
+                  {t("savedAt", {
+                    date: new Date(savedTake.savedAt).toLocaleString(),
+                  })}
                 </span>
               </div>
               {transcripts[savedTake.id]?.status === "ready" ? (
                 <div className="bg-muted/40 space-y-2 rounded-lg border border-border/80 p-3">
                   <p className="text-primary text-xs tracking-wide uppercase">
-                    Transcript
+                    {t("transcript.label")}
                   </p>
                   <p className="text-sm leading-relaxed">
                     {transcripts[savedTake.id]?.text}
@@ -131,7 +138,7 @@ export function SavedTakesPanel({
               ) : null}
               {transcripts[savedTake.id]?.status === "error" ? (
                 <Alert variant="destructive">
-                  <AlertTitle>Transcript</AlertTitle>
+                  <AlertTitle>{t("transcript.label")}</AlertTitle>
                   <AlertDescription>
                     {transcripts[savedTake.id]?.error}
                   </AlertDescription>

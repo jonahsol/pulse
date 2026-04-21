@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { RefObject } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -73,12 +74,18 @@ export function InterviewPhase({
   savedTakeCount,
   startCountdownSeconds,
 }: InterviewPhaseProps) {
+  const t = useTranslations("InterviewPhase");
   const showSessionTools = canTogglePause;
   const questionHeading =
     hasInterviewStarted && !isRetaking
-      ? `Question ${Math.min(currentQuestionIndex + 1, questionCount)} of ${questionCount}`
+      ? t("questionHeading.standard", {
+          current: Math.min(currentQuestionIndex + 1, questionCount),
+          total: questionCount,
+        })
       : isRetaking
-        ? `Retake · Question ${currentQuestionIndex + 1}`
+        ? t("questionHeading.retake", {
+            current: currentQuestionIndex + 1,
+          })
         : null;
 
   return (
@@ -93,7 +100,11 @@ export function InterviewPhase({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="font-normal tracking-wide" variant="secondary">
-              {isRetaking ? "Retake" : hasInterviewStarted ? "Live" : "Ready"}
+              {isRetaking
+                ? t("badge.retake")
+                : hasInterviewStarted
+                  ? t("badge.live")
+                  : t("badge.ready")}
             </Badge>
             {questionHeading ? (
               <span className="text-muted-foreground text-xs">
@@ -109,7 +120,7 @@ export function InterviewPhase({
                 type="button"
                 variant="outline"
               >
-                {isPaused ? "Resume" : "Pause"}
+                {isPaused ? t("actions.resume") : t("actions.pause")}
               </Button>
               {canEndEarly ? (
                 <Button
@@ -118,7 +129,7 @@ export function InterviewPhase({
                   type="button"
                   variant="destructive"
                 >
-                  End early
+                  {t("actions.endEarly")}
                 </Button>
               ) : null}
             </div>
@@ -144,8 +155,7 @@ export function InterviewPhase({
             </h2>
           ) : (
             <p className="text-muted-foreground text-base leading-relaxed md:text-lg">
-              One prompt at a time, timed recording, then review. Start when you
-              are ready.
+              {t("intro")}
             </p>
           )}
         </div>
@@ -162,24 +172,24 @@ export function InterviewPhase({
               type="button"
             >
               {isPreparing
-                ? "Preparing camera…"
+                ? t("actions.preparingCamera")
                 : isRetaking
-                  ? "Retry retake"
-                  : "Start"}
+                  ? t("actions.retryRetake")
+                  : t("actions.start")}
             </Button>
           ) : null}
 
           {phase === "countdown" ? (
             <div className="text-center">
               <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
-                {isPaused ? "Paused" : "Starting in"}
+                {isPaused ? t("countdown.paused") : t("countdown.startingIn")}
               </p>
               <div className="text-primary mt-2 text-7xl font-semibold tabular-nums md:text-8xl">
                 {countdown}
               </div>
               {isPaused ? (
                 <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-relaxed">
-                  Resume when you are ready to continue the countdown.
+                  {t("countdown.resumeHelp")}
                 </p>
               ) : null}
             </div>
@@ -201,18 +211,20 @@ export function InterviewPhase({
                       : "text-destructive font-medium"
                   }
                 >
-                  {isPaused ? "Recording paused" : "Recording"}
+                  {isPaused ? t("recording.paused") : t("recording.active")}
                 </span>
               </div>
               <div className="text-5xl font-semibold tabular-nums tracking-tight md:text-6xl">
                 {formatSeconds(recordingElapsedSeconds)}
               </div>
               <p className="text-muted-foreground text-xs">
-                Stops automatically at {formatSeconds(recordingSeconds)}
+                {t("recording.stopsAt", {
+                  limit: formatSeconds(recordingSeconds),
+                })}
               </p>
               {isPaused ? (
                 <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-                  Timer is paused until you resume.
+                  {t("recording.timerPaused")}
                 </p>
               ) : null}
               <Button
@@ -221,7 +233,7 @@ export function InterviewPhase({
                 type="button"
                 variant="default"
               >
-                Done
+                {t("actions.done")}
               </Button>
             </div>
           ) : null}
@@ -246,19 +258,19 @@ export function InterviewPhase({
               {phase === "countdown" ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/20 px-6 text-center text-sm leading-relaxed text-foreground">
                   {isPaused
-                    ? "Countdown is paused."
-                    : "Recording begins automatically after the countdown."}
+                    ? t("preview.countdownPaused")
+                    : t("preview.countdownAutoStart")}
                 </div>
               ) : null}
               {phase === "recording" && isPaused ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/35 px-6 text-center text-sm leading-relaxed">
-                  Recording is paused. Resume to continue.
+                  {t("preview.recordingPaused")}
                 </div>
               ) : null}
             </>
           ) : (
             <div className="text-muted-foreground flex aspect-video items-center justify-center px-6 text-center text-sm leading-relaxed">
-              Camera preview appears when you start.
+              {t("preview.idle")}
             </div>
           )}
         </div>
@@ -268,7 +280,7 @@ export function InterviewPhase({
         <div className="grid w-full grid-cols-2 gap-3 text-sm">
           <div className="bg-muted/40 rounded-xl border border-border/60 px-4 py-3">
             <p className="text-muted-foreground text-xs tracking-wide uppercase">
-              Countdown
+              {t("metrics.countdown")}
             </p>
             <p className="mt-1 font-semibold tabular-nums">
               {startCountdownSeconds}s
@@ -276,7 +288,7 @@ export function InterviewPhase({
           </div>
           <div className="bg-muted/40 rounded-xl border border-border/60 px-4 py-3">
             <p className="text-muted-foreground text-xs tracking-wide uppercase">
-              Answer limit
+              {t("metrics.answerLimit")}
             </p>
             <p className="mt-1 font-semibold tabular-nums">
               {recordingSeconds}s
@@ -287,11 +299,10 @@ export function InterviewPhase({
         {phase === "idle" && savedTakeCount > 0 ? (
           <div className="bg-primary/10 w-full rounded-xl border border-primary/25 p-4">
             <p className="text-primary text-xs tracking-wide uppercase">
-              Saved takes
+              {t("savedTakes.title")}
             </p>
             <p className="mt-2 text-sm leading-relaxed">
-              {savedTakeCount} bookmarked{" "}
-              {savedTakeCount === 1 ? "take" : "takes"} on this device.
+              {t("savedTakes.count", { count: savedTakeCount })}
             </p>
             <Button
               className="mt-3"
@@ -299,14 +310,14 @@ export function InterviewPhase({
               type="button"
               variant="outline"
             >
-              Review saved takes
+              {t("savedTakes.reviewAction")}
             </Button>
           </div>
         ) : null}
 
         {error ? (
           <Alert variant="destructive">
-            <AlertTitle>Unable to continue</AlertTitle>
+            <AlertTitle>{t("errors.title")}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
