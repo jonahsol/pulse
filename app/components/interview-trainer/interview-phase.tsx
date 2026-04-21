@@ -15,6 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import type { Phase } from "./types";
+import { IconCheck } from "@tabler/icons-react";
 
 type InterviewPhaseProps = {
   canEndEarly: boolean;
@@ -32,13 +33,11 @@ type InterviewPhaseProps = {
   onEndEarly: () => void;
   onPrimaryAction: () => void;
   onTogglePause: () => void;
-  onViewSavedTakes: () => void;
   phase: Phase;
   previewRef: RefObject<HTMLVideoElement | null>;
   questionCount: number;
   recordingElapsedSeconds: number;
   recordingSeconds: number;
-  savedTakeCount: number;
   startCountdownSeconds: number;
 };
 
@@ -65,13 +64,11 @@ export function InterviewPhase({
   onEndEarly,
   onPrimaryAction,
   onTogglePause,
-  onViewSavedTakes,
   phase,
   previewRef,
   questionCount,
   recordingElapsedSeconds,
   recordingSeconds,
-  savedTakeCount,
   startCountdownSeconds,
 }: InterviewPhaseProps) {
   const t = useTranslations("InterviewPhase");
@@ -96,8 +93,8 @@ export function InterviewPhase({
           className="pointer-events-none absolute inset-0 z-[1] rounded-xl ring-1 ring-primary/25 ring-inset"
         />
       ) : null}
-      <CardHeader className="gap-4 space-y-0 pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <CardHeader className="gap-4 space-y-0 px-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="font-normal tracking-wide" variant="secondary">
               {isRetaking
@@ -137,7 +134,9 @@ export function InterviewPhase({
         </div>
 
         <Separator />
+      </CardHeader>
 
+      <div className="flex flex-col items-center justify-center gap-4">
         <div
           className={`transition-all duration-300 ${
             phase === "recording" ? "text-center" : "text-center md:px-2"
@@ -159,26 +158,25 @@ export function InterviewPhase({
             </p>
           )}
         </div>
-      </CardHeader>
+        {phase === "idle" ? (
+          <Button
+            className="rounded-full px-8 py-6 text-base"
+            disabled={isPreparing}
+            onClick={onPrimaryAction}
+            size="lg"
+            type="button"
+          >
+            {isPreparing
+              ? t("actions.preparingCamera")
+              : isRetaking
+                ? t("actions.retryRetake")
+                : t("actions.start")}
+          </Button>
+        ) : null}
+      </div>
 
-      <CardContent className="space-y-8">
-        <div className="flex min-h-[200px] flex-col items-center justify-center transition-opacity duration-300">
-          {phase === "idle" ? (
-            <Button
-              className="rounded-full px-8 py-6 text-base"
-              disabled={isPreparing}
-              onClick={onPrimaryAction}
-              size="lg"
-              type="button"
-            >
-              {isPreparing
-                ? t("actions.preparingCamera")
-                : isRetaking
-                  ? t("actions.retryRetake")
-                  : t("actions.start")}
-            </Button>
-          ) : null}
-
+      <CardContent>
+        <div className="flex flex-col items-center justify-center transition-opacity duration-300">
           {phase === "countdown" ? (
             <div className="text-center">
               <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
@@ -232,7 +230,9 @@ export function InterviewPhase({
                 onClick={onDoneRecording}
                 type="button"
                 variant="default"
+                data-icon="inline-start"
               >
+                <IconCheck />
                 {t("actions.done")}
               </Button>
             </div>
@@ -276,7 +276,7 @@ export function InterviewPhase({
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-6 pt-2">
+      <CardFooter className="flex flex-col gap-6">
         <div className="grid w-full grid-cols-2 gap-3 text-sm">
           <div className="bg-muted/40 rounded-xl border border-border/60 px-4 py-3">
             <p className="text-muted-foreground text-xs tracking-wide uppercase">
@@ -295,25 +295,6 @@ export function InterviewPhase({
             </p>
           </div>
         </div>
-
-        {phase === "idle" && savedTakeCount > 0 ? (
-          <div className="bg-primary/10 w-full rounded-xl border border-primary/25 p-4">
-            <p className="text-primary text-xs tracking-wide uppercase">
-              {t("savedTakes.title")}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed">
-              {t("savedTakes.count", { count: savedTakeCount })}
-            </p>
-            <Button
-              className="mt-3"
-              onClick={onViewSavedTakes}
-              type="button"
-              variant="outline"
-            >
-              {t("savedTakes.reviewAction")}
-            </Button>
-          </div>
-        ) : null}
 
         {error ? (
           <Alert variant="destructive">

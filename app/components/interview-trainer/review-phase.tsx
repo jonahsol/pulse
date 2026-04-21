@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useTranslations } from "next-intl";
 
 import { ReviewQuestionCard } from "./review-question-card";
-import { SavedTakesPanel } from "./saved-takes-panel";
 import type {
   QuestionRecording,
   Recording,
@@ -58,8 +56,8 @@ export function ReviewPhase({
   onToggleBookmark,
   recordings,
   recordingSeconds,
-  savedTakes,
   transcripts,
+  savedTakes,
 }: ReviewPhaseProps) {
   const t = useTranslations("ReviewPhase");
   const hasCurrentSessionTakes = recordings.some(
@@ -67,76 +65,65 @@ export function ReviewPhase({
   );
 
   return (
-    <ScrollArea className="h-[min(100vh-7rem,56rem)] pr-3 md:h-[min(100vh-8rem,60rem)]">
-      <div className="space-y-6 pb-8">
-        <Card className="border-border/80 bg-card/80 shadow-none backdrop-blur-sm">
-          <CardHeader className="gap-2">
-            <CardTitle>{t("title")}</CardTitle>
-            <CardDescription>{t("description")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {endedEarly ? (
-              <Alert>
-                <AlertTitle>{t("endedEarly.title")}</AlertTitle>
-                <AlertDescription>
-                  {t("endedEarly.description")}
-                </AlertDescription>
-              </Alert>
-            ) : null}
-            {bookmarkError ? (
-              <Alert variant="destructive">
-                <AlertTitle>{t("bookmarks.title")}</AlertTitle>
-                <AlertDescription>{bookmarkError}</AlertDescription>
-              </Alert>
-            ) : null}
-            <Separator />
-            <Button
-              className="w-full rounded-full sm:w-auto"
-              disabled={isPreparing}
-              onClick={() => {
-                void onRestartInterview();
-              }}
-              type="button"
-            >
-              {t("actions.startNewInterview")}
-            </Button>
+    <div className="space-y-6 pb-8">
+      <Card className="border-border/80 bg-card/80 shadow-none backdrop-blur-sm">
+        <CardHeader className="gap-2">
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {endedEarly ? (
+            <Alert>
+              <AlertTitle>{t("endedEarly.title")}</AlertTitle>
+              <AlertDescription>{t("endedEarly.description")}</AlertDescription>
+            </Alert>
+          ) : null}
+          {bookmarkError ? (
+            <Alert variant="destructive">
+              <AlertTitle>{t("bookmarks.title")}</AlertTitle>
+              <AlertDescription>{bookmarkError}</AlertDescription>
+            </Alert>
+          ) : null}
+          <Separator />
+          <Button
+            className="w-full rounded-full sm:w-auto"
+            disabled={isPreparing}
+            onClick={() => {
+              void onRestartInterview();
+            }}
+            type="button"
+          >
+            {t("actions.startNewInterview")}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {hasCurrentSessionTakes || endedEarly ? (
+        recordings.map((questionRecording, index) => (
+          <ReviewQuestionCard
+            endedEarly={endedEarly}
+            isLocked={isLocked}
+            isPreparing={isPreparing}
+            isSavingRecordingId={isSavingRecordingId}
+            key={questionRecording.question}
+            latestRecordingId={latestRecordingId}
+            onGenerateTranscript={onGenerateTranscript}
+            onStartRetake={onStartRetake}
+            onToggleBookmark={onToggleBookmark}
+            questionIndex={index}
+            questionRecording={questionRecording}
+            recordingSeconds={recordingSeconds}
+            savedTakeIds={savedTakes.map((savedTake) => savedTake.id)}
+            transcripts={transcripts}
+          />
+        ))
+      ) : (
+        <Card className="border-dashed border-border/80 bg-muted/20 shadow-none">
+          <CardContent className="text-muted-foreground space-y-4 py-8 text-sm leading-relaxed">
+            <p>{t("emptyState")}</p>
           </CardContent>
         </Card>
-
-        <SavedTakesPanel
-          onGenerateTranscript={onGenerateTranscript}
-          onRemoveBookmark={onRemoveBookmark}
-          savedTakes={savedTakes}
-          transcripts={transcripts}
-        />
-
-        {hasCurrentSessionTakes || endedEarly ? (
-          recordings.map((questionRecording, index) => (
-            <ReviewQuestionCard
-              endedEarly={endedEarly}
-              isLocked={isLocked}
-              isPreparing={isPreparing}
-              isSavingRecordingId={isSavingRecordingId}
-              key={questionRecording.question}
-              latestRecordingId={latestRecordingId}
-              onGenerateTranscript={onGenerateTranscript}
-              onStartRetake={onStartRetake}
-              onToggleBookmark={onToggleBookmark}
-              questionIndex={index}
-              questionRecording={questionRecording}
-              recordingSeconds={recordingSeconds}
-              savedTakeIds={savedTakes.map((savedTake) => savedTake.id)}
-              transcripts={transcripts}
-            />
-          ))
-        ) : (
-          <Card className="border-dashed border-border/80 bg-muted/20 shadow-none">
-            <CardContent className="text-muted-foreground space-y-4 py-8 text-sm leading-relaxed">
-              <p>{t("emptyState")}</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </ScrollArea>
+      )}
+    </div>
   );
 }

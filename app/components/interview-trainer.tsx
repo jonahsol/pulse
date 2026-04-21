@@ -650,8 +650,8 @@ export default function InterviewTrainer() {
           onToggleBookmark={toggleBookmark}
           recordings={recordings}
           recordingSeconds={RECORDING_SECONDS}
-          savedTakes={savedTakes}
           transcripts={transcripts}
+          savedTakes={savedTakes}
         />
       ) : (
         <InterviewPhase
@@ -672,13 +672,11 @@ export default function InterviewTrainer() {
             isRetaking ? startRetake(currentQuestionIndex) : startInterview()
           }
           onTogglePause={togglePause}
-          onViewSavedTakes={viewSavedTakes}
           phase={phase}
           previewRef={previewRef}
           questionCount={questions.length}
           recordingElapsedSeconds={recordingElapsedSeconds}
           recordingSeconds={RECORDING_SECONDS}
-          savedTakeCount={savedTakes.length}
           startCountdownSeconds={COUNTDOWN_SECONDS}
         />
       )}

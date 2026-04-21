@@ -1,23 +1,25 @@
 import { MockUI } from "@/app/components/mock-ui";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Landing() {
   return (
-    <>
-      {/* Header */}
-      <header className="space-y-3 text-center">
-        <p className="text-balance text-2xl font-medium text-foreground sm:text-3xl">
-          Train interview performance under pressure
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-4">
+        {/* Header */}
+        <header className="space-y-3 text-center">
+          <p className="text-balance text-2xl font-medium text-foreground sm:text-3xl">
+            Train interview performance under pressure
+          </p>
+        </header>
+
+        {/* Supporting paragraph */}
+        <p className="text-pretty text-center text-muted-foreground">
+          Most interviews don&apos;t fail on content — they fail on delivery.
+          Pressure breaks structure, clarity dissolves, and the moment slips
+          away. Pulse simulates that exact moment, so you can master it.
         </p>
-      </header>
-
-      {/* Supporting paragraph */}
-      <p className="text-pretty text-center text-muted-foreground">
-        Most interviews don&apos;t fail on content — they fail on delivery.
-        Pressure breaks structure, clarity dissolves, and the moment slips away.
-        Pulse simulates that exact moment, so you can master it.
-      </p>
-
+      </div>
       {/* Mock UI */}
       <MockUI />
 
@@ -53,15 +55,9 @@ export default function Landing() {
       {/* CTAs */}
       <div className="flex flex-col items-center gap-3 pt-2">
         <Button size="lg" className="w-full sm:w-auto">
-          Start Practice
+          <Link href="/practice">Start Practice</Link>
         </Button>
-        <button
-          type="button"
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Try a question
-        </button>
       </div>
-    </>
+    </div>
   );
 }

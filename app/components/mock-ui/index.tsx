@@ -127,8 +127,8 @@ export function MockUI() {
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Review
             </p>
-            <div className="flex items-center gap-3 rounded border border-border bg-muted/30 p-3">
-              <div className="h-10 w-14 rounded bg-muted flex items-center justify-center">
+            <div className="flex flex-wrap items-center gap-3 rounded border border-border bg-muted/30 p-3">
+              <div className="h-10 w-14 rounded bg-muted flex items-center justify-center shrink-0">
                 <IconPlayerPlay className="text-muted-foreground" />
               </div>
               <div className="flex-1">

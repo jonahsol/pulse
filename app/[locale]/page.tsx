@@ -1,5 +1,5 @@
-import InterviewTrainer from "../components/interview-trainer";
+import Landing from "@/app/components/landing";
 
 export default function LocalePage() {
-  return <InterviewTrainer />;
+  return <Landing />;
 }

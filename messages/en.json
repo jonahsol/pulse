@@ -1,6 +1,7 @@
 {
   "AppShell": {
-    "newSession": "New session",
+    "newSession": "New Practice",
+    "savedTakes": "Saved Takes",
     "madeWith": "Made with ❤️ by",
     "viewProject": "View project on"
   },
@@ -32,14 +33,14 @@
     },
     "badge": {
       "retake": "Retake",
-      "live": "Live",
+      "live": "Live Practice",
       "ready": "Ready"
     },
     "intro": "One prompt at a time, timed recording, then review. Start when you are ready.",
     "actions": {
       "resume": "Resume",
       "pause": "Pause",
-      "endEarly": "End early",
+      "endEarly": "End practice early",
       "preparingCamera": "Preparing camera…",
       "retryRetake": "Retry retake",
       "start": "Start",
@@ -77,7 +78,7 @@
   },
   "ReviewPhase": {
     "title": "Review",
-    "description": "Session takes stay in memory until you start a new session. Bookmarked takes remain on this device.",
+    "description": "Takes stay in memory until you start a new session. Saved takes remain on this device.",
     "endedEarly": {
       "title": "Ended early",
       "description": "Unanswered questions are marked as having no response."
@@ -86,7 +87,7 @@
       "title": "Bookmarks"
     },
     "actions": {
-      "startNewInterview": "Start new interview"
+      "startNewInterview": "Start new practice"
     },
     "emptyState": "No takes in this session yet. Start a new interview from the header, or open saved takes above."
   },
