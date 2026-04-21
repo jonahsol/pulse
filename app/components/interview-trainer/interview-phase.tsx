@@ -1,8 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import type { RefObject } from "react";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,9 +10,10 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-import type { Phase } from "./types";
 import { IconCheck } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
+import type { RefObject } from "react";
+import type { Phase } from "./types";
 
 type InterviewPhaseProps = {
   canEndEarly: boolean;
@@ -86,7 +84,7 @@ export function InterviewPhase({
         : null;
 
   return (
-    <Card className="relative w-full border-border/80 bg-card/80 shadow-none backdrop-blur-sm transition-opacity duration-300">
+    <Card className="gap-0 relative w-full border-border/80 bg-card/80 shadow-none backdrop-blur-sm transition-opacity duration-300">
       {isLocked ? (
         <div
           aria-hidden
@@ -136,7 +134,7 @@ export function InterviewPhase({
         <Separator />
       </CardHeader>
 
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 h-[90px] ">
         <div
           className={`transition-all duration-300 ${
             phase === "recording" ? "text-center" : "text-center md:px-2"
@@ -175,8 +173,8 @@ export function InterviewPhase({
         ) : null}
       </div>
 
-      <CardContent>
-        <div className="flex flex-col items-center justify-center transition-opacity duration-300">
+      <CardContent className="px-3 pb-3">
+        <div className="flex flex-col items-center justify-center transition-opacity duration-300 h-[250px] py-4">
           {phase === "countdown" ? (
             <div className="text-center">
               <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
@@ -194,7 +192,7 @@ export function InterviewPhase({
           ) : null}
 
           {phase === "recording" ? (
-            <div className="flex w-full flex-col items-center gap-6 text-center">
+            <div className="flex w-full flex-col items-center gap-4 text-center">
               <div className="flex items-center gap-2 text-sm">
                 <span
                   aria-hidden

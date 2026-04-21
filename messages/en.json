@@ -3,7 +3,7 @@
     "newSession": "New Practice",
     "savedTakes": "Saved Takes",
     "madeWith": "Made with ❤️ by",
-    "viewProject": "View project on"
+    "viewRepo": "Open source on"
   },
   "InterviewTrainer": {
     "questions": [
@@ -135,5 +135,26 @@
       "default": "Transcript",
       "label": "Transcript"
     }
+  },
+  "Landing": {
+    "headline": "Train interview performance under pressure",
+    "supporting": "Most interviews don't fail on content — they fail on delivery. Pressure breaks structure, clarity dissolves, and the moment slips away. Pulse simulates that exact moment, so you can master it.",
+    "howItWorks": {
+      "title": "How it works",
+      "steps": [
+        "Countdown — 5 seconds to prepare",
+        "Record — answer under time pressure",
+        "Review — watch, read transcript, add takes"
+      ]
+    },
+    "whatItTrains": {
+      "title": "What it trains",
+      "items": [
+        "Structured thinking under pressure",
+        "Clear, confident communication",
+        "Reducing freeze moments"
+      ]
+    },
+    "startPractice": "Start Practice"
   }
 }

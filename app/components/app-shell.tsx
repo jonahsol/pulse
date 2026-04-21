@@ -3,6 +3,7 @@ import { LocaleSwitch } from "@/app/components/locale-switch";
 import { ThemeToggle } from "@/app/components/theme-switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { IconBookmark } from "@tabler/icons-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -46,20 +47,8 @@ async function Header() {
         <PulseLogo />
       </Link>
 
-      <div className="flex items-center ml-auto">
+      <div className="flex items-start ml-auto md:items-center">
         <div className="flex">
-          {/* <Button
-            size="sm"
-            type="button"
-            variant="ghost"
-            data-icon="inline-start"
-            asChild
-          >
-            <Link href="/practice">
-              <IconPlus />
-              {t("newSession")}
-            </Link>
-          </Button> */}
           <Button
             size="sm"
             type="button"
@@ -71,45 +60,65 @@ async function Header() {
           </Button>
         </div>
 
-        <Separator orientation="vertical" className="ml-6 mr-8" />
+        <Separator
+          orientation="vertical"
+          className="ml-6 mr-8 hidden md:block"
+        />
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LocaleSwitch />
-        </div>
+        <SystemControls className="hidden md:flex" />
       </div>
     </header>
   );
 }
 
-function Footer() {
+function SystemControls({ className }: { className?: string }) {
   return (
-    <footer className="py-4 border-t border-t-border flex flex-col items-center">
-      <div className="text-sm text-muted-foreground">
-        Made with ❤️ by{" "}
-        <Button variant="link" asChild className="p-0">
-          <a
-            href="https://jonahsol.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className={cn("flex items-center gap-2", className)}>
+      <ThemeToggle />
+      <LocaleSwitch />
+    </div>
+  );
+}
+
+async function Footer() {
+  const t = await getTranslations("AppShell");
+
+  return (
+    <footer className="p-4 border-t border-t-border flex justify-between">
+      <div className="flex flex-col items-start md:items-center gap-2 md:items-start">
+        <div className="text-sm text-muted-foreground">
+          {t("madeWith")}
+          <Button variant="link" asChild className="p-0">
+            <a
+              href="https://jonahsol.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Jonah Sol
+            </a>
+          </Button>
+        </div>
+
+        <div className="text-sm text-muted-foreground">
+          {t("viewRepo")}{" "}
+          <Button
+            variant="link"
+            asChild
+            className="p-0"
+            data-icon="inline-start"
           >
-            Jonah Sol
-          </a>
-        </Button>
+            <a
+              href="https://github.com/jonahsol/pulse-interview-trainer"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </Button>
+        </div>
       </div>
 
-      <div className="text-sm text-muted-foreground">
-        View project on{" "}
-        <Button variant="link" asChild className="p-0" data-icon="inline-start">
-          <a
-            href="https://github.com/jonahsol/pulse-interview-trainer"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-        </Button>
-      </div>
+      <SystemControls className="md:hidden" />
     </footer>
   );
 }

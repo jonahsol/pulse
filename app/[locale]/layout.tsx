@@ -1,5 +1,4 @@
 import { AppShell } from "@/app/components/app-shell";
-import { Providers } from "@/app/components/providers";
 import { routing } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
@@ -20,9 +19,5 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  return (
-    <Providers>
-      <AppShell>{children}</AppShell>
-    </Providers>
-  );
+  return <AppShell>{children}</AppShell>;
 }

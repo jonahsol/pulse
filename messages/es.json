@@ -1,8 +1,9 @@
 {
   "AppShell": {
     "newSession": "Nueva sesión",
+    "savedTakes": "Tomas guardadas",
     "madeWith": "Hecho con ❤️ por",
-    "viewProject": "Ver proyecto en"
+    "viewRepo": "Código abierto en"
   },
   "InterviewTrainer": {
     "questions": [
@@ -134,5 +135,26 @@
       "default": "Transcripción",
       "label": "Transcripción"
     }
+  },
+  "Landing": {
+    "headline": "Entrena tu desempeño en entrevistas bajo presión",
+    "supporting": "La mayoría de las entrevistas no fracasan por el contenido, sino por cómo lo comunicas. La presión rompe la estructura, la claridad se diluye y el momento se escapa. Pulse simula ese instante exacto para que puedas dominarlo.",
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "steps": [
+        "Cuenta regresiva: 5 segundos para prepararte",
+        "Graba: responde bajo presión de tiempo",
+        "Revisa: mira, lee la transcripción y añade tomas"
+      ]
+    },
+    "whatItTrains": {
+      "title": "Qué entrena",
+      "items": [
+        "Pensamiento estructurado bajo presión",
+        "Comunicación clara y segura",
+        "Menos bloqueos en el momento"
+      ]
+    },
+    "startPractice": "Comenzar práctica"
   }
 }
