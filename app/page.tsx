@@ -1,8 +1,8 @@
-// import InterviewTrainer from "./interview-trainer";
+import InterviewTrainer from "./interview-trainer";
 
-import Landing from "@/app/landing";
+// import Landing from "@/app/landing";
 
 export default function Page() {
-  return <Landing />;
-  //   return <InterviewTrainer />;
+  //   return <Landing />;
+  return <InterviewTrainer />;
 }

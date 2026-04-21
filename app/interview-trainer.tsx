@@ -10,7 +10,6 @@ import type {
   SavedTake,
   TranscriptState,
 } from "./components/interview-trainer/types";
-import { PulseShell } from "./components/pulse-shell";
 
 const QUESTIONS = [
   "Tell me about yourself and the kind of work that energizes you.",
@@ -634,66 +633,54 @@ export default function InterviewTrainer() {
   const recordingElapsedSeconds = RECORDING_SECONDS - recordingTimeLeft;
 
   return (
-    <main className="bg-background text-foreground min-h-screen">
-      <PulseShell
-        disableNewSession={isLocked}
-        isPreparing={isPreparing}
-        onNewSession={() => {
-          void startInterview();
-        }}
-      >
-        <div className="flex flex-1 flex-col justify-center py-6 md:py-10">
-          {phase === "review" ? (
-            <ReviewPhase
-              bookmarkError={bookmarkError}
-              endedEarly={endedEarly}
-              isLocked={isLocked}
-              isPreparing={isPreparing}
-              isSavingRecordingId={isSavingRecordingId}
-              latestRecordingId={latestRecordingId}
-              onGenerateTranscript={generateTranscript}
-              onRemoveBookmark={removeBookmark}
-              onRestartInterview={startInterview}
-              onStartRetake={startRetake}
-              onToggleBookmark={toggleBookmark}
-              recordings={recordings}
-              recordingSeconds={RECORDING_SECONDS}
-              savedTakes={savedTakes}
-              transcripts={transcripts}
-            />
-          ) : (
-            <InterviewPhase
-              canEndEarly={canEndEarly}
-              canTogglePause={canTogglePause}
-              countdown={countdown}
-              currentQuestion={currentQuestion}
-              currentQuestionIndex={currentQuestionIndex}
-              error={error}
-              hasInterviewStarted={hasInterviewStarted}
-              isLocked={isLocked}
-              isPaused={isPaused}
-              isPreparing={isPreparing}
-              isRetaking={isRetaking}
-              onDoneRecording={stopRecording}
-              onEndEarly={endInterviewEarly}
-              onPrimaryAction={() =>
-                isRetaking
-                  ? startRetake(currentQuestionIndex)
-                  : startInterview()
-              }
-              onTogglePause={togglePause}
-              onViewSavedTakes={viewSavedTakes}
-              phase={phase}
-              previewRef={previewRef}
-              questionCount={QUESTIONS.length}
-              recordingElapsedSeconds={recordingElapsedSeconds}
-              recordingSeconds={RECORDING_SECONDS}
-              savedTakeCount={savedTakes.length}
-              startCountdownSeconds={COUNTDOWN_SECONDS}
-            />
-          )}
-        </div>
-      </PulseShell>
-    </main>
+    <div className="flex flex-1 flex-col justify-center">
+      {phase === "review" ? (
+        <ReviewPhase
+          bookmarkError={bookmarkError}
+          endedEarly={endedEarly}
+          isLocked={isLocked}
+          isPreparing={isPreparing}
+          isSavingRecordingId={isSavingRecordingId}
+          latestRecordingId={latestRecordingId}
+          onGenerateTranscript={generateTranscript}
+          onRemoveBookmark={removeBookmark}
+          onRestartInterview={startInterview}
+          onStartRetake={startRetake}
+          onToggleBookmark={toggleBookmark}
+          recordings={recordings}
+          recordingSeconds={RECORDING_SECONDS}
+          savedTakes={savedTakes}
+          transcripts={transcripts}
+        />
+      ) : (
+        <InterviewPhase
+          canEndEarly={canEndEarly}
+          canTogglePause={canTogglePause}
+          countdown={countdown}
+          currentQuestion={currentQuestion}
+          currentQuestionIndex={currentQuestionIndex}
+          error={error}
+          hasInterviewStarted={hasInterviewStarted}
+          isLocked={isLocked}
+          isPaused={isPaused}
+          isPreparing={isPreparing}
+          isRetaking={isRetaking}
+          onDoneRecording={stopRecording}
+          onEndEarly={endInterviewEarly}
+          onPrimaryAction={() =>
+            isRetaking ? startRetake(currentQuestionIndex) : startInterview()
+          }
+          onTogglePause={togglePause}
+          onViewSavedTakes={viewSavedTakes}
+          phase={phase}
+          previewRef={previewRef}
+          questionCount={QUESTIONS.length}
+          recordingElapsedSeconds={recordingElapsedSeconds}
+          recordingSeconds={RECORDING_SECONDS}
+          savedTakeCount={savedTakes.length}
+          startCountdownSeconds={COUNTDOWN_SECONDS}
+        />
+      )}
+    </div>
   );
 }
