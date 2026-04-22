@@ -1,19 +1,26 @@
 * TODOs
-** TODO Landing page
-*** TODO Fix footer spacing
-*** TODO Updated "How it works"
+** TODO Dev
+*** DONE Add missing button icons
+*** TODO Landing page
+**** TODO Fix footer spacing
+**** TODO Updated "How it works"
 👉 5s countdown — think fast
 👉 Record — 60s response
 👉 Review — watch, read, iterate
-*** TODO Logo gradient
-*** TODO Favicon logo
-*** TODO Powerup demo card with Aceternity card effect
-** TODO Practice phase
-*** TODO Review
-*** TODO Lift state
-*** TODO Add icon on the transcript button
-** TODO Review phase
-** TODO Saved takes
-** TODO Localisation
-*** TODO Questions are localised
-*** TODO Add PT, FR, DE translations
+**** TODO Logo gradient
+**** TODO Favicon logo
+**** TODO Powerup demo card with Aceternity card effect
+*** TODO Practice phase
+**** TODO Fix bad layout
+**** TODO Lift state
+**** TODO Add icon on the transcript button
+*** TODO Review phase
+*** TODO Saved takes
+*** TODO Localisation
+**** TODO Questions are localised
+**** TODO Add PT, FR, DE translations
+** TODO Reach
+*** TODO GitHub repo
+*** TODO LinkedIn post
+*** TODO Footer privacy note
+Pulse is a client-side tool. Your recordings never leave your browser and are stored locally.

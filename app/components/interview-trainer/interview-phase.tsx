@@ -10,7 +10,12 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { IconCheck } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconPlayerPauseFilled,
+  IconPlayerPlayFilled,
+  IconPlayerStopFilled,
+} from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
 import type { RefObject } from "react";
 import type { Phase } from "./types";
@@ -111,10 +116,16 @@ export function InterviewPhase({
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 onClick={onTogglePause}
+                data-icon="inline-start"
                 size="sm"
                 type="button"
                 variant="outline"
               >
+                {isPaused ? (
+                  <IconPlayerPlayFilled />
+                ) : (
+                  <IconPlayerPauseFilled />
+                )}
                 {isPaused ? t("actions.resume") : t("actions.pause")}
               </Button>
               {canEndEarly ? (
@@ -123,7 +134,9 @@ export function InterviewPhase({
                   size="sm"
                   type="button"
                   variant="destructive"
+                  data-icon="inline-start"
                 >
+                  <IconPlayerStopFilled />
                   {t("actions.endEarly")}
                 </Button>
               ) : null}

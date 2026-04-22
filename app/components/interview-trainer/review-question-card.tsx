@@ -1,11 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { IconPlus, IconSubtitlesAi } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import type { QuestionRecording, Recording, TranscriptState } from "./types";
 
 type ReviewQuestionCardProps = {
@@ -72,28 +72,32 @@ export function ReviewQuestionCard({
 
   return (
     <Card className="border-border/80 bg-card/90 shadow-none backdrop-blur-sm">
-      <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-2">
-          <Badge variant="secondary">
-            {t("questionBadge", { question: questionIndex + 1 })}
-          </Badge>
-          <CardTitle className="text-lg font-medium leading-snug">
-            {questionRecording.question}
-          </CardTitle>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">
-            {t("limit", { seconds: recordingSeconds })}
-          </Badge>
+      <CardHeader className="flex flex-col gap-4 items-stretch">
+        <div className="flex justify-between">
+          <div className="flex shrink-0 items-center gap-1">
+            <Badge variant="secondary">
+              {t("questionBadge", { question: questionIndex + 1 })}
+            </Badge>
+
+            <Badge variant="outline">
+              {t("limit", { seconds: recordingSeconds })}
+            </Badge>
+          </div>
+
           <Button
             disabled={isPreparing || isLocked}
             onClick={() => onStartRetake(questionIndex)}
             size="sm"
             type="button"
+            data-icon="inline-start"
           >
+            <IconPlus />
             {t("actions.addTake")}
           </Button>
         </div>
+        <CardTitle className="text-lg font-medium leading-snug">
+          {questionRecording.question}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {hasNoResponse ? (
@@ -171,7 +175,9 @@ export function ReviewQuestionCard({
                         size="sm"
                         type="button"
                         variant="outline"
+                        data-icon="inline-start"
                       >
+                        <IconSubtitlesAi />
                         {transcripts[recording.id]?.status === "loading"
                           ? t("transcript.generating")
                           : transcripts[recording.id]?.status === "ready"
