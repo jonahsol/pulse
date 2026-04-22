@@ -2,13 +2,13 @@
 ** TODO Dev
 *** DONE Add missing button icons
 *** TODO Landing page
-**** TODO Fix footer spacing
-**** TODO Updated "How it works"
+**** DONE Fix footer spacing
+**** DONE Updated "How it works"
 👉 5s countdown — think fast
 👉 Record — 60s response
 👉 Review — watch, read, iterate
-**** TODO Logo gradient
-**** TODO Favicon logo
+**** DONE Logo gradient
+**** DONE Favicon logo
 **** TODO Powerup demo card with Aceternity card effect
 *** WIP Practice phase
 **** DONE Fix bad layout

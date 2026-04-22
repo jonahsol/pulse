@@ -79,44 +79,44 @@ function SystemControls({ className }: { className?: string }) {
 }
 
 async function Footer() {
+  return (
+    <footer className="p-4 border-t border-t-border flex justify-between sm:justify-center">
+      <BackLinks />
+      <SystemControls className="sm:hidden" />
+    </footer>
+  );
+}
+
+async function BackLinks() {
   const t = await getTranslations("AppShell");
 
   return (
-    <footer className="p-4 border-t border-t-border flex justify-between sm:justify-center">
-      <div className="flex flex-col items-start sm:items-center gap-2">
-        <div className="text-sm text-muted-foreground">
-          {t("madeWith")}{" "}
-          <Button variant="link" asChild className="p-0">
-            <a
-              href="https://jonahsol.dev/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Jonah Sol
-            </a>
-          </Button>
-        </div>
-
-        <div className="text-sm text-muted-foreground">
-          {t("viewRepo")}{" "}
-          <Button
-            variant="link"
-            asChild
-            className="p-0"
-            data-icon="inline-start"
+    <div className="flex flex-col items-start sm:items-center">
+      <div className="text-sm text-muted-foreground">
+        {t("madeWith")}{" "}
+        <Button variant="link" asChild className="p-0">
+          <a
+            href="https://jonahsol.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <a
-              href="https://github.com/jonahsol/pulse-interview-trainer"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-          </Button>
-        </div>
+            Jonah Sol
+          </a>
+        </Button>
       </div>
 
-      <SystemControls className="sm:hidden" />
-    </footer>
+      <div className="text-sm text-muted-foreground">
+        {t("viewRepo")}{" "}
+        <Button variant="link" asChild className="p-0" data-icon="inline-start">
+          <a
+            href="https://github.com/jonahsol/pulse-interview-trainer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </Button>
+      </div>
+    </div>
   );
 }
