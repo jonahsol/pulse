@@ -29,7 +29,7 @@
   "InterviewPhase": {
     "questionHeading": {
       "standard": "Question {current} of {total}",
-      "retake": "Retake · Question {current}"
+      "retake": "Question {current}"
     },
     "badge": {
       "retake": "Retake",
@@ -44,7 +44,7 @@
       "preparingCamera": "Preparing camera…",
       "retryRetake": "Retry retake",
       "start": "Start",
-      "done": "Done"
+      "done": "Finish Recording"
     },
     "countdown": {
       "paused": "Paused",
@@ -95,7 +95,7 @@
     "questionBadge": "Question {question}",
     "limit": "{seconds}s limit",
     "actions": {
-      "addTake": "Add take"
+      "addTake": "Add Take"
     },
     "noResponse": {
       "endedEarlyTitle": "No response recorded",
