@@ -19,6 +19,7 @@ import type {
   SavedTake,
   TranscriptState,
 } from "./types";
+import { IconReload } from "@tabler/icons-react";
 
 type ReviewPhaseProps = {
   bookmarkError: string;
@@ -92,7 +93,9 @@ export function ReviewPhase({
               void onRestartInterview();
             }}
             type="button"
+            data-icon="inline-start"
           >
+            <IconReload />
             {t("actions.startNewInterview")}
           </Button>
         </CardContent>

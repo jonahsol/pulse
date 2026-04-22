@@ -40,7 +40,7 @@
     "actions": {
       "resume": "Resume",
       "pause": "Pause",
-      "endEarly": "End practice early",
+      "endEarly": "End Practice Early",
       "preparingCamera": "Preparing camera…",
       "retryRetake": "Retry retake",
       "start": "Start",
@@ -87,7 +87,7 @@
       "title": "Bookmarks"
     },
     "actions": {
-      "startNewInterview": "Start new practice"
+      "startNewInterview": "Start New Practice"
     },
     "emptyState": "No takes in this session yet. Start a new interview from the header, or open saved takes above."
   },

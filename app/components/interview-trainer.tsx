@@ -639,7 +639,8 @@ export default function InterviewTrainer() {
         <ReviewPhase
           bookmarkError={bookmarkError}
           endedEarly={endedEarly}
-          isLocked={isLocked}
+          //   isLocked={isLocked}
+          isLocked={false}
           isPreparing={isPreparing}
           isSavingRecordingId={isSavingRecordingId}
           latestRecordingId={latestRecordingId}
@@ -662,7 +663,8 @@ export default function InterviewTrainer() {
           currentQuestionIndex={currentQuestionIndex}
           error={error}
           hasInterviewStarted={hasInterviewStarted}
-          isLocked={isLocked}
+          //   isLocked={isLocked}
+          isLocked={false}
           isPaused={isPaused}
           isPreparing={isPreparing}
           isRetaking={isRetaking}

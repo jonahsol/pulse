@@ -10,11 +10,11 @@
 **** TODO Logo gradient
 **** TODO Favicon logo
 **** TODO Powerup demo card with Aceternity card effect
-*** TODO Practice phase
-**** TODO Fix bad layout
+*** WIP Practice phase
+**** DONE Fix bad layout
 **** TODO Lift state
-**** TODO Add icon on the transcript button
-*** TODO Review phase
+*** WIP Review phase
+**** DONE Add icon on the transcript button
 *** TODO Saved takes
 *** TODO Localisation
 **** TODO Questions are localised
