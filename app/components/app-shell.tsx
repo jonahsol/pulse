@@ -47,25 +47,23 @@ async function Header() {
         <PulseLogo />
       </Link>
 
-      <div className="flex items-start ml-auto md:items-center">
-        <div className="flex">
-          <Button
-            size="sm"
-            type="button"
-            variant="ghost"
-            data-icon="inline-start"
-          >
-            <IconBookmark />
-            {t("savedTakes")}
-          </Button>
-        </div>
+      <div className="flex ml-auto">
+        <Button
+          size="sm"
+          type="button"
+          variant="ghost"
+          data-icon="inline-start"
+        >
+          <IconBookmark />
+          {t("savedTakes")}
+        </Button>
 
         <Separator
           orientation="vertical"
-          className="ml-6 mr-8 hidden md:block"
+          className="ml-6 mr-8 hidden sm:block"
         />
 
-        <SystemControls className="hidden md:flex" />
+        <SystemControls className="hidden sm:flex" />
       </div>
     </header>
   );
@@ -84,8 +82,8 @@ async function Footer() {
   const t = await getTranslations("AppShell");
 
   return (
-    <footer className="p-4 border-t border-t-border flex justify-between">
-      <div className="flex flex-col items-start md:items-center gap-2 md:items-start">
+    <footer className="p-4 border-t border-t-border flex justify-between sm:justify-center">
+      <div className="flex flex-col items-start sm:items-center gap-2">
         <div className="text-sm text-muted-foreground">
           {t("madeWith")}
           <Button variant="link" asChild className="p-0">
@@ -118,7 +116,7 @@ async function Footer() {
         </div>
       </div>
 
-      <SystemControls className="md:hidden" />
+      <SystemControls className="sm:hidden" />
     </footer>
   );
 }
