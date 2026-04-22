@@ -85,7 +85,7 @@ async function Footer() {
     <footer className="p-4 border-t border-t-border flex justify-between sm:justify-center">
       <div className="flex flex-col items-start sm:items-center gap-2">
         <div className="text-sm text-muted-foreground">
-          {t("madeWith")}
+          {t("madeWith")}{" "}
           <Button variant="link" asChild className="p-0">
             <a
               href="https://jonahsol.dev/"
