@@ -1,0 +1,221 @@
+{
+  "EditQuestions": {
+    "title": "Interview Questions",
+    "description": "Customize your practice set",
+    "closeAria": "Close question editor",
+    "addQuestion": "+ Add question",
+    "done": "Done",
+    "count": "{count, plural, one {# question} other {# questions}}",
+    "generation": {
+      "helper": "Paste a job description to generate tailored interview questions.",
+      "placeholder": "Paste job description here...",
+      "replaceHint": "Generated questions replace the current list.",
+      "generate": "Generate Interview Questions",
+      "loading": "Generating interview questions...",
+      "error": "Unable to generate questions."
+    },
+    "replace": {
+      "title": "Replace existing questions?",
+      "description": "Generated questions will replace your current practice set.",
+      "cancel": "Cancel",
+      "confirm": "Replace"
+    },
+    "row": {
+      "placeholder": "Enter interview question...",
+      "label": "Question {index}",
+      "reorderAria": "Reorder question {index}",
+      "deleteAria": "Delete question {index}"
+    }
+  },
+  "MockUI": {
+    "tooltip": "Start a timed interview practice",
+    "question": {
+      "label": "Question",
+      "prompt": "Tell me about a time you had to make a decision with incomplete information."
+    },
+    "countdown": {
+      "startingIn": "Starting in"
+    },
+    "recording": {
+      "label": "Recording"
+    },
+    "review": {
+      "label": "Review",
+      "attempt": "Attempt 1",
+      "duration": "0:42",
+      "transcript": "Transcript",
+      "save": "Save"
+    }
+  },
+  "AppShell": {
+    "newSession": "New Practice",
+    "savedTakes": "Saved Takes",
+    "madeWith": "Made with ❤️ by",
+    "viewRepo": "Open source on"
+  },
+  "InterviewConfig": {
+    "countdownDuration": {
+      "label": "Countdown",
+      "title": "Countdown Duration",
+      "description": "Set the countdown time before each question starts."
+    },
+    "responseDuration": {
+      "label": "Answer limit",
+      "title": "Response Duration",
+      "description": "Set the maximum time allowed for each response."
+    },
+    "questions": {
+      "label": "Questions",
+      "title": "Questions",
+      "description": "Set the number of questions to practice."
+    }
+  },
+  "InterviewTrainer": {
+    "questions": [
+      "Tell me about yourself and the kind of work that energizes you.",
+      "Describe a challenging project you owned and how you handled trade-offs.",
+      "Describe a time you had to deliver a project on a very tight deadline.",
+      "Why are you interested in this role, and what would you want to accomplish first?"
+    ],
+    "errors": {
+      "browserNotSupported": "This browser does not support camera recording.",
+      "cameraAccessRequired": "Camera and microphone access are required to start.",
+      "resumeRecording": "Unable to resume recording right now.",
+      "pauseRecording": "Unable to pause recording right now.",
+      "readTakeForBookmark": "Unable to read this take for bookmarking.",
+      "bookmarkTake": "Unable to bookmark this take right now.",
+      "readRecordingForTranscription": "Unable to read the recording for transcription.",
+      "transcriptionFailed": "Transcription failed.",
+      "generateTranscript": "Unable to generate a transcript right now.",
+      "cameraStreamUnavailable": "Unable to access the camera stream for this question.",
+      "recordingFailed": "Recording failed. Please refresh and try again."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Question {current} of {total}",
+      "retake": "Question {current}"
+    },
+    "badge": {
+      "retake": "Adding Take",
+      "live": "Live Practice",
+      "ready": "Ready"
+    },
+    "intro": "One prompt at a time, timed recording, then review. Start when you are ready.",
+    "actions": {
+      "resume": "Resume",
+      "pause": "Pause",
+      "endEarly": "End Practice Early",
+      "preparingCamera": "Preparing camera…",
+      "retryRetake": "Retry retake",
+      "start": "Start",
+      "done": "Finish Recording"
+    },
+    "countdown": {
+      "paused": "Paused",
+      "startingIn": "Starting in",
+      "resumeHelp": "Resume when you are ready to continue the countdown."
+    },
+    "recording": {
+      "paused": "Recording paused",
+      "active": "Recording",
+      "stopsAt": "Stops automatically at {limit}",
+      "timerPaused": "Timer is paused until you resume."
+    },
+    "preview": {
+      "countdownPaused": "Countdown is paused.",
+      "countdownAutoStart": "Recording begins automatically after the countdown.",
+      "recordingPaused": "Recording is paused. Resume to continue.",
+      "idle": "Camera preview appears when you start."
+    },
+    "savedTakes": {
+      "title": "Saved takes",
+      "count": "{count, plural, one {# bookmarked take on this device.} other {# bookmarked takes on this device.}}",
+      "reviewAction": "Review saved takes"
+    },
+    "errors": {
+      "title": "Unable to continue"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Review",
+    "description": "Takes stay in memory until you start a new session. Saved takes remain on this device.",
+    "endedEarly": {
+      "title": "Ended early",
+      "description": "Unanswered questions are marked as having no response."
+    },
+    "bookmarks": {
+      "title": "Bookmarks"
+    },
+    "actions": {
+      "startNewInterview": "Start New Practice"
+    },
+    "emptyState": "No takes in this session yet. Start a new interview from the header, or open saved takes above."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Question {question}",
+    "limit": "{seconds}s limit",
+    "actions": {
+      "addTake": "Add Take"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "No response recorded",
+      "title": "No takes yet",
+      "endedEarlyDescription": "The interview ended before this prompt was answered.",
+      "description": "Record an answer to build a history for this prompt."
+    },
+    "take": "Take {number}",
+    "originalSuffix": "· Original",
+    "latest": "Latest",
+    "bookmark": {
+      "saving": "Saving…",
+      "saved": "Bookmarked",
+      "default": "Bookmark"
+    },
+    "transcript": {
+      "generating": "Generating transcript…",
+      "regenerate": "Regenerate transcript",
+      "default": "Transcript",
+      "label": "Transcript"
+    }
+  },
+  "SavedTakesPanel": {
+    "title": "Saved takes",
+    "description": "Stored in this browser so you can revisit them later.",
+    "savedCount": "{count, plural, one {# saved take} other {# saved takes}}",
+    "questionBadge": "Question {question}",
+    "actions": {
+      "removeBookmarkAria": "Remove bookmark"
+    },
+    "saved": "Saved",
+    "recordedAt": "Recorded {date}",
+    "savedAt": "Saved {date}",
+    "transcript": {
+      "generating": "Generating transcript…",
+      "regenerate": "Regenerate transcript",
+      "default": "Transcript",
+      "label": "Transcript"
+    }
+  },
+  "Landing": {
+    "headline": "Train interview performance under pressure",
+    "supporting": "Most interviews don't fail on content — they fail on delivery. Pressure breaks structure, clarity dissolves, and the moment slips away. Pulse simulates that exact moment, so you can master it.",
+    "howItWorks": {
+      "title": "How it works",
+      "steps": [
+        "5s countdown — think fast",
+        "Record — 60s response",
+        "Review — watch, read, improve"
+      ]
+    },
+    "whatItTrains": {
+      "title": "What it trains",
+      "items": [
+        "Structured thinking under pressure",
+        "Clear, confident communication",
+        "Reducing freeze moments"
+      ]
+    },
+    "startPractice": "Start Practice"
+  }
+}

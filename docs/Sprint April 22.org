@@ -1,7 +1,7 @@
 * TODOs
 ** TODO Dev
 *** DONE Add missing button icons
-*** TODO Landing page
+*** DONE Landing page
 **** DONE Fix footer spacing
 **** DONE Updated "How it works"
 👉 5s countdown — think fast
@@ -9,13 +9,23 @@
 👉 Review — watch, read, iterate
 **** DONE Logo gradient
 **** DONE Favicon logo
-**** TODO Powerup demo card with Aceternity card effect
-*** WIP Practice phase
-**** DONE Fix bad layout
-**** TODO Lift state
-*** WIP Review phase
+**** DONE Powerup demo card with Aceternity card effect
+*** DONE Review phase
 **** DONE Add icon on the transcript button
+*** DONE Practice phase
+**** DONE Fix bad layout
+*** DONE Refactor AI-generation
+*** DONE Edit countdown & questions
+*** TODO Long user-defined questions overflow
+*** TODO Review screen UI cleanup
+The AI-generated UI could be better
+*** TODO Transcript functionality
+*** TODO Interview lifecycle fix
+At the moment takes across
+*** TODO Storage
+Current interview state should be saved in local storage so that it's not wiped when user closes page and comes back
 *** TODO Saved takes
+Create a modal or separate page where user can review their saved takes
 *** TODO Localisation
 **** TODO Questions are localised
 **** TODO Add PT, FR, DE translations
