@@ -176,7 +176,9 @@
       "generating": "Generating transcript…",
       "regenerate": "Regenerate transcript",
       "default": "Transcript",
-      "label": "Transcript"
+      "label": "Transcript",
+      "copyTooltip": "Copy transcript",
+      "copiedTooltip": "Transcript copied"
     }
   },
   "SavedTakesPanel": {

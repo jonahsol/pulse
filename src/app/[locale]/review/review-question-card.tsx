@@ -4,40 +4,19 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Copyable } from "@/components/ui/copyable";
 import { Separator } from "@/components/ui/separator";
 import { Question, QuestionResponse } from "@/logic/types";
 import { IconPlus, IconSubtitlesAi } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
-function BookmarkIcon({
-  className,
-  filled = false,
-}: {
-  className?: string;
-  filled?: boolean;
-}) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="M7 4.75A1.75 1.75 0 0 1 8.75 3h6.5A1.75 1.75 0 0 1 17 4.75V21l-5-3.2L7 21V4.75Z" />
-    </svg>
-  );
-}
-
 type ReviewQuestionCardProps = {
   endedEarly: boolean;
   question: Question;
   questionDuration: number;
   responses: QuestionResponse[];
+  onResponses: (responses: QuestionResponse[]) => void;
   onAddTake: () => void;
 };
 
@@ -46,6 +25,7 @@ export function ReviewQuestionCard({
   questionDuration,
   question,
   responses,
+  onResponses,
   endedEarly,
 }: ReviewQuestionCardProps) {
   const t = useTranslations("ReviewQuestionCard");
@@ -103,15 +83,6 @@ export function ReviewQuestionCard({
             </AlertDescription>
           </Alert>
         ) : (
-          // <div className="flex gap-4">
-          //     {responses.map((response, index) => (
-          //         <div key={index}>
-          //             <div>
-          //                 <p>{response.transcript}</p>
-          //             </div>
-          //         </div>
-          //     ))}
-          // </div>
           <div className="flex gap-5 overflow-x-auto px-5 pb-5">
             {/* {repeat(responses[0], 10).map((response, attemptIndex) => { */}
             {responses.map((response, attemptIndex) => {
@@ -133,7 +104,17 @@ export function ReviewQuestionCard({
                       ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Controls response={response} />
+                      <ResponseControls
+                        response={response}
+                        onResponse={(response) => {
+                          // Replace the response in the responses array
+                          onResponses(
+                            responses.map((r) =>
+                              r.id === response.id ? response : r,
+                            ),
+                          );
+                        }}
+                      />
                     </div>
                     {/* <span className="text-muted-foreground text-xs">
                       {new Date(response.createdAt).toLocaleTimeString()}
@@ -148,6 +129,15 @@ export function ReviewQuestionCard({
                     preload="metadata"
                     src={URL.createObjectURL(response.recording)}
                   />
+                  {response.transcript && (
+                    <Copyable
+                      copyValue={response.transcript}
+                      hoverTooltip={t("transcript.copyTooltip")}
+                      copiedTooltip={t("transcript.copiedTooltip")}
+                    >
+                      <p>{response.transcript}</p>
+                    </Copyable>
+                  )}
                 </div>
               );
             })}
@@ -162,31 +152,27 @@ type ResponseControlsProps = {
   response: QuestionResponse;
   onResponse: (response: QuestionResponse) => void;
 };
-function Controls({ response }: ResponseControlsProps) {
+function ResponseControls({ response, onResponse }: ResponseControlsProps) {
   const t = useTranslations("ReviewQuestionCard");
 
-  const transcriptMutation = useMutation(
-    {
-      mutationFn: async () => {
-        const formData = new FormData();
-        formData.append("file", response.recording);
-        const resp = await fetch("/api/transcript", {
-          method: "POST",
-          body: formData,
-        });
+  const transcriptMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("file", response.recording);
+      const resp = await fetch("/api/transcript", {
+        method: "POST",
+        body: formData,
+      });
 
-        return resp.json();
-      },
+      return resp.json();
     },
-    {
-      onSuccess: (data) => {
-        onResponse({
-          ...response,
-          transcript: data.transcript,
-        });
-      },
+    onSuccess: (data) => {
+      onResponse({
+        ...response,
+        transcript: data.transcript,
+      });
     },
-  );
+  });
 
   return (
     <>

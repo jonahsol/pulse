@@ -12,9 +12,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { previousInterviewAtom, responsesAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
-import { Question } from "@/logic/types";
+import { Question, QuestionResponse } from "@/logic/types";
 import { IconReload } from "@tabler/icons-react";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { ReviewQuestionCard } from "./review-question-card";
@@ -23,9 +23,20 @@ export default function ReviewPhase() {
   const t = useTranslations("ReviewPhase");
   const router = useRouter();
   const responses = useAtomValue(responsesAtom);
+  const setResponses = useSetAtom(responsesAtom);
   const endedEarly = false;
   const previousInterview = useAtomValue(previousInterviewAtom);
   const { addTake } = useAddTake();
+
+  function setResponsesForQuestion(
+    questionId: string,
+    responses: QuestionResponse[],
+  ) {
+    setResponses((prev) => ({
+      ...prev,
+      [questionId]: responses,
+    }));
+  }
 
   return (
     <div className="space-y-6 pb-8">
@@ -76,6 +87,9 @@ export default function ReviewPhase() {
               questionDuration={previousInterview.questionDuration}
               question={question}
               responses={responses}
+              onResponses={(responses) =>
+                setResponsesForQuestion(questionId, responses)
+              }
               endedEarly={endedEarly}
               key={questionId}
             />

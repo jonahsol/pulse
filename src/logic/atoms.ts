@@ -1,6 +1,6 @@
+import type { InterviewState, QuestionResponse } from "@/logic/types";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import type { InterviewState, QuestionResponse } from "@/logic/types";
 
 // Input
 export const countdownDurationConfigAtom = atomWithStorage<number>(
