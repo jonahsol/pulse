@@ -10,11 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { previousInterviewAtom, responsesAtom } from "@/logic/atoms";
+import { previousInterviewAtom, previousResponsesAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
-import { Question, QuestionResponse } from "@/logic/types";
+import { Question, Response } from "@/logic/types";
 import { IconReload } from "@tabler/icons-react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { ReviewQuestionCard } from "./review-question-card";
@@ -22,16 +22,12 @@ import { ReviewQuestionCard } from "./review-question-card";
 export default function ReviewPhase() {
   const t = useTranslations("ReviewPhase");
   const router = useRouter();
-  const responses = useAtomValue(responsesAtom);
-  const setResponses = useSetAtom(responsesAtom);
+  const [responses, setResponses] = useAtom(previousResponsesAtom);
   const endedEarly = false;
   const previousInterview = useAtomValue(previousInterviewAtom);
   const { addTake } = useAddTake();
 
-  function setResponsesForQuestion(
-    questionId: string,
-    responses: QuestionResponse[],
-  ) {
+  function setResponsesForQuestion(questionId: string, responses: Response[]) {
     setResponses((prev) => ({
       ...prev,
       [questionId]: responses,

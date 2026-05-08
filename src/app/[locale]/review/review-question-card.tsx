@@ -6,17 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Copyable } from "@/components/ui/copyable";
 import { Separator } from "@/components/ui/separator";
-import { Question, QuestionResponse } from "@/logic/types";
-import { IconPlus, IconSubtitlesAi } from "@tabler/icons-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useResponseBlobQuery } from "@/logic/storage/queries";
+import { Question, Response } from "@/logic/types";
+import {
+  IconAlertCircle,
+  IconPlus,
+  IconSubtitlesAi,
+} from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 type ReviewQuestionCardProps = {
   endedEarly: boolean;
   question: Question;
   questionDuration: number;
-  responses: QuestionResponse[];
-  onResponses: (responses: QuestionResponse[]) => void;
+  responses: Response[];
+  onResponses: (responses: Response[]) => void;
   onAddTake: () => void;
 };
 
@@ -121,14 +128,8 @@ export function ReviewQuestionCard({
                     </span> */}
                   </div>
 
-                  {/* biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype. */}
-                  <video
-                    className="w-full rounded-lg border border-border bg-black"
-                    controls
-                    playsInline
-                    preload="metadata"
-                    src={URL.createObjectURL(response.recording)}
-                  />
+                  <ResponseVideo response={response} />
+
                   {response.transcript && (
                     <Copyable
                       copyValue={response.transcript}
@@ -148,9 +149,46 @@ export function ReviewQuestionCard({
   );
 }
 
+function ResponseVideo({ response }: { response: Response }) {
+  const responseBlobQuery = useResponseBlobQuery(response.id);
+
+  // Create object URL for the blob
+  const [responseBlobUrl, setResponseBlobUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (responseBlobQuery.data) {
+      setResponseBlobUrl(URL.createObjectURL(responseBlobQuery.data));
+    }
+
+    return () => {
+      // Clean up the blob URL
+      if (responseBlobUrl) URL.revokeObjectURL(responseBlobUrl);
+    };
+  }, [responseBlobQuery.data]);
+
+  if (responseBlobQuery.isPending || !responseBlobUrl) {
+    return <Skeleton className="aspect-video w-full" />;
+  } else if (responseBlobUrl) {
+    return (
+      // biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype.
+      <video
+        className="w-full rounded-lg border border-border bg-black"
+        controls
+        playsInline
+        src={responseBlobUrl}
+      />
+    );
+  } else {
+    return (
+      <div className="w-full rounded-lg border border-border bg-black">
+        <IconAlertCircle className="size-4" />
+      </div>
+    );
+  }
+}
+
 type ResponseControlsProps = {
-  response: QuestionResponse;
-  onResponse: (response: QuestionResponse) => void;
+  response: Response;
+  onResponse: (response: Response) => void;
 };
 function ResponseControls({ response, onResponse }: ResponseControlsProps) {
   const t = useTranslations("ReviewQuestionCard");

@@ -1,4 +1,4 @@
-import type { InterviewState, QuestionResponse } from "@/logic/types";
+import type { InterviewState, Response } from "@/logic/types";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
@@ -21,20 +21,33 @@ export const questionsConfigAtom = atomWithStorage<string[]>(
   ],
 );
 
-export const currentInterviewAtom = atom<InterviewState>({
-  phase: "preparing",
-  currentQuestionIndex: 0,
-  questions: [],
-  countdownTime: 0,
-  countdownDuration: 0,
-  questionTime: 0,
-  questionDuration: 0,
-  endedEarly: false,
-  isRetaking: false,
-});
-export const previousInterviewAtom = atom<InterviewState | undefined>(
-  undefined,
-);
-export const endedEarlyAtom = atom<boolean>(false);
+export const getInterviewDefault = () =>
+  ({
+    phase: "preparing",
+    currentQuestionIndex: 0,
+    questions: [],
+    countdownTime: 0,
+    countdownDuration: 0,
+    questionTime: 0,
+    questionDuration: 0,
+    endedEarly: false,
+    isRetaking: false,
+  }) satisfies InterviewState;
+export const getResponsesDefault = () => ({});
 
-export const responsesAtom = atom<Record<string, QuestionResponse[]>>({});
+export const currentInterviewAtom = atomWithStorage<InterviewState>(
+  "currentInterview",
+  getInterviewDefault(),
+);
+export const currentResponsesAtom = atomWithStorage<Record<string, Response[]>>(
+  "currentInterviewResponses",
+  getResponsesDefault(),
+);
+export const previousInterviewAtom = atomWithStorage<
+  InterviewState | undefined
+>("previousInterview", undefined);
+export const previousResponsesAtom = atomWithStorage<
+  Record<string, Response[]>
+>("previousInterviewResponses", {});
+
+export const isProcessingResponseAtom = atom(false);

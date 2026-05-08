@@ -18,9 +18,8 @@ export type InterviewState = {
   isRetaking: boolean;
 };
 
-export type QuestionResponse = {
+export type Response = {
   id: string;
   transcript?: string;
-  recording: Blob;
   createdAt: Date;
 };

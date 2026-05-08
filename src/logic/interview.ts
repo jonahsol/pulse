@@ -1,7 +1,11 @@
 import {
   currentInterviewAtom,
+  currentResponsesAtom,
+  getInterviewDefault,
+  getResponsesDefault,
+  isProcessingResponseAtom,
   previousInterviewAtom,
-  responsesAtom,
+  previousResponsesAtom,
 } from "@/logic/atoms";
 import { useInterviewRuntimeContext } from "@/logic/context";
 import {
@@ -9,7 +13,8 @@ import {
   useInitPreview,
   useMediaRecorder,
 } from "@/logic/media";
-import { InterviewState, Question, QuestionResponse } from "@/logic/types";
+import { useSetResponseBlobMutation } from "@/logic/storage/queries";
+import { InterviewState, Question, Response } from "@/logic/types";
 import { useInterval } from "@/logic/useInterval";
 import {
   atom,
@@ -54,7 +59,9 @@ type InterviewRuntime = {
 
 export function useInterviewRuntime(): InterviewRuntime {
   const setCurrentInterview = useSetAtom(currentInterviewAtom);
+  const setCurrentResponses = useSetAtom(currentResponsesAtom);
   const setPreviousInterview = useSetAtom(previousInterviewAtom);
+  const setPreviousResponses = useSetAtom(previousResponsesAtom);
 
   // Hooks for controlling the interview lifecycle state
   const { computeNextState } = useInterviewStateUpdater();
@@ -70,6 +77,7 @@ export function useInterviewRuntime(): InterviewRuntime {
   const { initPreview } = useInitPreview();
   const { initMediaRecorder, mediaRecorder, isRecording } = useMediaRecorder();
   useInterviewPhaseMediaRecorder(mediaRecorder);
+  const isProcessingResponse = useAtomValue(isProcessingResponseAtom);
 
   // Start the interview: request media recording, set initial state, and start
   // the ticker
@@ -129,20 +137,13 @@ export function useInterviewRuntime(): InterviewRuntime {
   const interviewComplete = useAtomValue(interviewCompleteAtom);
   const router = useRouter();
   useEffect(() => {
-    if (interviewComplete && !isRecording) {
+    if (interviewComplete && !isRecording && !isProcessingResponse) {
       setPreviousInterview(getDefaultStore().get(currentInterviewAtom));
+      const responses = getDefaultStore().get(currentResponsesAtom);
+      setPreviousResponses(responses);
       // Reset the current interview state
-      setCurrentInterview({
-        phase: "preparing",
-        currentQuestionIndex: 0,
-        countdownTime: 0,
-        countdownDuration: 0,
-        questionTime: 0,
-        questionDuration: 0,
-        questions: [],
-        endedEarly: false,
-        isRetaking: false,
-      });
+      setCurrentInterview(getInterviewDefault());
+      setCurrentResponses(getResponsesDefault());
       router.push("/review");
     }
   }, [
@@ -151,6 +152,7 @@ export function useInterviewRuntime(): InterviewRuntime {
     setCurrentInterview,
     setPreviousInterview,
     isRecording,
+    isProcessingResponse,
   ]);
 
   return {
@@ -263,8 +265,10 @@ const interviewPhaseAtom = atom((get) => get(currentInterviewAtom).phase);
  */
 function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   const interviewPhase = useAtomValue(interviewPhaseAtom);
-  const setResponses = useSetAtom(responsesAtom);
+  const setResponses = useSetAtom(currentResponsesAtom);
   const interview = useAtomValue(currentInterviewAtom);
+
+  const setResponseBlobMutation = useSetResponseBlobMutation();
 
   // Media recorder input commands: Start / stop recording based on the
   // interview phase.
@@ -286,24 +290,35 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   useEffect(() => {
     if (!mediaRecorder) return;
 
-    const handler = (event: BlobEvent) => {
+    const handler = async (event: BlobEvent) => {
       if (event.data.size > 0) {
+        const store = getDefaultStore();
+        store.set(isProcessingResponseAtom, true);
         // Media recorder was stopped AFTER the previous question, so we need
         // to use the previous question index
         const questionId =
           interview.questions[interview.currentQuestionIndex - 1].id;
-        const response: QuestionResponse = {
+        const response: Response = {
           id: ulid(),
           createdAt: new Date(),
-          recording: event.data,
         };
 
-        setResponses((responses) => {
-          return {
-            ...responses,
-            [questionId]: [...(responses[questionId] || []), response],
-          };
-        });
+        try {
+          await setResponseBlobMutation.mutateAsync({
+            responseId: response.id,
+            blob: event.data,
+          });
+          setResponses((responses) => {
+            return {
+              ...responses,
+              [questionId]: [...(responses[questionId] || []), response],
+            };
+          });
+          store.set(isProcessingResponseAtom, false);
+        } catch (error) {
+          // TODO: Show error to user
+          console.log("error storing blob", error);
+        }
       }
     };
 
@@ -312,7 +327,12 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
     return () => {
       mediaRecorder.removeEventListener("dataavailable", handler);
     };
-  }, [mediaRecorder, interview, setResponses]);
+  }, [
+    mediaRecorder,
+    interview,
+    setResponses,
+    setResponseBlobMutation.mutateAsync,
+  ]);
 }
 
 export function useAddTake() {
