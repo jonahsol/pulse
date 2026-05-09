@@ -25,6 +25,7 @@ import {
 } from "jotai";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { ulid } from "ulid";
 
 type RetakeInterviewConfig =
@@ -265,8 +266,8 @@ const interviewPhaseAtom = atom((get) => get(currentInterviewAtom).phase);
  */
 function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   const interviewPhase = useAtomValue(interviewPhaseAtom);
-  const setResponses = useSetAtom(currentResponsesAtom);
-  const interview = useAtomValue(currentInterviewAtom);
+  const setCurrentResponsesAtom = useSetAtom(currentResponsesAtom);
+  const currentInterview = useAtomValue(currentInterviewAtom);
 
   const setResponseBlobMutation = useSetResponseBlobMutation();
 
@@ -297,7 +298,8 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
         // Media recorder was stopped AFTER the previous question, so we need
         // to use the previous question index
         const questionId =
-          interview.questions[interview.currentQuestionIndex - 1].id;
+          currentInterview.questions[currentInterview.currentQuestionIndex - 1]
+            .id;
         const response: Response = {
           id: ulid(),
           createdAt: new Date(),
@@ -308,7 +310,7 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
             responseId: response.id,
             blob: event.data,
           });
-          setResponses((responses) => {
+          setCurrentResponsesAtom((responses) => {
             return {
               ...responses,
               [questionId]: [...(responses[questionId] || []), response],
@@ -316,8 +318,7 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
           });
           store.set(isProcessingResponseAtom, false);
         } catch (error) {
-          // TODO: Show error to user
-          console.log("error storing blob", error);
+          toast.error("Failed to save response");
         }
       }
     };
@@ -329,8 +330,8 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
     };
   }, [
     mediaRecorder,
-    interview,
-    setResponses,
+    currentInterview,
+    setCurrentResponsesAtom,
     setResponseBlobMutation.mutateAsync,
   ]);
 }

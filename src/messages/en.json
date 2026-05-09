@@ -175,10 +175,13 @@
     "transcript": {
       "generating": "Generating transcript…",
       "regenerate": "Regenerate transcript",
-      "default": "Transcript",
+      "default": "Generate Transcript",
       "label": "Transcript",
       "copyTooltip": "Copy transcript",
-      "copiedTooltip": "Transcript copied"
+      "copiedTooltip": "Transcript copied",
+      "regenerateTooltip": "Regenerate transcript",
+      "regeneratingTooltip": "Regenerating transcript…",
+      "regeneratedTooltip": "Transcript regenerated"
     }
   },
   "SavedTakesPanel": {

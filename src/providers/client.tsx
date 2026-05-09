@@ -1,4 +1,5 @@
 "use client";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getQueryClient } from "@/lib/react-query";
 import {
@@ -16,6 +17,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         <InterviewContextProvider>
           <InterviewRuntimeContextProvider>
             {children}
+            <Toaster />
           </InterviewRuntimeContextProvider>
         </InterviewContextProvider>
       </QueryClientProvider>

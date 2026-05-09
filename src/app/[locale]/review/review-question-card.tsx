@@ -4,19 +4,37 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Copyable } from "@/components/ui/copyable";
+import { CopyButton } from "@/components/ui/copyable";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useResponseBlobQuery } from "@/logic/storage/queries";
 import { Question, Response } from "@/logic/types";
 import {
   IconAlertCircle,
+  IconCheck,
   IconPlus,
   IconSubtitlesAi,
 } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
+import {
+  type MutationState,
+  useMutation,
+  useMutationState,
+} from "@tanstack/react-query";
+import { AlertTriangleIcon, BookmarkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+
+/** JSON body from `POST /api/transcript` (success or error payload). */
+type TranscriptApiJson = {
+  transcript?: string;
+  error?: string;
+};
 
 type ReviewQuestionCardProps = {
   endedEarly: boolean;
@@ -94,6 +112,12 @@ export function ReviewQuestionCard({
             {/* {repeat(responses[0], 10).map((response, attemptIndex) => { */}
             {responses.map((response, attemptIndex) => {
               const isLatestAttempt = attemptIndex === latestAttemptIndex;
+              const handleResponse = (response: Response) => {
+                // Replace the response in the responses array
+                onResponses(
+                  responses.map((r) => (r.id === response.id ? response : r)),
+                );
+              };
 
               return (
                 <div
@@ -104,41 +128,24 @@ export function ReviewQuestionCard({
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium">
                         {t("take", { number: attemptIndex + 1 })}
-                        {attemptIndex === 0 ? ` ${t("originalSuffix")}` : ""}
                       </span>
-                      {isLatestAttempt ? (
+                      {isLatestAttempt && (
                         <Badge variant="secondary">{t("latest")}</Badge>
-                      ) : null}
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <ResponseControls
                         response={response}
-                        onResponse={(response) => {
-                          // Replace the response in the responses array
-                          onResponses(
-                            responses.map((r) =>
-                              r.id === response.id ? response : r,
-                            ),
-                          );
-                        }}
+                        onResponse={handleResponse}
                       />
                     </div>
-                    {/* <span className="text-muted-foreground text-xs">
-                      {new Date(response.createdAt).toLocaleTimeString()}
-                    </span> */}
                   </div>
 
                   <ResponseVideo response={response} />
-
-                  {response.transcript && (
-                    <Copyable
-                      copyValue={response.transcript}
-                      hoverTooltip={t("transcript.copyTooltip")}
-                      copiedTooltip={t("transcript.copiedTooltip")}
-                    >
-                      <p>{response.transcript}</p>
-                    </Copyable>
-                  )}
+                  <TranscriptSection
+                    response={response}
+                    onResponse={handleResponse}
+                  />
                 </div>
               );
             })}
@@ -192,17 +199,18 @@ type ResponseControlsProps = {
 };
 function ResponseControls({ response, onResponse }: ResponseControlsProps) {
   const t = useTranslations("ReviewQuestionCard");
+  const responseBlobQuery = useResponseBlobQuery(response.id);
 
-  const transcriptMutation = useMutation({
+  const transcriptMutation = useMutation<TranscriptApiJson, Error>({
     mutationFn: async () => {
       const formData = new FormData();
-      formData.append("file", response.recording);
+      formData.append("file", responseBlobQuery.data as Blob);
       const resp = await fetch("/api/transcript", {
         method: "POST",
         body: formData,
       });
 
-      return resp.json();
+      return (await resp.json()) as TranscriptApiJson;
     },
     onSuccess: (data) => {
       onResponse({
@@ -214,9 +222,9 @@ function ResponseControls({ response, onResponse }: ResponseControlsProps) {
 
   return (
     <>
-      {/* <Button
-        aria-pressed={isSaved}
-        disabled={isSaving}
+      <Button
+        // aria-pressed={isSaved}
+        // disabled={isSaving}
         //    onClick={() =>
         //      void toggleBookmark.run({
         //        question: questionRecording.question,
@@ -224,34 +232,167 @@ function ResponseControls({ response, onResponse }: ResponseControlsProps) {
         //        recording,
         //      })
         //    }
-        size="sm"
+        size="icon-lg"
         type="button"
-        variant={isSaved ? "secondary" : "outline"}
+        variant={"outline"}
       >
-        <BookmarkIcon className="size-4" filled={isSaved} />
-        {isSaving
+        <BookmarkIcon />
+        {/* {isSaving
           ? t("bookmark.saving")
           : isSaved
             ? t("bookmark.saved")
-            : t("bookmark.default")}
-      </Button> */}
-      <Button
-        disabled={transcriptMutation.isPending}
-        onClick={() => {
-          transcriptMutation.mutate();
-        }}
-        size="sm"
-        type="button"
-        variant="outline"
-        data-icon="inline-start"
-      >
-        <IconSubtitlesAi />
-        {transcriptMutation.isPending
-          ? t("transcript.generating")
-          : response.transcript
-            ? t("transcript.regenerate")
-            : t("transcript.default")}
+            : t("bookmark.default")} */}
       </Button>
     </>
   );
+}
+
+type TranscriptSectionProps = {
+  response: Response;
+  onResponse: (response: Response) => void;
+};
+function TranscriptSection({ response, onResponse }: TranscriptSectionProps) {
+  const t = useTranslations("ReviewQuestionCard");
+
+  const handleResponse = (response: Response) => {
+    onResponse(response);
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      {response.transcript && (
+        <div className="flex items-center gap-2">
+          <p>{response.transcript}</p>
+          <div className="flex items-center">
+            <CopyButton
+              copyValue={response.transcript}
+              hoverTooltip={t("transcript.copyTooltip")}
+              copiedTooltip={t("transcript.copiedTooltip")}
+            />
+            <TranscriptButton
+              variant="regenerate"
+              response={response}
+              onResponse={handleResponse}
+            />
+          </div>
+        </div>
+      )}
+
+      {!response.transcript && (
+        <div>
+          <TranscriptButton response={response} onResponse={handleResponse} />
+        </div>
+      )}
+
+      <TranscriptErrors response={response} />
+    </div>
+  );
+}
+
+type TranscriptButtonProps = {
+  response: Response;
+  onResponse: (response: Response) => void;
+  variant?: "regenerate" | "default";
+};
+function TranscriptButton({
+  response,
+  onResponse,
+  variant = "default",
+}: TranscriptButtonProps) {
+  const t = useTranslations("ReviewQuestionCard");
+  const responseBlobQuery = useResponseBlobQuery(response.id);
+
+  const transcriptMutation = useMutation<TranscriptApiJson, Error>({
+    mutationKey: ["transcript", response.id],
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("file", responseBlobQuery.data as Blob);
+      const resp = await fetch("/api/transcript", {
+        method: "POST",
+        body: formData,
+      });
+      return (await resp.json()) as TranscriptApiJson;
+    },
+    onSuccess: (data) => {
+      onResponse({
+        ...response,
+        transcript: data.transcript,
+      });
+    },
+  });
+
+  if (variant === "regenerate") {
+    return (
+      <Tooltip>
+        <TooltipContent side="bottom">
+          <div className="flex items-center gap-2">
+            {transcriptMutation.isPending
+              ? t("transcript.regeneratingTooltip")
+              : transcriptMutation.isSuccess
+                ? t("transcript.regeneratedTooltip")
+                : t("transcript.regenerateTooltip")}
+          </div>
+        </TooltipContent>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="-mt-1 -mr-1"
+            onClick={() => transcriptMutation.mutate()}
+          >
+            {transcriptMutation.isPending ? (
+              <Spinner />
+            ) : transcriptMutation.isSuccess ? (
+              <IconCheck />
+            ) : (
+              <IconSubtitlesAi />
+            )}
+          </Button>
+        </TooltipTrigger>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Button
+      disabled={transcriptMutation.isPending}
+      onClick={() => {
+        transcriptMutation.mutate();
+      }}
+      variant={response.transcript ? "secondary" : "outline"}
+    >
+      <IconSubtitlesAi />
+      {transcriptMutation.isPending
+        ? t("transcript.generating")
+        : response.transcript
+          ? t("transcript.regenerate")
+          : t("transcript.default")}
+    </Button>
+  );
+}
+
+function TranscriptErrors({ response }: { response: Response }) {
+  const t = useTranslations("InterviewTrainer");
+  const transcriptMutationState = useMutationState<
+    MutationState<TranscriptApiJson>
+  >({
+    filters: {
+      mutationKey: ["transcript", response.id],
+    },
+  });
+
+  return transcriptMutationState
+    .filter((mutation) => mutation.data?.error || mutation.error)
+    .map((mutation) => {
+      return (
+        // Show errors
+        <Alert key={mutation.error?.name}>
+          <AlertTriangleIcon />
+          <AlertTitle>{t("errors.transcriptionFailed")}</AlertTitle>
+          {mutation.data?.error ? (
+            <AlertDescription>{mutation.data.error}</AlertDescription>
+          ) : null}
+        </Alert>
+      );
+    });
 }
