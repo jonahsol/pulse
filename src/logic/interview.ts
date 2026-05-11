@@ -1,11 +1,11 @@
 import {
+  countdownDurationConfigAtom,
   currentInterviewAtom,
-  currentResponsesAtom,
   getInterviewDefault,
-  getResponsesDefault,
   isProcessingResponseAtom,
   previousInterviewAtom,
-  previousResponsesAtom,
+  questionsConfigAtom,
+  responseDurationConfigAtom,
 } from "@/logic/atoms";
 import { useInterviewRuntimeContext } from "@/logic/context";
 import {
@@ -41,6 +41,7 @@ export type InterviewConfig = {
   questions: Question[];
   countdownDuration: number;
   questionDuration: number;
+  responses: Record<string, Response[]>;
 } & RetakeInterviewConfig;
 
 /**
@@ -60,9 +61,7 @@ type InterviewRuntime = {
 
 export function useInterviewRuntime(): InterviewRuntime {
   const setCurrentInterview = useSetAtom(currentInterviewAtom);
-  const setCurrentResponses = useSetAtom(currentResponsesAtom);
   const setPreviousInterview = useSetAtom(previousInterviewAtom);
-  const setPreviousResponses = useSetAtom(previousResponsesAtom);
 
   // Hooks for controlling the interview lifecycle state
   const { computeNextState } = useInterviewStateUpdater();
@@ -89,18 +88,20 @@ export function useInterviewRuntime(): InterviewRuntime {
       questionDuration,
       isRetaking,
       retakeQuestionIndex,
+      responses,
     }: InterviewConfig) => {
-      // Reset state
+      // Set interview starting state based on the interview config
       setCurrentInterview({
         phase: "countdown",
         currentQuestionIndex: isRetaking ? retakeQuestionIndex : 0,
         countdownTime: 0,
-        countdownDuration,
         questionTime: 0,
+        endedEarly: false,
+        countdownDuration,
         questionDuration,
         questions,
-        endedEarly: false,
         isRetaking,
+        responses,
       });
 
       // Init recording lifecycle
@@ -140,11 +141,8 @@ export function useInterviewRuntime(): InterviewRuntime {
   useEffect(() => {
     if (interviewComplete && !isRecording && !isProcessingResponse) {
       setPreviousInterview(getDefaultStore().get(currentInterviewAtom));
-      const responses = getDefaultStore().get(currentResponsesAtom);
-      setPreviousResponses(responses);
       // Reset the current interview state
       setCurrentInterview(getInterviewDefault());
-      setCurrentResponses(getResponsesDefault());
       router.push("/review");
     }
   }, [
@@ -266,8 +264,8 @@ const interviewPhaseAtom = atom((get) => get(currentInterviewAtom).phase);
  */
 function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   const interviewPhase = useAtomValue(interviewPhaseAtom);
-  const setCurrentResponsesAtom = useSetAtom(currentResponsesAtom);
   const currentInterview = useAtomValue(currentInterviewAtom);
+  const setCurrentInterview = useSetAtom(currentInterviewAtom);
 
   const setResponseBlobMutation = useSetResponseBlobMutation();
 
@@ -310,15 +308,20 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
             responseId: response.id,
             blob: event.data,
           });
-          setCurrentResponsesAtom((responses) => {
-            return {
-              ...responses,
-              [questionId]: [...(responses[questionId] || []), response],
-            };
-          });
-          store.set(isProcessingResponseAtom, false);
+          setCurrentInterview((interview) => ({
+            ...interview,
+            responses: {
+              ...interview.responses,
+              [questionId]: [
+                ...(interview.responses[questionId] || []),
+                response,
+              ],
+            },
+          }));
         } catch (error) {
           toast.error("Failed to save response");
+        } finally {
+          store.set(isProcessingResponseAtom, false);
         }
       }
     };
@@ -331,7 +334,7 @@ function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   }, [
     mediaRecorder,
     currentInterview,
-    setCurrentResponsesAtom,
+    setCurrentInterview,
     setResponseBlobMutation.mutateAsync,
   ]);
 }
@@ -353,4 +356,26 @@ export function useAddTake() {
   );
 
   return { addTake };
+}
+
+export function getInterviewConfigFromAtomState(): InterviewConfig {
+  const questionsInput = getDefaultStore().get(questionsConfigAtom);
+  const countdownDurationInput = getDefaultStore().get(
+    countdownDurationConfigAtom,
+  );
+  const responseDurationInput = getDefaultStore().get(
+    responseDurationConfigAtom,
+  );
+
+  return {
+    questions: questionsInput.map((prompt, index) => ({
+      id: ulid(),
+      prompt,
+      index,
+    })),
+    countdownDuration: countdownDurationInput,
+    questionDuration: responseDurationInput,
+    isRetaking: false,
+    responses: {},
+  };
 }

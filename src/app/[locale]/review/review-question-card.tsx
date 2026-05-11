@@ -28,7 +28,7 @@ import {
 } from "@tanstack/react-query";
 import { AlertTriangleIcon, BookmarkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /** JSON body from `POST /api/transcript` (success or error payload). */
 type TranscriptApiJson = {
@@ -54,9 +54,17 @@ export function ReviewQuestionCard({
   endedEarly,
 }: ReviewQuestionCardProps) {
   const t = useTranslations("ReviewQuestionCard");
-
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const latestAttemptIndex = responses.length - 1;
   const hasNoResponse = responses.length === 0;
+
+  useLayoutEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        left: scrollContainerRef.current.scrollWidth,
+      });
+    }
+  });
 
   return (
     <Card className="border-border/80 bg-card/90 shadow-none backdrop-blur-sm">
@@ -108,7 +116,10 @@ export function ReviewQuestionCard({
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="flex gap-5 overflow-x-auto px-5 pb-5">
+          <div
+            className="flex gap-5 overflow-x-auto px-5 pb-5"
+            ref={scrollContainerRef}
+          >
             {/* {repeat(responses[0], 10).map((response, attemptIndex) => { */}
             {responses.map((response, attemptIndex) => {
               const isLatestAttempt = attemptIndex === latestAttemptIndex;

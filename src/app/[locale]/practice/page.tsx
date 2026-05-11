@@ -12,16 +12,12 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import {
-  countdownDurationConfigAtom,
-  currentInterviewAtom,
-  questionsConfigAtom,
-  responseDurationConfigAtom,
-} from "@/logic/atoms";
+import { currentInterviewAtom } from "@/logic/atoms";
 import {
   useInterviewContext,
   useInterviewRuntimeContext,
 } from "@/logic/context";
+import { getInterviewConfigFromAtomState } from "@/logic/interview";
 import type { InterviewState } from "@/logic/types";
 import {
   IconCheck,
@@ -32,14 +28,10 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useTranslations } from "next-intl";
-import { ulid } from "ulid";
 
 export default function InterviewPhase() {
   const t = useTranslations("InterviewPhase");
   const interview = useAtomValue(currentInterviewAtom);
-  const countdownDurationInput = useAtomValue(countdownDurationConfigAtom);
-  const responseDurationInput = useAtomValue(responseDurationConfigAtom);
-  const questionsInput = useAtomValue(questionsConfigAtom);
   const {
     startInterview,
     isPaused,
@@ -73,16 +65,7 @@ export default function InterviewPhase() {
           <StartInterviewSection
             isStarting={startInterviewMutation.isPending}
             onStart={() =>
-              startInterviewMutation.mutate({
-                questions: questionsInput.map((prompt, index) => ({
-                  id: ulid(),
-                  prompt,
-                  index,
-                })),
-                countdownDuration: countdownDurationInput,
-                questionDuration: responseDurationInput,
-                isRetaking: false,
-              })
+              startInterviewMutation.mutate(getInterviewConfigFromAtomState())
             }
           />
         )}

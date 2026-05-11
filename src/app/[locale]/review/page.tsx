@@ -10,11 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { previousInterviewAtom, previousResponsesAtom } from "@/logic/atoms";
+import { previousInterviewAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
-import { Question, Response } from "@/logic/types";
+import { InterviewState, Question, Response } from "@/logic/types";
 import { IconReload } from "@tabler/icons-react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { ReviewQuestionCard } from "./review-question-card";
@@ -22,15 +22,19 @@ import { ReviewQuestionCard } from "./review-question-card";
 export default function ReviewPhase() {
   const t = useTranslations("ReviewPhase");
   const router = useRouter();
-  const [responses, setResponses] = useAtom(previousResponsesAtom);
   const endedEarly = false;
-  const previousInterview = useAtomValue(previousInterviewAtom);
+  const [previousInterview, setPreviousInterview] = useAtom(
+    previousInterviewAtom,
+  );
   const { addTake } = useAddTake();
 
   function setResponsesForQuestion(questionId: string, responses: Response[]) {
-    setResponses((prev) => ({
-      ...prev,
-      [questionId]: responses,
+    setPreviousInterview((prev) => ({
+      ...(prev as InterviewState),
+      responses: {
+        ...(prev?.responses || {}),
+        [questionId]: responses,
+      },
     }));
   }
 
@@ -72,25 +76,27 @@ export default function ReviewPhase() {
       </Card>
 
       {previousInterview ? (
-        Object.entries(responses).map(([questionId, responses]) => {
-          const question = previousInterview.questions.find(
-            (question) => question.id === questionId,
-          ) as Question;
+        Object.entries(previousInterview.responses).map(
+          ([questionId, responses]) => {
+            const question = previousInterview.questions.find(
+              (question) => question.id === questionId,
+            ) as Question;
 
-          return (
-            <ReviewQuestionCard
-              onAddTake={() => addTake(previousInterview, question.index)}
-              questionDuration={previousInterview.questionDuration}
-              question={question}
-              responses={responses}
-              onResponses={(responses) =>
-                setResponsesForQuestion(questionId, responses)
-              }
-              endedEarly={endedEarly}
-              key={questionId}
-            />
-          );
-        })
+            return (
+              <ReviewQuestionCard
+                onAddTake={() => addTake(previousInterview, question.index)}
+                questionDuration={previousInterview.questionDuration}
+                question={question}
+                responses={responses}
+                onResponses={(responses) =>
+                  setResponsesForQuestion(questionId, responses)
+                }
+                endedEarly={endedEarly}
+                key={questionId}
+              />
+            );
+          },
+        )
       ) : (
         <EmptyState />
       )}

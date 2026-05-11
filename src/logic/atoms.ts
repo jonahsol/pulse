@@ -1,4 +1,4 @@
-import type { InterviewState, Response } from "@/logic/types";
+import type { InterviewState } from "@/logic/types";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
@@ -32,6 +32,7 @@ export const getInterviewDefault = () =>
     questionDuration: 0,
     endedEarly: false,
     isRetaking: false,
+    responses: {},
   }) satisfies InterviewState;
 export const getResponsesDefault = () => ({});
 
@@ -39,15 +40,8 @@ export const currentInterviewAtom = atomWithStorage<InterviewState>(
   "currentInterview",
   getInterviewDefault(),
 );
-export const currentResponsesAtom = atomWithStorage<Record<string, Response[]>>(
-  "currentInterviewResponses",
-  getResponsesDefault(),
-);
 export const previousInterviewAtom = atomWithStorage<
   InterviewState | undefined
 >("previousInterview", undefined);
-export const previousResponsesAtom = atomWithStorage<
-  Record<string, Response[]>
->("previousInterviewResponses", {});
 
 export const isProcessingResponseAtom = atom(false);

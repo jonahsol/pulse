@@ -16,6 +16,8 @@ export type InterviewState = {
   questions: Question[];
   endedEarly: boolean;
   isRetaking: boolean;
+  // { questionId: Response[] }
+  responses: Record<string, Response[]>;
 };
 
 export type Response = {

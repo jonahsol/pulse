@@ -18,9 +18,9 @@
 *** DONE Transcript functionality
 *** DONE Storage
 Current interview state should be saved in local storage so that it's not wiped when user closes page and comes back
-*** WIP Review screen UI cleanup
+*** DONE Review screen UI cleanup
 The AI-generated UI could be better
-*** TODO Adding takes replaces instead of adding
+*** DONE Adding takes replaces instead of adding
 *** TODO Long user-defined questions overflow our card on the /practice page
 *** TODO Fixup: Custom questions modal
 **** TODO Should filter empty questions
