@@ -189,7 +189,7 @@ function ResponseVideo({ response }: { response: Response }) {
     return (
       // biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype.
       <video
-        className="w-full rounded-lg border border-border bg-black"
+        className="w-full aspect-video rounded-lg border border-border bg-black"
         controls
         playsInline
         src={responseBlobUrl}

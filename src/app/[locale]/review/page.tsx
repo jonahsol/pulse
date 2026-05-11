@@ -1,5 +1,6 @@
 "use client";
 
+import { ReviewQuestionCard } from "@/app/[locale]/review/review-question-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useIsClient } from "@/lib/clientUtils";
 import { previousInterviewAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
 import { InterviewState, Question, Response } from "@/logic/types";
@@ -17,7 +20,6 @@ import { IconReload } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { ReviewQuestionCard } from "./review-question-card";
 
 export default function ReviewPhase() {
   const t = useTranslations("ReviewPhase");
@@ -26,6 +28,7 @@ export default function ReviewPhase() {
   const [previousInterview, setPreviousInterview] = useAtom(
     previousInterviewAtom,
   );
+  const isClient = useIsClient();
   const { addTake } = useAddTake();
 
   function setResponsesForQuestion(questionId: string, responses: Response[]) {
@@ -75,7 +78,9 @@ export default function ReviewPhase() {
         </CardContent>
       </Card>
 
-      {previousInterview ? (
+      {!isClient ? (
+        <SkeletonState />
+      ) : previousInterview ? (
         Object.entries(previousInterview.responses).map(
           ([questionId, responses]) => {
             const question = previousInterview.questions.find(
@@ -115,4 +120,8 @@ function EmptyState() {
       </CardContent>
     </Card>
   );
+}
+
+function SkeletonState() {
+  return <Skeleton className="h-[500px] w-full" />;
 }
