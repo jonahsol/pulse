@@ -1,0 +1,5 @@
+.question-title-separator {
+    width: 2px;
+    margin-right: calc(0.25rem * 2);
+    /* Use shadcn spacing variables in css */
+}

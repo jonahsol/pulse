@@ -168,9 +168,7 @@
     "originalSuffix": "· Original",
     "latest": "Latest",
     "bookmark": {
-      "saving": "Saving…",
-      "saved": "Bookmarked",
-      "default": "Bookmark"
+      "tooltip": "Bookmark this take"
     },
     "transcript": {
       "generating": "Generating transcript…",
@@ -181,7 +179,9 @@
       "copiedTooltip": "Transcript copied",
       "regenerateTooltip": "Regenerate transcript",
       "regeneratingTooltip": "Regenerating transcript…",
-      "regeneratedTooltip": "Transcript regenerated"
+      "regeneratedTooltip": "Transcript regenerated",
+      "placeholder1": "Click here",
+      "placeholder2": "to generate a transcript"
     }
   },
   "SavedTakesPanel": {

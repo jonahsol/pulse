@@ -260,7 +260,7 @@ type InterviewQuestionProps = {
 function InterviewQuestion({ prompt, variant }: InterviewQuestionProps) {
   return (
     <div
-      className={`transition-all duration-300 ${
+      className={`overflow-y-auto transition-all duration-300 ${
         variant === "recording" ? "text-center" : "text-center md:px-2"
       }`}
     >
@@ -268,7 +268,7 @@ function InterviewQuestion({ prompt, variant }: InterviewQuestionProps) {
         className={`font-semibold leading-tight tracking-tight transition-all duration-300 ${
           variant === "recording"
             ? "text-foreground/90 text-lg md:text-xl"
-            : "text-3xl md:text-4xl"
+            : "text-2xl md:text-3xl"
         }`}
       >
         {prompt}

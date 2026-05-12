@@ -21,14 +21,7 @@ Current interview state should be saved in local storage so that it's not wiped 
 *** DONE Review screen UI cleanup
 The AI-generated UI could be better
 *** DONE Adding takes replaces instead of adding
-*** TODO Long user-defined questions overflow our card on the /practice page
-*** TODO Fixup: Custom questions modal
-**** TODO Should filter empty questions
-- The modal "11 questions" shouldn't count an empty question
-- An empty question shouldn't end up in our state
-**** TODO Deleting unmount the text area node and looks strange
-*** TODO Interview lifecycle fix
-At the moment takes across
+*** DONE Long user-defined questions overflow our card on the /practice page
 *** TODO Saved takes
 Create a modal or separate page where user can review their saved takes
 *** TODO Localisation
