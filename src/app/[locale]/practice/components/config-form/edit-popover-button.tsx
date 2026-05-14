@@ -1,4 +1,4 @@
-import { EditButton } from "@/app/[locale]/practice/components/ConfigForm/EditButton";
+import { EditButton } from "@/app/[locale]/practice/components/config-form/edit-button";
 import {
   Popover,
   PopoverContent,

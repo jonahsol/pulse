@@ -1,3 +1,20 @@
+import { EditButton } from "@/app/[locale]/practice/components/config-form/edit-button";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { questionsConfigAtom } from "@/logic/atoms";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import { useAtom } from "jotai";
@@ -18,23 +35,6 @@ import {
   useState,
 } from "react";
 import { ulid } from "ulid";
-import { EditButton } from "@/app/[locale]/practice/components/ConfigForm/EditButton";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { questionsConfigAtom } from "@/logic/atoms";
 
 type GeneratedQuestionsResponse = {
   questions?: string[];

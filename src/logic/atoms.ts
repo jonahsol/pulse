@@ -1,4 +1,4 @@
-import type { InterviewState } from "@/logic/types";
+import type { InterviewState, SavedTake } from "@/logic/types";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
@@ -45,3 +45,5 @@ export const previousInterviewAtom = atomWithStorage<
 >("previousInterview", undefined);
 
 export const isProcessingResponseAtom = atom(false);
+
+export const savedTakesAtom = atomWithStorage<SavedTake[]>("savedTakes", []);

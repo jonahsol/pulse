@@ -1,5 +1,5 @@
-import { EditPopoverButton } from "@/app/[locale]/practice/components/ConfigForm/EditPopoverButton";
-import { PopoverLayout } from "@/app/[locale]/practice/components/ConfigForm/PopoverLayout";
+import { EditPopoverButton } from "@/app/[locale]/practice/components/config-form/edit-popover-button";
+import { PopoverLayout } from "@/app/[locale]/practice/components/config-form/popover-layout";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { countdownDurationConfigAtom } from "@/logic/atoms";

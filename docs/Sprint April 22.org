@@ -22,7 +22,7 @@ Current interview state should be saved in local storage so that it's not wiped 
 The AI-generated UI could be better
 *** DONE Adding takes replaces instead of adding
 *** DONE Long user-defined questions overflow our card on the /practice page
-*** TODO Saved takes
+*** DONE Saved takes
 Create a modal or separate page where user can review their saved takes
 *** TODO Localisation
 **** TODO Questions are localised

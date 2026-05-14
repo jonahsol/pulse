@@ -17,7 +17,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         <InterviewContextProvider>
           <InterviewRuntimeContextProvider>
             {children}
-            <Toaster />
+            <Toaster position="top-center" />
           </InterviewRuntimeContextProvider>
         </InterviewContextProvider>
       </QueryClientProvider>

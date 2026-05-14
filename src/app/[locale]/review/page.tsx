@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsClient } from "@/lib/clientUtils";
+import { useIsClient } from "@/lib/client-utils";
 import { previousInterviewAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
 import { InterviewState, Question, Response } from "@/logic/types";
@@ -42,70 +42,67 @@ export default function ReviewPhase() {
   }
 
   return (
-    <div className="space-y-6 pb-8">
-      <Card className="border-border/80 bg-card/80 shadow-none backdrop-blur-sm">
-        <CardHeader className="gap-4 space-y-0 px-0">
-          <div className="px-4 flex flex-col gap-2">
-            <CardTitle>{t("title")}</CardTitle>
-            <CardDescription>{t("description")}</CardDescription>
-          </div>
-          <Separator />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {endedEarly ? (
-            <Alert>
-              <AlertTitle>{t("endedEarly.title")}</AlertTitle>
-              <AlertDescription>{t("endedEarly.description")}</AlertDescription>
-            </Alert>
-          ) : null}
-          {/* {bookmarkError ? (
-            <Alert variant="destructive">
-              <AlertTitle>{t("bookmarks.title")}</AlertTitle>
-              <AlertDescription>{bookmarkError}</AlertDescription>
-            </Alert>
-          ) : null} */}
-          <Button
-            className="w-full rounded-full sm:w-auto"
-            onClick={() => {
-              router.push("/practice");
-            }}
-            type="button"
-            data-icon="inline-start"
-          >
-            <IconReload />
-            {t("actions.startNewInterview")}
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="flex-1 flex flex-col justify-center">
+      <div className="space-y-6 pb-8">
+        <Card className="border-border/80 bg-card/80 shadow-none backdrop-blur-sm">
+          <CardHeader className="gap-4 space-y-0 px-0">
+            <div className="px-4 flex flex-col gap-2">
+              <CardTitle>{t("title")}</CardTitle>
+              <CardDescription>{t("description")}</CardDescription>
+            </div>
+            <Separator />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {endedEarly ? (
+              <Alert>
+                <AlertTitle>{t("endedEarly.title")}</AlertTitle>
+                <AlertDescription>
+                  {t("endedEarly.description")}
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            <Button
+              className="w-full rounded-full sm:w-auto"
+              onClick={() => {
+                router.push("/practice");
+              }}
+              type="button"
+              data-icon="inline-start"
+            >
+              <IconReload />
+              {t("actions.startNewInterview")}
+            </Button>
+          </CardContent>
+        </Card>
 
-      {!isClient ? (
-        <SkeletonState />
-      ) : previousInterview ? (
-        Object.entries(previousInterview.responses).map(
-          ([questionId, responses]) => {
-            const question = previousInterview.questions.find(
-              (question) => question.id === questionId,
-            ) as Question;
+        {!isClient ? (
+          <SkeletonState />
+        ) : previousInterview ? (
+          Object.entries(previousInterview.responses).map(
+            ([questionId, responses]) => {
+              const question = previousInterview.questions.find(
+                (question) => question.id === questionId,
+              ) as Question;
 
-            return (
-              <ReviewQuestionCard
-                onAddTake={() => addTake(previousInterview, question.index)}
-                questionDuration={previousInterview.questionDuration}
-                question={question}
-                responses={responses}
-                onResponses={(responses) =>
-                  setResponsesForQuestion(questionId, responses)
-                }
-                endedEarly={endedEarly}
-                key={questionId}
-              />
-            );
-          },
-        )
-      ) : (
-        <EmptyState />
-      )}
-      {/* {!isLocked && <SavedTakesPanel />} */}
+              return (
+                <ReviewQuestionCard
+                  onAddTake={() => addTake(previousInterview, question.index)}
+                  questionDuration={previousInterview.questionDuration}
+                  question={question}
+                  responses={responses}
+                  onResponses={(responses) =>
+                    setResponsesForQuestion(questionId, responses)
+                  }
+                  endedEarly={endedEarly}
+                  key={questionId}
+                />
+              );
+            },
+          )
+        ) : (
+          <EmptyState />
+        )}
+      </div>
     </div>
   );
 }

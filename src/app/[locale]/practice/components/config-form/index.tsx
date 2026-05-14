@@ -1,8 +1,8 @@
-import { EditCountdownDurationButton } from "@/app/[locale]/practice/components/ConfigForm/EditCountdownDurationButton";
-import { EditQuestionsButton } from "@/app/[locale]/practice/components/ConfigForm/EditQuestionsButton";
-import { EditResponseDurationButton } from "@/app/[locale]/practice/components/ConfigForm/EditResponseDurationButton";
+import { EditCountdownDurationButton } from "@/app/[locale]/practice/components/config-form/edit-countdown-duration-button";
+import { EditQuestionsButton } from "@/app/[locale]/practice/components/config-form/edit-questions-button";
+import { EditResponseDurationButton } from "@/app/[locale]/practice/components/config-form/edit-response-duration-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ClientOnly } from "@/components/utils/ClientOnly";
+import { ClientOnly } from "@/components/utils/client-only";
 import { cn } from "@/lib/utils";
 import {
   countdownDurationConfigAtom,

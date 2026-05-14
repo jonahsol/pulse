@@ -1,10 +1,9 @@
+import { SavedTakesSection } from "@/app/[locale]/(root)/app-shell/saved-takes-section";
 import { LocaleSwitch } from "@/app/[locale]/(root)/locale-switch";
 import { PulseLogo } from "@/app/[locale]/(root)/pulse-logo";
 import { ThemeToggle } from "@/app/[locale]/(root)/theme-switch";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { IconBookmark } from "@tabler/icons-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -24,9 +23,7 @@ export function AppShell({ children }: PulseShellProps) {
       <div
         className={`flex flex-1 flex-col items-center px-5 py-12 md:px-8 ${MAIN_MIN_HEIGHT}`}
       >
-        <main
-          className={`flex w-full max-w-[700px] flex-1 flex-col justify-center`}
-        >
+        <main className={`flex w-full max-w-[700px] flex-1 flex-col`}>
           {children}
         </main>
       </div>
@@ -37,8 +34,6 @@ export function AppShell({ children }: PulseShellProps) {
 }
 
 async function Header() {
-  const t = await getTranslations("AppShell");
-
   return (
     <header
       className={`flex shrink-0 items-center gap-8 px-5 py-4 md:px-8 ${HEADER_HEIGHT}`}
@@ -48,21 +43,7 @@ async function Header() {
       </Link>
 
       <div className="flex ml-auto">
-        <Button
-          size="sm"
-          type="button"
-          variant="ghost"
-          data-icon="inline-start"
-        >
-          <IconBookmark />
-          {t("savedTakes")}
-        </Button>
-
-        <Separator
-          orientation="vertical"
-          className="ml-6 mr-8 hidden sm:block"
-        />
-
+        <SavedTakesSection />
         <SystemControls className="hidden sm:flex" />
       </div>
     </header>

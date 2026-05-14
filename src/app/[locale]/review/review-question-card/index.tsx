@@ -1,37 +1,23 @@
 "use client";
 
+import { useBookmark } from "@/app/[locale]/review/review-question-card/useBookmark";
+import { QuestionCard } from "@/components/shared/question-card";
+import { ResponseVideo } from "@/components/shared/response-video";
+import { TranscriptSection } from "@/components/shared/transcript";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CopyButton } from "@/components/ui/copyable";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
-import { useResponseBlobQuery } from "@/logic/storage/queries";
 import type { Question, Response } from "@/logic/types";
-import { IconCheck, IconPlus, IconSubtitlesAi } from "@tabler/icons-react";
-import {
-  type MutationState,
-  useMutation,
-  useMutationState,
-} from "@tanstack/react-query";
-import { AlertTriangleIcon, BookmarkIcon } from "lucide-react";
+import { IconPlus } from "@tabler/icons-react";
+import { BookmarkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-
-/** JSON body from `POST /api/transcript` (success or error payload). */
-type TranscriptApiJson = {
-  transcript?: string;
-  error?: string;
-};
+import { ComponentProps, useLayoutEffect, useRef } from "react";
 
 type ReviewQuestionCardProps = {
   endedEarly: boolean;
@@ -64,34 +50,29 @@ export function ReviewQuestionCard({
   });
 
   return (
-    <Card className="border-border/80 bg-card/90 shadow-none backdrop-blur-sm gap-7 py-6">
-      <CardHeader className="flex flex-col gap-5 items-stretch px-0 space-y-0">
-        <div className="flex items-start justify-between gap-4 px-6">
-          <div className="flex min-w-0 flex-col gap-3">
-            <div className="flex items-center gap-1">
-              <Badge variant="secondary">
-                {t("questionBadge", { question: question.index + 1 })}
-              </Badge>
+    <QuestionCard.Outer>
+      <QuestionCard.Header>
+        <div className="flex min-w-0 flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">
+              {t("questionBadge", { question: question.index + 1 })}
+            </Badge>
 
-              <Badge variant="outline">
-                {t("limit", { seconds: questionDuration })}
-              </Badge>
-            </div>
-
-            <div className="border-l-2 border-border pl-3">
-              <CardTitle className="text-xl font-medium leading-snug">
-                {question.prompt}
-              </CardTitle>
-            </div>
+            <Badge variant="outline">
+              {t("limit", { seconds: questionDuration })}
+            </Badge>
           </div>
-          <Button size="sm" type="button" onClick={onAddTake}>
-            <IconPlus />
-            {t("actions.addTake")}
-          </Button>
+
+          <QuestionCard.QuestionTitle>
+            {question.prompt}
+          </QuestionCard.QuestionTitle>
         </div>
-        <Separator />
-      </CardHeader>
-      <CardContent className="space-y-4 p-0 -mb-4">
+        <Button size="sm" type="button" onClick={onAddTake}>
+          <IconPlus />
+          {t("actions.addTake")}
+        </Button>
+      </QuestionCard.Header>
+      <QuestionCard.Content>
         {hasNoResponse ? (
           <Alert>
             <AlertTitle>
@@ -107,7 +88,9 @@ export function ReviewQuestionCard({
           </Alert>
         ) : (
           <ScrollArea ref={scrollContainerRef} type="always">
-            <div className="flex gap-4 pb-5 px-6">
+            <div
+              className={`flex gap-4 pb-5 px-6 ${responses.length === 1 ? "justify-center" : ""}`}
+            >
               {responses.map((response, attemptIndex) => {
                 const isLatestAttempt = attemptIndex === latestAttemptIndex;
                 const handleResponse = (next: Response) => {
@@ -120,6 +103,7 @@ export function ReviewQuestionCard({
                   <TakeCard
                     key={response.id}
                     response={response}
+                    question={question}
                     attemptIndex={attemptIndex}
                     isLatestAttempt={isLatestAttempt}
                     onResponse={handleResponse}
@@ -130,8 +114,8 @@ export function ReviewQuestionCard({
             <ScrollBar orientation="horizontal" className="m-2 h-4" />
           </ScrollArea>
         )}
-      </CardContent>
-    </Card>
+      </QuestionCard.Content>
+    </QuestionCard.Outer>
   );
 }
 
@@ -144,7 +128,7 @@ function TakeTitle({ takeNumber, isLatest }: TakeTitleProps) {
   const t = useTranslations("ReviewQuestionCard");
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2">
+    <div className="flex min-w-0 flex-wrap items-center gap-3">
       <span className="font-medium text-lg">
         {t("take", { number: takeNumber })}
       </span>
@@ -158,264 +142,58 @@ type TakeCardProps = {
   attemptIndex: number;
   isLatestAttempt: boolean;
   onResponse: (response: Response) => void;
+  question: Question;
 };
 
 function TakeCard({
   response,
+  question,
   attemptIndex,
   isLatestAttempt,
   onResponse,
 }: TakeCardProps) {
+  const { isBookmarked, handleBookmark } = useBookmark({ response, question });
+
   return (
     <div className="flex w-[500px] flex-col gap-3 rounded-lg border bg-card px-4 py-3 shrink-0">
       <div className="flex items-center justify-between gap-3 pl-2">
         <TakeTitle takeNumber={attemptIndex + 1} isLatest={isLatestAttempt} />
-        <ResponseControls response={response} onResponse={onResponse} />
+        <BookmarkButton
+          isBookmarked={isBookmarked}
+          buttonProps={{
+            onClick: handleBookmark,
+          }}
+        />
       </div>
 
-      <ResponseVideo response={response} />
+      <ResponseVideo response={response} className="rounded-lg" />
 
       <TranscriptSection response={response} onResponse={onResponse} />
     </div>
   );
 }
 
-function ResponseVideo({ response }: { response: Response }) {
-  const responseBlobQuery = useResponseBlobQuery(response.id);
-
-  const [responseBlobUrl, setResponseBlobUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!responseBlobQuery.data) {
-      setResponseBlobUrl(null);
-      return;
-    }
-
-    const url = URL.createObjectURL(responseBlobQuery.data);
-    setResponseBlobUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-      setResponseBlobUrl(null);
-    };
-  }, [responseBlobQuery.data]);
-
-  const [aspectRatio, setAspectRatio] = useState<string>("16 / 9");
-  const handleLoadedMetadata = (
-    event: React.SyntheticEvent<HTMLVideoElement>,
-  ) => {
-    const video = event.currentTarget;
-    if (video.videoWidth && video.videoHeight) {
-      setAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
-    }
-  };
-
-  return (
-    <div
-      className="w-full overflow-hidden rounded-lg border border-border bg-black"
-      style={{ aspectRatio }}
-    >
-      {responseBlobQuery.isPending || !responseBlobUrl ? (
-        <Skeleton className="size-full" />
-      ) : (
-        // biome-ignore lint/a11y/useMediaCaption: Local interview recordings do not have generated captions in this prototype.
-        <video
-          className="size-full object-contain"
-          controls
-          playsInline
-          src={responseBlobUrl}
-          onLoadedMetadata={handleLoadedMetadata}
-        />
-      )}
-    </div>
-  );
-}
-
-type ResponseControlsProps = {
-  response: Response;
-  onResponse: (response: Response) => void;
+type BookmarkButtonProps = {
+  buttonProps: ComponentProps<typeof Button>;
+  isBookmarked: boolean;
 };
-function ResponseControls({ response, onResponse }: ResponseControlsProps) {
-  return <BookmarkButton />;
-}
-
-function BookmarkButton() {
+function BookmarkButton({ buttonProps, isBookmarked }: BookmarkButtonProps) {
   const t = useTranslations("ReviewQuestionCard");
   return (
     <Tooltip>
       <TooltipContent side="bottom">
-        <div className="flex items-center gap-2">{t("bookmark.tooltip")}</div>
+        <div className="flex items-center gap-2">
+          {isBookmarked ? t("bookmark.saved") : t("bookmark.default")}
+        </div>
       </TooltipContent>
       <TooltipTrigger asChild>
-        <Button size="icon-lg" type="button" variant={"ghost"}>
-          <BookmarkIcon className="size-5" />
+        <Button size="icon-lg" type="button" variant={"ghost"} {...buttonProps}>
+          <BookmarkIcon
+            className="size-5"
+            fill={isBookmarked ? "currentColor" : "none"}
+          />
         </Button>
       </TooltipTrigger>
     </Tooltip>
   );
-}
-
-type TranscriptSectionProps = {
-  response: Response;
-  onResponse: (response: Response) => void;
-  className?: string;
-};
-function TranscriptSection({
-  response,
-  onResponse,
-  className,
-}: TranscriptSectionProps) {
-  const t = useTranslations("ReviewQuestionCard");
-
-  const handleResponse = (response: Response) => {
-    onResponse(response);
-  };
-
-  return (
-    <div className={cn("flex flex-col gap-3", className)}>
-      {response.transcript ? (
-        <div className="flex items-center gap-2 pl-2">
-          <p className="max-h-50 overflow-y-auto">{response.transcript}</p>
-          <div className="flex items-center">
-            <CopyButton
-              copyValue={response.transcript}
-              hoverTooltip={t("transcript.copyTooltip")}
-              copiedTooltip={t("transcript.copiedTooltip")}
-            />
-            <TranscriptButton
-              variant="regenerate"
-              response={response}
-              onResponse={handleResponse}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex justify-center">
-          <TranscriptButton
-            variant="default"
-            response={response}
-            onResponse={handleResponse}
-          />
-        </div>
-      )}
-
-      <TranscriptErrors response={response} />
-    </div>
-  );
-}
-
-type TranscriptButtonProps = {
-  response: Response;
-  onResponse: (response: Response) => void;
-  variant?: "regenerate" | "default";
-  iconClassName?: string;
-  children?: React.ReactNode;
-  buttonProps?: React.ComponentProps<typeof Button>;
-};
-function TranscriptButton({
-  response,
-  onResponse,
-  variant = "default",
-  iconClassName,
-  buttonProps = {},
-}: TranscriptButtonProps) {
-  const t = useTranslations("ReviewQuestionCard");
-  const responseBlobQuery = useResponseBlobQuery(response.id);
-
-  const transcriptMutation = useMutation<TranscriptApiJson, Error>({
-    mutationKey: ["transcript", response.id],
-    mutationFn: async () => {
-      const formData = new FormData();
-      formData.append("file", responseBlobQuery.data as Blob);
-      const resp = await fetch("/api/transcript", {
-        method: "POST",
-        body: formData,
-      });
-      return (await resp.json()) as TranscriptApiJson;
-    },
-    onSuccess: (data) => {
-      onResponse({
-        ...response,
-        transcript: data.transcript,
-      });
-    },
-  });
-
-  const iconNode = transcriptMutation.isPending ? (
-    <Spinner className={iconClassName} />
-  ) : transcriptMutation.isSuccess ? (
-    <IconCheck className={iconClassName} />
-  ) : (
-    <IconSubtitlesAi className={iconClassName} />
-  );
-
-  if (variant === "regenerate") {
-    return (
-      <Tooltip>
-        <TooltipContent side="bottom">
-          <div className="flex items-center gap-2">
-            {transcriptMutation.isPending
-              ? t("transcript.regeneratingTooltip")
-              : transcriptMutation.isSuccess
-                ? t("transcript.regeneratedTooltip")
-                : t("transcript.regenerateTooltip")}
-          </div>
-        </TooltipContent>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            className="-mt-1 -mr-1"
-            onClick={() => transcriptMutation.mutate()}
-            {...buttonProps}
-          >
-            {iconNode}
-          </Button>
-        </TooltipTrigger>
-      </Tooltip>
-    );
-  }
-
-  return (
-    <Button
-      disabled={transcriptMutation.isPending}
-      onClick={() => {
-        transcriptMutation.mutate();
-      }}
-      variant="ghost"
-      {...buttonProps}
-    >
-      {iconNode}
-      {transcriptMutation.isPending
-        ? t("transcript.generating")
-        : response.transcript
-          ? t("transcript.regenerate")
-          : t("transcript.default")}
-    </Button>
-  );
-}
-
-function TranscriptErrors({ response }: { response: Response }) {
-  const t = useTranslations("InterviewTrainer");
-  const transcriptMutationState = useMutationState<
-    MutationState<TranscriptApiJson>
-  >({
-    filters: {
-      mutationKey: ["transcript", response.id],
-    },
-  });
-
-  return transcriptMutationState
-    .filter((mutation) => mutation.data?.error || mutation.error)
-    .map((mutation) => {
-      return (
-        // Show errors
-        <Alert key={mutation.error?.name}>
-          <AlertTriangleIcon />
-          <AlertTitle>{t("errors.transcriptionFailed")}</AlertTitle>
-          {mutation.data?.error ? (
-            <AlertDescription>{mutation.data.error}</AlertDescription>
-          ) : null}
-        </Alert>
-      );
-    });
 }

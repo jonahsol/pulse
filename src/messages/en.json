@@ -1,4 +1,21 @@
 {
+  "failedToFetchVideo": "Failed to retrieve video from storage",
+  "SavedTakesPage": {
+    "title": "Saved Takes",
+    "description": "Saved takes are stored in the browser so you can revisit them later.",
+    "deleteConfirmation": {
+      "title": "Delete saved take?",
+      "description": "This will permanently delete this saved take.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "emptyState": {
+      "title": "No Saved Takes",
+      "description1": "You haven't saved any takes yet.",
+      "description2": "Start a new practice to save your first take.",
+      "action": "Start New Practice"
+    }
+  },
   "EditQuestions": {
     "title": "Interview Questions",
     "description": "Customize your practice set",
@@ -168,7 +185,8 @@
     "originalSuffix": "· Original",
     "latest": "Latest",
     "bookmark": {
-      "tooltip": "Bookmark this take"
+      "default": "Save this take",
+      "saved": "Take saved"
     },
     "transcript": {
       "generating": "Generating transcript…",

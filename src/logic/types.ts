@@ -25,3 +25,9 @@ export type Response = {
   transcript?: string;
   createdAt: Date;
 };
+
+export type SavedTake = {
+  id: string;
+  question: Question;
+  response: Response;
+};

@@ -15,7 +15,7 @@ import {
 } from "@/logic/media";
 import { useSetResponseBlobMutation } from "@/logic/storage/queries";
 import { InterviewState, Question, Response } from "@/logic/types";
-import { useInterval } from "@/logic/useInterval";
+import { useInterval } from "@/logic/use-interval";
 import {
   atom,
   getDefaultStore,
