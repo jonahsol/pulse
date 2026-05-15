@@ -25,13 +25,13 @@ import {
 } from "@/logic/context";
 import { getInterviewConfigFromAtomState } from "@/logic/interview";
 import type { InterviewState } from "@/logic/types";
-import {
-  IconCheck,
-  IconPlayerPauseFilled,
-  IconPlayerPlayFilled,
-  IconPlayerStopFilled,
-} from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
+import {
+  CheckIcon,
+  PauseIcon,
+  PlayIcon,
+  SquareIcon,
+} from "lucide-react";
 import { useAtomValue } from "jotai";
 import { useTranslations } from "next-intl";
 
@@ -242,7 +242,7 @@ function InterviewHeader({
           type="button"
           variant="outline"
         >
-          {isPaused ? <IconPlayerPlayFilled /> : <IconPlayerPauseFilled />}
+          {isPaused ? <PlayIcon /> : <PauseIcon />}
           {isPaused ? t("actions.resume") : t("actions.pause")}
         </Button>
         {canEndEarly && (
@@ -253,7 +253,7 @@ function InterviewHeader({
             variant="destructive"
             data-icon="inline-start"
           >
-            <IconPlayerStopFilled />
+            <SquareIcon />
             {t("actions.endEarly")}
           </Button>
         )}
@@ -396,7 +396,7 @@ function RecordingTimer({
         variant="default"
         data-icon="inline-start"
       >
-        <IconCheck />
+        <CheckIcon />
         {t("actions.done")}
       </Button>
     </div>

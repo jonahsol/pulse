@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useIsClient } from "@/lib/client-utils";
 import { savedTakesAtom } from "@/logic/atoms";
 import { SavedTake } from "@/logic/types";
-import { IconBookmark } from "@tabler/icons-react";
+import { BookmarkIcon } from "lucide-react";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -77,7 +77,7 @@ function EmptyState() {
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <IconBookmark />
+          <BookmarkIcon />
         </EmptyMedia>
         <EmptyTitle>{t("emptyState.title")}</EmptyTitle>
         <EmptyDescription>

@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { IconCheck, IconCopy } from "@tabler/icons-react";
+import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type CopyableProps = {
@@ -47,7 +47,7 @@ export function CopyButton({
           size="icon"
           className="-mt-1 -mr-1"
         >
-          {isCopied ? <IconCheck /> : <IconCopy />}
+          {isCopied ? <CheckIcon /> : <CopyIcon />}
         </Button>
       </TooltipTrigger>
     </Tooltip>

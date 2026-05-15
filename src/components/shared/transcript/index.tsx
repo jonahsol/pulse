@@ -13,13 +13,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useResponseBlobQuery } from "@/logic/storage/queries";
 import type { Response } from "@/logic/types";
-import { IconCheck, IconSubtitlesAi } from "@tabler/icons-react";
 import {
   type MutationState,
   useMutation,
   useMutationState,
 } from "@tanstack/react-query";
-import { AlertTriangleIcon } from "lucide-react";
+import { AlertTriangleIcon, CaptionsIcon, CheckIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type TranscriptSectionProps = {
@@ -111,9 +110,9 @@ export function TranscriptButton({
   const iconNode = transcriptMutation.isPending ? (
     <Spinner className={iconClassName} />
   ) : transcriptMutation.isSuccess ? (
-    <IconCheck className={iconClassName} />
+    <CheckIcon className={iconClassName} />
   ) : (
-    <IconSubtitlesAi className={iconClassName} />
+    <CaptionsIcon className={iconClassName} />
   );
 
   if (variant === "regenerate") {

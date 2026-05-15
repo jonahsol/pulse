@@ -4,9 +4,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ClientOnly } from "@/components/utils/client-only";
 import { savedTakesAtom } from "@/logic/atoms";
-import { IconBookmark } from "@tabler/icons-react";
 import { atom, useAtomValue } from "jotai";
-import { Link } from "lucide-react";
+import { BookmarkIcon, Link } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const hasSavedTakesAtom = atom((get) => get(savedTakesAtom).length > 0);
@@ -23,7 +22,7 @@ export function SavedTakesSection() {
         className={buttonVariants({ variant: "ghost", size: "lg" })}
         data-icon="inline-start"
       >
-        <IconBookmark />
+        <BookmarkIcon />
         {t("savedTakes")}
       </Link>
 

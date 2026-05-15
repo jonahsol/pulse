@@ -14,8 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { Question, Response } from "@/logic/types";
-import { IconPlus } from "@tabler/icons-react";
-import { BookmarkIcon } from "lucide-react";
+import { BookmarkIcon, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ComponentProps, useLayoutEffect, useRef } from "react";
 
@@ -68,7 +67,7 @@ export function ReviewQuestionCard({
           </QuestionCard.QuestionTitle>
         </div>
         <Button size="sm" type="button" onClick={onAddTake}>
-          <IconPlus />
+          <PlusIcon />
           {t("actions.addTake")}
         </Button>
       </QuestionCard.Header>

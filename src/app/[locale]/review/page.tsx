@@ -16,7 +16,7 @@ import { useIsClient } from "@/lib/client-utils";
 import { previousInterviewAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
 import { InterviewState, Question, Response } from "@/logic/types";
-import { IconReload } from "@tabler/icons-react";
+import { RefreshCwIcon } from "lucide-react";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -69,7 +69,7 @@ export default function ReviewPhase() {
               type="button"
               data-icon="inline-start"
             >
-              <IconReload />
+              <RefreshCwIcon />
               {t("actions.startNewInterview")}
             </Button>
           </CardContent>

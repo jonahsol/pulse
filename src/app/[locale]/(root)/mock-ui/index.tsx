@@ -8,11 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  IconBookmark,
-  IconPlayerPlay,
-  IconSubtitlesAi,
-} from "@tabler/icons-react";
+import { BookmarkIcon, CaptionsIcon, PlayIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -162,7 +158,7 @@ export function MockUI() {
                   </p>
                   <div className="flex flex-wrap items-center gap-3 rounded border border-border bg-muted/30 p-3">
                     <div className="h-10 w-14 rounded bg-muted flex items-center justify-center shrink-0">
-                      <IconPlayerPlay className="text-muted-foreground" />
+                      <PlayIcon className="text-muted-foreground" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-foreground font-medium">
@@ -174,10 +170,10 @@ export function MockUI() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Button variant="outline" data-icon="inline-start">
-                        <IconSubtitlesAi /> {t("review.transcript")}
+                        <CaptionsIcon /> {t("review.transcript")}
                       </Button>
                       <Button variant="outline" data-icon="inline-start">
-                        <IconBookmark />
+                        <BookmarkIcon />
                         {t("review.save")}
                       </Button>
                     </div>
