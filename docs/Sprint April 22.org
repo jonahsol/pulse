@@ -24,9 +24,9 @@ The AI-generated UI could be better
 *** DONE Long user-defined questions overflow our card on the /practice page
 *** DONE Saved takes
 Create a modal or separate page where user can review their saved takes
-*** TODO Localisation
-**** TODO Questions are localised
-**** TODO Add PT, FR, DE translations
+*** DONE Localisation
+**** DONE Questions are localised
+**** DONE Add PT, FR, DE translations
 ** TODO Reach
 *** TODO GitHub repo
 *** TODO LinkedIn post

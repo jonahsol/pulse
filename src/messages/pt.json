@@ -1,0 +1,193 @@
+{
+  "AppShell": {
+    "madeWith": "Feito com ❤️ por",
+    "savedTakes": "Takes salvos",
+    "viewRepo": "Código aberto em"
+  },
+  "EditQuestions": {
+    "title": "Perguntas de entrevista",
+    "description": "Personalize seu conjunto de prática",
+    "closeAria": "Fechar editor de perguntas",
+    "addQuestion": "+ Adicionar pergunta",
+    "done": "Concluir",
+    "count": "{count, plural, one {# pergunta} other {# perguntas}}",
+    "generation": {
+      "helper": "Cole uma descrição da vaga para gerar perguntas de entrevista personalizadas.",
+      "placeholder": "Cole a descrição da vaga aqui...",
+      "replaceHint": "As perguntas geradas substituem a lista atual.",
+      "generate": "Gerar perguntas de entrevista",
+      "loading": "Gerando perguntas de entrevista...",
+      "error": "Não foi possível gerar as perguntas."
+    },
+    "replace": {
+      "title": "Substituir perguntas existentes?",
+      "description": "As perguntas geradas substituirão seu conjunto de prática atual.",
+      "cancel": "Cancelar",
+      "confirm": "Substituir"
+    },
+    "row": {
+      "placeholder": "Digite uma pergunta de entrevista...",
+      "label": "Pergunta {index}",
+      "reorderAria": "Reordenar pergunta {index}",
+      "deleteAria": "Excluir pergunta {index}"
+    }
+  },
+  "failedToFetchVideo": "Falha ao recuperar o vídeo do armazenamento",
+  "InterviewConfig": {
+    "countdownDuration": {
+      "label": "Contagem regressiva",
+      "title": "Duração da contagem regressiva",
+      "description": "Defina o tempo de contagem regressiva antes de cada pergunta começar."
+    },
+    "responseDuration": {
+      "label": "Limite de resposta",
+      "title": "Duração da resposta",
+      "description": "Defina o tempo máximo permitido para cada resposta."
+    },
+    "questions": {
+      "label": "Perguntas",
+      "title": "Perguntas",
+      "description": "Defina o número de perguntas para praticar."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Pergunta {current} de {total}",
+      "retake": "Pergunta {current}"
+    },
+    "badge": {
+      "retake": "Adicionando take",
+      "live": "Prática ao vivo"
+    },
+    "intro": "Uma pergunta por vez, gravação cronometrada e depois revisão. Comece quando estiver pronto.",
+    "actions": {
+      "resume": "Retomar",
+      "pause": "Pausar",
+      "endEarly": "Encerrar prática antes",
+      "preparingCamera": "Preparando câmera…",
+      "start": "Começar",
+      "done": "Finalizar gravação"
+    },
+    "countdown": {
+      "paused": "Pausado",
+      "startingIn": "Começando em"
+    },
+    "recording": {
+      "paused": "Gravação pausada",
+      "active": "Gravando",
+      "stopsAt": "Para automaticamente em {limit}",
+      "timerPaused": "O cronômetro está pausado até você retomar."
+    },
+    "preview": {
+      "countdownPaused": "Contagem regressiva pausada.",
+      "countdownAutoStart": "A gravação começa automaticamente após a contagem regressiva.",
+      "recordingPaused": "A gravação está pausada. Retome para continuar.",
+      "idle": "A prévia da câmera aparece quando você começar."
+    },
+    "errors": {
+      "title": "Não foi possível continuar"
+    }
+  },
+  "InterviewTrainer": {
+    "errors": {
+      "transcriptionFailed": "Falha na transcrição."
+    }
+  },
+  "Landing": {
+    "headline": "Treine desempenho em entrevistas sob pressão",
+    "supporting": "A maioria das entrevistas não falha pelo conteúdo — falha pela entrega. A pressão quebra a estrutura, a clareza se dissolve e o momento escapa. O Pulse simula exatamente esse instante para você dominá-lo.",
+    "howItWorks": {
+      "title": "Como funciona",
+      "steps": [
+        "Contagem regressiva de 5 s — pense rápido",
+        "Grave — resposta de 60 s",
+        "Revise — assista, leia e melhore"
+      ]
+    },
+    "whatItTrains": {
+      "title": "O que treina",
+      "items": [
+        "Pensamento estruturado sob pressão",
+        "Comunicação clara e confiante",
+        "Reduzir momentos de bloqueio"
+      ]
+    }
+  },
+  "MockUI": {
+    "tooltip": "Iniciar prática de entrevista cronometrada",
+    "question": {
+      "label": "Pergunta",
+      "prompt": "Conte sobre uma vez em que você precisou tomar uma decisão com informações incompletas."
+    },
+    "countdown": {
+      "startingIn": "Começando em"
+    },
+    "recording": {
+      "label": "Gravando"
+    },
+    "review": {
+      "label": "Revisão",
+      "attempt": "Tentativa 1",
+      "duration": "0:42",
+      "transcript": "Transcrição",
+      "save": "Salvar"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Revisão",
+    "description": "Os takes permanecem na memória até você iniciar uma nova sessão. Os takes salvos ficam neste dispositivo.",
+    "endedEarly": {
+      "title": "Encerrado antes",
+      "description": "Perguntas não respondidas são marcadas como sem resposta."
+    },
+    "actions": {
+      "startNewInterview": "Iniciar nova prática"
+    },
+    "emptyState": "Ainda não há takes nesta sessão. Inicie uma nova entrevista pelo cabeçalho ou abra os takes salvos acima."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Pergunta {question}",
+    "limit": "Limite de {seconds} s",
+    "actions": {
+      "addTake": "Adicionar take"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "Nenhuma resposta gravada",
+      "title": "Nenhum take ainda",
+      "endedEarlyDescription": "A entrevista terminou antes desta pergunta ser respondida.",
+      "description": "Grave uma resposta para criar um histórico para esta pergunta."
+    },
+    "take": "Take {number}",
+    "latest": "Mais recente",
+    "bookmark": {
+      "default": "Salvar este take",
+      "saved": "Take salvo"
+    },
+    "transcript": {
+      "generating": "Gerando transcrição…",
+      "regenerate": "Regenerar transcrição",
+      "default": "Gerar transcrição",
+      "copyTooltip": "Copiar transcrição",
+      "copiedTooltip": "Transcrição copiada",
+      "regenerateTooltip": "Regenerar transcrição",
+      "regeneratingTooltip": "Regenerando transcrição…",
+      "regeneratedTooltip": "Transcrição regenerada"
+    }
+  },
+  "SavedTakesPage": {
+    "title": "Takes salvos",
+    "description": "Os takes salvos ficam no navegador para você revisitar depois.",
+    "deleteConfirmation": {
+      "title": "Excluir take salvo?",
+      "description": "Isso excluirá permanentemente este take salvo.",
+      "cancel": "Cancelar",
+      "confirm": "Excluir"
+    },
+    "emptyState": {
+      "title": "Nenhum take salvo",
+      "description1": "Você ainda não salvou nenhum take.",
+      "description2": "Inicie uma nova prática para salvar seu primeiro take.",
+      "action": "Iniciar nova prática"
+    }
+  }
+}

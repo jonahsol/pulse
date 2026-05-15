@@ -1,4 +1,9 @@
 {
+  "AppShell": {
+    "madeWith": "Hecho con ❤️ por",
+    "savedTakes": "Tomas guardadas",
+    "viewRepo": "Código abierto en"
+  },
   "EditQuestions": {
     "title": "Preguntas de entrevista",
     "description": "Personaliza tu conjunto de práctica",
@@ -27,6 +32,87 @@
       "deleteAria": "Eliminar pregunta {index}"
     }
   },
+  "failedToFetchVideo": "No se pudo recuperar el video del almacenamiento",
+  "InterviewConfig": {
+    "countdownDuration": {
+      "label": "Cuenta regresiva",
+      "title": "Duración de la cuenta regresiva",
+      "description": "Establece el tiempo de cuenta regresiva antes de que comience cada pregunta."
+    },
+    "responseDuration": {
+      "label": "Límite de respuesta",
+      "title": "Duración de la respuesta",
+      "description": "Establece el tiempo máximo permitido para cada respuesta."
+    },
+    "questions": {
+      "label": "Preguntas",
+      "title": "Preguntas",
+      "description": "Establece el número de preguntas para practicar."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Pregunta {current} de {total}",
+      "retake": "Pregunta {current}"
+    },
+    "badge": {
+      "retake": "Añadiendo toma",
+      "live": "Práctica en vivo"
+    },
+    "intro": "Una pregunta a la vez, grabación cronometrada y luego revisión. Comienza cuando estés listo.",
+    "actions": {
+      "resume": "Reanudar",
+      "pause": "Pausar",
+      "endEarly": "Finalizar práctica antes",
+      "preparingCamera": "Preparando cámara…",
+      "start": "Comenzar",
+      "done": "Finalizar grabación"
+    },
+    "countdown": {
+      "paused": "Pausado",
+      "startingIn": "Comenzando en"
+    },
+    "recording": {
+      "paused": "Grabación pausada",
+      "active": "Grabando",
+      "stopsAt": "Se detiene automáticamente en {limit}",
+      "timerPaused": "El temporizador está pausado hasta que reanudes."
+    },
+    "preview": {
+      "countdownPaused": "Cuenta regresiva pausada.",
+      "countdownAutoStart": "La grabación comenzará automáticamente al terminar la cuenta regresiva.",
+      "recordingPaused": "La grabación está pausada. Reanuda para continuar.",
+      "idle": "La vista previa de la cámara aparecerá al comenzar."
+    },
+    "errors": {
+      "title": "No se puede continuar"
+    }
+  },
+  "InterviewTrainer": {
+    "errors": {
+      "transcriptionFailed": "Error en la transcripción."
+    }
+  },
+  "Landing": {
+    "headline": "Entrena tu desempeño en entrevistas bajo presión",
+    "supporting": "La mayoría de las entrevistas no fracasan por el contenido, sino por cómo lo comunicas. La presión rompe la estructura, la claridad se diluye y el momento se escapa. Pulse simula ese instante exacto para que puedas dominarlo.",
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "steps": [
+        "Cuenta regresiva de 5 s — piensa rápido",
+        "Graba — respuesta de 60 s",
+        "Revisa — mira, lee y mejora"
+      ]
+    },
+    "whatItTrains": {
+      "title": "Qué entrena",
+      "items": [
+        "Pensamiento estructurado bajo presión",
+        "Comunicación clara y segura",
+        "Menos bloqueos en el momento"
+      ]
+    }
+  },
   "MockUI": {
     "tooltip": "Iniciar práctica de entrevista cronometrada",
     "question": {
@@ -47,105 +133,12 @@
       "save": "Guardar"
     }
   },
-  "AppShell": {
-    "newSession": "Nueva práctica",
-    "savedTakes": "Tomas guardadas",
-    "madeWith": "Hecho con ❤️ por",
-    "viewRepo": "Código abierto en"
-  },
-  "InterviewConfig": {
-    "countdownDuration": {
-      "label": "Cuenta regresiva",
-      "title": "Duración de la cuenta regresiva",
-      "description": "Establece el tiempo de cuenta regresiva antes de que comience cada pregunta."
-    },
-    "responseDuration": {
-      "label": "Límite de respuesta",
-      "title": "Duración de la respuesta",
-      "description": "Establece el tiempo máximo permitido para cada respuesta."
-    },
-    "questions": {
-      "label": "Preguntas",
-      "title": "Preguntas",
-      "description": "Establece el número de preguntas para practicar."
-    }
-  },
-  "InterviewTrainer": {
-    "questions": [
-      "Cuéntame sobre ti y el tipo de trabajo que te entusiasma.",
-      "Describe un proyecto desafiante que lideraste y cómo gestionaste las concesiones (trade-offs).",
-      "Describe una ocasión en la que tuviste que entregar un proyecto en un plazo muy ajustado.",
-      "¿Por qué te interesa este puesto y qué te gustaría lograr primero?"
-    ],
-    "errors": {
-      "browserNotSupported": "Este navegador no permite la grabación con cámara.",
-      "cameraAccessRequired": "Se requiere acceso a la cámara y al micrófono para comenzar.",
-      "resumeRecording": "No se puede reanudar la grabación en este momento.",
-      "pauseRecording": "No se puede pausar la grabación en este momento.",
-      "readTakeForBookmark": "No se pudo leer esta toma para guardarla en favoritos.",
-      "bookmarkTake": "No se puede guardar esta toma en favoritos en este momento.",
-      "readRecordingForTranscription": "No se pudo leer la grabación para la transcripción.",
-      "transcriptionFailed": "Error en la transcripción.",
-      "generateTranscript": "No se pudo generar la transcripción en este momento.",
-      "cameraStreamUnavailable": "No se puede acceder a la señal de la cámara para esta pregunta.",
-      "recordingFailed": "Error en la grabación. Por favor, actualiza la página e inténtalo de nuevo."
-    }
-  },
-  "InterviewPhase": {
-    "questionHeading": {
-      "standard": "Pregunta {current} de {total}",
-      "retake": "Pregunta {current}"
-    },
-    "badge": {
-      "retake": "Añadiendo toma",
-      "live": "En vivo",
-      "ready": "Listo"
-    },
-    "intro": "Una pregunta a la vez, grabación cronometrada y luego revisión. Comienza cuando estés listo.",
-    "actions": {
-      "resume": "Reanudar",
-      "pause": "Pausar",
-      "endEarly": "Finalizar antes",
-      "preparingCamera": "Preparando cámara…",
-      "retryRetake": "Reintentar toma",
-      "start": "Comenzar",
-      "done": "Finalizar grabación"
-    },
-    "countdown": {
-      "paused": "Pausado",
-      "startingIn": "Comenzando en",
-      "resumeHelp": "Reanuda cuando estés listo para continuar la cuenta regresiva."
-    },
-    "recording": {
-      "paused": "Grabación pausada",
-      "active": "Grabando",
-      "stopsAt": "Se detiene automáticamente en {limit}",
-      "timerPaused": "El temporizador está pausado hasta que reanudes."
-    },
-    "preview": {
-      "countdownPaused": "Cuenta regresiva pausada.",
-      "countdownAutoStart": "La grabación comenzará automáticamente al terminar la cuenta regresiva.",
-      "recordingPaused": "La grabación está pausada. Reanuda para continuar.",
-      "idle": "La vista previa de la cámara aparecerá al comenzar."
-    },
-    "savedTakes": {
-      "title": "Tomas guardadas",
-      "count": "{count, plural, one {# toma guardada en este dispositivo.} other {# tomas guardadas en este dispositivo.}}",
-      "reviewAction": "Revisar tomas guardadas"
-    },
-    "errors": {
-      "title": "No se puede continuar"
-    }
-  },
   "ReviewPhase": {
     "title": "Revisión",
     "description": "Las tomas de la sesión permanecen en memoria hasta que inicies una nueva. Las tomas guardadas permanecen en este dispositivo.",
     "endedEarly": {
       "title": "Finalizado antes de tiempo",
       "description": "Las preguntas no contestadas se marcaron como sin respuesta."
-    },
-    "bookmarks": {
-      "title": "Favoritos"
     },
     "actions": {
       "startNewInterview": "Comenzar nueva práctica"
@@ -154,7 +147,7 @@
   },
   "ReviewQuestionCard": {
     "questionBadge": "Pregunta {question}",
-    "limit": "Límite de {seconds}s",
+    "limit": "Límite de {seconds} s",
     "actions": {
       "addTake": "Añadir toma"
     },
@@ -165,57 +158,36 @@
       "description": "Graba una respuesta para crear un historial para esta pregunta."
     },
     "take": "Toma {number}",
-    "originalSuffix": "· Original",
     "latest": "Última",
     "bookmark": {
-      "saving": "Guardando…",
-      "saved": "Guardada",
-      "default": "Guardar"
+      "default": "Guardar esta toma",
+      "saved": "Toma guardada"
     },
     "transcript": {
       "generating": "Generando transcripción…",
       "regenerate": "Regenerar transcripción",
-      "default": "Transcripción",
-      "label": "Transcripción"
+      "default": "Generar transcripción",
+      "copyTooltip": "Copiar transcripción",
+      "copiedTooltip": "Transcripción copiada",
+      "regenerateTooltip": "Regenerar transcripción",
+      "regeneratingTooltip": "Regenerando transcripción…",
+      "regeneratedTooltip": "Transcripción regenerada"
     }
   },
-  "SavedTakesPanel": {
+  "SavedTakesPage": {
     "title": "Tomas guardadas",
-    "description": "Almacenadas en este navegador para que puedas revisarlas más tarde.",
-    "savedCount": "{count, plural, one {# toma guardada} other {# tomas guardadas}}",
-    "questionBadge": "Pregunta {question}",
-    "actions": {
-      "removeBookmarkAria": "Eliminar de favoritos"
+    "description": "Las tomas guardadas se almacenan en el navegador para que puedas revisarlas más tarde.",
+    "deleteConfirmation": {
+      "title": "¿Eliminar toma guardada?",
+      "description": "Esto eliminará permanentemente esta toma guardada.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
     },
-    "saved": "Guardado",
-    "recordedAt": "Grabado el {date}",
-    "savedAt": "Guardado el {date}",
-    "transcript": {
-      "generating": "Generando transcripción…",
-      "regenerate": "Regenerar transcripción",
-      "default": "Transcripción",
-      "label": "Transcripción"
+    "emptyState": {
+      "title": "Sin tomas guardadas",
+      "description1": "Aún no has guardado ninguna toma.",
+      "description2": "Inicia una nueva práctica para guardar tu primera toma.",
+      "action": "Comenzar nueva práctica"
     }
-  },
-  "Landing": {
-    "headline": "Entrena tu desempeño en entrevistas bajo presión",
-    "supporting": "La mayoría de las entrevistas no fracasan por el contenido, sino por cómo lo comunicas. La presión rompe la estructura, la claridad se diluye y el momento se escapa. Pulse simula ese instante exacto para que puedas dominarlo.",
-    "howItWorks": {
-      "title": "Cómo funciona",
-      "steps": [
-        "Cuenta regresiva: 5 segundos para prepararte",
-        "Graba: responde bajo presión de tiempo",
-        "Revisa: mira, lee la transcripción y añade tomas"
-      ]
-    },
-    "whatItTrains": {
-      "title": "Qué entrena",
-      "items": [
-        "Pensamiento estructurado bajo presión",
-        "Comunicación clara y segura",
-        "Menos bloqueos en el momento"
-      ]
-    },
-    "startPractice": "Comenzar práctica"
   }
 }

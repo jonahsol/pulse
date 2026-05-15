@@ -1,0 +1,193 @@
+{
+  "AppShell": {
+    "madeWith": "Gemacht mit ❤️ von",
+    "savedTakes": "Gespeicherte Takes",
+    "viewRepo": "Open Source auf"
+  },
+  "EditQuestions": {
+    "title": "Interviewfragen",
+    "description": "Passe dein Übungsset an",
+    "closeAria": "Frageneditor schließen",
+    "addQuestion": "+ Frage hinzufügen",
+    "done": "Fertig",
+    "count": "{count, plural, one {# Frage} other {# Fragen}}",
+    "generation": {
+      "helper": "Füge eine Stellenbeschreibung ein, um passende Interviewfragen zu generieren.",
+      "placeholder": "Stellenbeschreibung hier einfügen...",
+      "replaceHint": "Generierte Fragen ersetzen die aktuelle Liste.",
+      "generate": "Interviewfragen generieren",
+      "loading": "Interviewfragen werden generiert...",
+      "error": "Fragen konnten nicht generiert werden."
+    },
+    "replace": {
+      "title": "Bestehende Fragen ersetzen?",
+      "description": "Generierte Fragen ersetzen dein aktuelles Übungsset.",
+      "cancel": "Abbrechen",
+      "confirm": "Ersetzen"
+    },
+    "row": {
+      "placeholder": "Interviewfrage eingeben...",
+      "label": "Frage {index}",
+      "reorderAria": "Frage {index} neu anordnen",
+      "deleteAria": "Frage {index} löschen"
+    }
+  },
+  "failedToFetchVideo": "Video konnte nicht aus dem Speicher geladen werden",
+  "InterviewConfig": {
+    "countdownDuration": {
+      "label": "Countdown",
+      "title": "Countdown-Dauer",
+      "description": "Lege die Countdown-Zeit vor Beginn jeder Frage fest."
+    },
+    "responseDuration": {
+      "label": "Antwortlimit",
+      "title": "Antwortdauer",
+      "description": "Lege die maximale Zeit für jede Antwort fest."
+    },
+    "questions": {
+      "label": "Fragen",
+      "title": "Fragen",
+      "description": "Lege die Anzahl der Übungsfragen fest."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Frage {current} von {total}",
+      "retake": "Frage {current}"
+    },
+    "badge": {
+      "retake": "Take hinzufügen",
+      "live": "Live-Übung"
+    },
+    "intro": "Eine Frage nach der anderen, zeitlich begrenzte Aufnahme, dann Review. Starte, wenn du bereit bist.",
+    "actions": {
+      "resume": "Fortsetzen",
+      "pause": "Pause",
+      "endEarly": "Übung früh beenden",
+      "preparingCamera": "Kamera wird vorbereitet…",
+      "start": "Starten",
+      "done": "Aufnahme beenden"
+    },
+    "countdown": {
+      "paused": "Pausiert",
+      "startingIn": "Start in"
+    },
+    "recording": {
+      "paused": "Aufnahme pausiert",
+      "active": "Aufnahme",
+      "stopsAt": "Stoppt automatisch um {limit}",
+      "timerPaused": "Der Timer ist pausiert, bis du fortsetzt."
+    },
+    "preview": {
+      "countdownPaused": "Countdown ist pausiert.",
+      "countdownAutoStart": "Die Aufnahme startet automatisch nach dem Countdown.",
+      "recordingPaused": "Die Aufnahme ist pausiert. Setze fort, um weiterzumachen.",
+      "idle": "Die Kameravorschau erscheint beim Start."
+    },
+    "errors": {
+      "title": "Fortsetzen nicht möglich"
+    }
+  },
+  "InterviewTrainer": {
+    "errors": {
+      "transcriptionFailed": "Transkription fehlgeschlagen."
+    }
+  },
+  "Landing": {
+    "headline": "Trainiere Interviewleistung unter Druck",
+    "supporting": "Die meisten Interviews scheitern nicht am Inhalt, sondern an der Präsentation. Druck zerstört Struktur, Klarheit verflüchtigt sich und der Moment entgleitet. Pulse simuliert genau diesen Moment, damit du ihn meisterst.",
+    "howItWorks": {
+      "title": "So funktioniert es",
+      "steps": [
+        "5-Sekunden-Countdown — schnell denken",
+        "Aufnehmen — 60-Sekunden-Antwort",
+        "Review — ansehen, lesen, verbessern"
+      ]
+    },
+    "whatItTrains": {
+      "title": "Was es trainiert",
+      "items": [
+        "Strukturiertes Denken unter Druck",
+        "Klare, selbstsichere Kommunikation",
+        "Weniger Blackout-Momente"
+      ]
+    }
+  },
+  "MockUI": {
+    "tooltip": "Zeitlich begrenzte Interviewübung starten",
+    "question": {
+      "label": "Frage",
+      "prompt": "Erzähl mir von einer Situation, in der du mit unvollständigen Informationen eine Entscheidung treffen musstest."
+    },
+    "countdown": {
+      "startingIn": "Start in"
+    },
+    "recording": {
+      "label": "Aufnahme"
+    },
+    "review": {
+      "label": "Review",
+      "attempt": "Versuch 1",
+      "duration": "0:42",
+      "transcript": "Transkript",
+      "save": "Speichern"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Review",
+    "description": "Takes bleiben im Speicher, bis du eine neue Sitzung startest. Gespeicherte Takes bleiben auf diesem Gerät.",
+    "endedEarly": {
+      "title": "Früh beendet",
+      "description": "Unbeantwortete Fragen werden als ohne Antwort markiert."
+    },
+    "actions": {
+      "startNewInterview": "Neue Übung starten"
+    },
+    "emptyState": "Noch keine Takes in dieser Sitzung. Starte ein neues Interview über die Kopfzeile oder öffne oben gespeicherte Takes."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Frage {question}",
+    "limit": "{seconds}s Limit",
+    "actions": {
+      "addTake": "Take hinzufügen"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "Keine Antwort aufgezeichnet",
+      "title": "Noch keine Takes",
+      "endedEarlyDescription": "Das Interview endete, bevor diese Frage beantwortet wurde.",
+      "description": "Nimm eine Antwort auf, um einen Verlauf für diese Frage zu erstellen."
+    },
+    "take": "Take {number}",
+    "latest": "Neueste",
+    "bookmark": {
+      "default": "Diesen Take speichern",
+      "saved": "Take gespeichert"
+    },
+    "transcript": {
+      "generating": "Transkript wird erstellt…",
+      "regenerate": "Transkript neu erstellen",
+      "default": "Transkript erstellen",
+      "copyTooltip": "Transkript kopieren",
+      "copiedTooltip": "Transkript kopiert",
+      "regenerateTooltip": "Transkript neu erstellen",
+      "regeneratingTooltip": "Transkript wird neu erstellt…",
+      "regeneratedTooltip": "Transkript neu erstellt"
+    }
+  },
+  "SavedTakesPage": {
+    "title": "Gespeicherte Takes",
+    "description": "Gespeicherte Takes werden im Browser abgelegt, damit du sie später wieder ansehen kannst.",
+    "deleteConfirmation": {
+      "title": "Gespeicherten Take löschen?",
+      "description": "Dieser gespeicherte Take wird dauerhaft gelöscht.",
+      "cancel": "Abbrechen",
+      "confirm": "Löschen"
+    },
+    "emptyState": {
+      "title": "Keine gespeicherten Takes",
+      "description1": "Du hast noch keine Takes gespeichert.",
+      "description2": "Starte eine neue Übung, um deinen ersten Take zu speichern.",
+      "action": "Neue Übung starten"
+    }
+  }
+}

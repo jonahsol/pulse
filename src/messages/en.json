@@ -1,20 +1,8 @@
 {
-  "failedToFetchVideo": "Failed to retrieve video from storage",
-  "SavedTakesPage": {
-    "title": "Saved Takes",
-    "description": "Saved takes are stored in the browser so you can revisit them later.",
-    "deleteConfirmation": {
-      "title": "Delete saved take?",
-      "description": "This will permanently delete this saved take.",
-      "cancel": "Cancel",
-      "confirm": "Delete"
-    },
-    "emptyState": {
-      "title": "No Saved Takes",
-      "description1": "You haven't saved any takes yet.",
-      "description2": "Start a new practice to save your first take.",
-      "action": "Start New Practice"
-    }
+  "AppShell": {
+    "madeWith": "Made with ❤️ by",
+    "savedTakes": "Saved Takes",
+    "viewRepo": "Open source on"
   },
   "EditQuestions": {
     "title": "Interview Questions",
@@ -44,32 +32,7 @@
       "deleteAria": "Delete question {index}"
     }
   },
-  "MockUI": {
-    "tooltip": "Start a timed interview practice",
-    "question": {
-      "label": "Question",
-      "prompt": "Tell me about a time you had to make a decision with incomplete information."
-    },
-    "countdown": {
-      "startingIn": "Starting in"
-    },
-    "recording": {
-      "label": "Recording"
-    },
-    "review": {
-      "label": "Review",
-      "attempt": "Attempt 1",
-      "duration": "0:42",
-      "transcript": "Transcript",
-      "save": "Save"
-    }
-  },
-  "AppShell": {
-    "newSession": "New Practice",
-    "savedTakes": "Saved Takes",
-    "madeWith": "Made with ❤️ by",
-    "viewRepo": "Open source on"
-  },
+  "failedToFetchVideo": "Failed to retrieve video from storage",
   "InterviewConfig": {
     "countdownDuration": {
       "label": "Countdown",
@@ -87,27 +50,6 @@
       "description": "Set the number of questions to practice."
     }
   },
-  "InterviewTrainer": {
-    "questions": [
-      "Tell me about yourself and the kind of work that energizes you.",
-      "Describe a challenging project you owned and how you handled trade-offs.",
-      "Describe a time you had to deliver a project on a very tight deadline.",
-      "Why are you interested in this role, and what would you want to accomplish first?"
-    ],
-    "errors": {
-      "browserNotSupported": "This browser does not support camera recording.",
-      "cameraAccessRequired": "Camera and microphone access are required to start.",
-      "resumeRecording": "Unable to resume recording right now.",
-      "pauseRecording": "Unable to pause recording right now.",
-      "readTakeForBookmark": "Unable to read this take for bookmarking.",
-      "bookmarkTake": "Unable to bookmark this take right now.",
-      "readRecordingForTranscription": "Unable to read the recording for transcription.",
-      "transcriptionFailed": "Transcription failed.",
-      "generateTranscript": "Unable to generate a transcript right now.",
-      "cameraStreamUnavailable": "Unable to access the camera stream for this question.",
-      "recordingFailed": "Recording failed. Please refresh and try again."
-    }
-  },
   "InterviewPhase": {
     "questionHeading": {
       "standard": "Question {current} of {total}",
@@ -115,8 +57,7 @@
     },
     "badge": {
       "retake": "Adding Take",
-      "live": "Live Practice",
-      "ready": "Ready"
+      "live": "Live Practice"
     },
     "intro": "One prompt at a time, timed recording, then review. Start when you are ready.",
     "actions": {
@@ -124,14 +65,12 @@
       "pause": "Pause",
       "endEarly": "End Practice Early",
       "preparingCamera": "Preparing camera…",
-      "retryRetake": "Retry retake",
       "start": "Start",
       "done": "Finish Recording"
     },
     "countdown": {
       "paused": "Paused",
-      "startingIn": "Starting in",
-      "resumeHelp": "Resume when you are ready to continue the countdown."
+      "startingIn": "Starting in"
     },
     "recording": {
       "paused": "Recording paused",
@@ -145,79 +84,13 @@
       "recordingPaused": "Recording is paused. Resume to continue.",
       "idle": "Camera preview appears when you start."
     },
-    "savedTakes": {
-      "title": "Saved takes",
-      "count": "{count, plural, one {# bookmarked take on this device.} other {# bookmarked takes on this device.}}",
-      "reviewAction": "Review saved takes"
-    },
     "errors": {
       "title": "Unable to continue"
     }
   },
-  "ReviewPhase": {
-    "title": "Review",
-    "description": "Takes stay in memory until you start a new session. Saved takes remain on this device.",
-    "endedEarly": {
-      "title": "Ended early",
-      "description": "Unanswered questions are marked as having no response."
-    },
-    "bookmarks": {
-      "title": "Bookmarks"
-    },
-    "actions": {
-      "startNewInterview": "Start New Practice"
-    },
-    "emptyState": "No takes in this session yet. Start a new interview from the header, or open saved takes above."
-  },
-  "ReviewQuestionCard": {
-    "questionBadge": "Question {question}",
-    "limit": "{seconds}s limit",
-    "actions": {
-      "addTake": "Add Take"
-    },
-    "noResponse": {
-      "endedEarlyTitle": "No response recorded",
-      "title": "No takes yet",
-      "endedEarlyDescription": "The interview ended before this prompt was answered.",
-      "description": "Record an answer to build a history for this prompt."
-    },
-    "take": "Take {number}",
-    "originalSuffix": "· Original",
-    "latest": "Latest",
-    "bookmark": {
-      "default": "Save this take",
-      "saved": "Take saved"
-    },
-    "transcript": {
-      "generating": "Generating transcript…",
-      "regenerate": "Regenerate transcript",
-      "default": "Generate Transcript",
-      "label": "Transcript",
-      "copyTooltip": "Copy transcript",
-      "copiedTooltip": "Transcript copied",
-      "regenerateTooltip": "Regenerate transcript",
-      "regeneratingTooltip": "Regenerating transcript…",
-      "regeneratedTooltip": "Transcript regenerated",
-      "placeholder1": "Click here",
-      "placeholder2": "to generate a transcript"
-    }
-  },
-  "SavedTakesPanel": {
-    "title": "Saved takes",
-    "description": "Stored in this browser so you can revisit them later.",
-    "savedCount": "{count, plural, one {# saved take} other {# saved takes}}",
-    "questionBadge": "Question {question}",
-    "actions": {
-      "removeBookmarkAria": "Remove bookmark"
-    },
-    "saved": "Saved",
-    "recordedAt": "Recorded {date}",
-    "savedAt": "Saved {date}",
-    "transcript": {
-      "generating": "Generating transcript…",
-      "regenerate": "Regenerate transcript",
-      "default": "Transcript",
-      "label": "Transcript"
+  "InterviewTrainer": {
+    "errors": {
+      "transcriptionFailed": "Transcription failed."
     }
   },
   "Landing": {
@@ -238,7 +111,83 @@
         "Clear, confident communication",
         "Reducing freeze moments"
       ]
+    }
+  },
+  "MockUI": {
+    "tooltip": "Start a timed interview practice",
+    "question": {
+      "label": "Question",
+      "prompt": "Tell me about a time you had to make a decision with incomplete information."
     },
-    "startPractice": "Start Practice"
+    "countdown": {
+      "startingIn": "Starting in"
+    },
+    "recording": {
+      "label": "Recording"
+    },
+    "review": {
+      "label": "Review",
+      "attempt": "Attempt 1",
+      "duration": "0:42",
+      "transcript": "Transcript",
+      "save": "Save"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Review",
+    "description": "Takes stay in memory until you start a new session. Saved takes remain on this device.",
+    "endedEarly": {
+      "title": "Ended early",
+      "description": "Unanswered questions are marked as having no response."
+    },
+    "actions": {
+      "startNewInterview": "Start New Practice"
+    },
+    "emptyState": "No takes in this session yet. Start a new interview from the header, or open saved takes above."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Question {question}",
+    "limit": "{seconds}s limit",
+    "actions": {
+      "addTake": "Add Take"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "No response recorded",
+      "title": "No takes yet",
+      "endedEarlyDescription": "The interview ended before this prompt was answered.",
+      "description": "Record an answer to build a history for this prompt."
+    },
+    "take": "Take {number}",
+    "latest": "Latest",
+    "bookmark": {
+      "default": "Save this take",
+      "saved": "Take saved"
+    },
+    "transcript": {
+      "generating": "Generating transcript…",
+      "regenerate": "Regenerate transcript",
+      "default": "Generate Transcript",
+      "copyTooltip": "Copy transcript",
+      "copiedTooltip": "Transcript copied",
+      "regenerateTooltip": "Regenerate transcript",
+      "regeneratingTooltip": "Regenerating transcript…",
+      "regeneratedTooltip": "Transcript regenerated"
+    }
+  },
+  "SavedTakesPage": {
+    "title": "Saved Takes",
+    "description": "Saved takes are stored in the browser so you can revisit them later.",
+    "deleteConfirmation": {
+      "title": "Delete saved take?",
+      "description": "This will permanently delete this saved take.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "emptyState": {
+      "title": "No Saved Takes",
+      "description1": "You haven't saved any takes yet.",
+      "description2": "Start a new practice to save your first take.",
+      "action": "Start New Practice"
+    }
   }
 }

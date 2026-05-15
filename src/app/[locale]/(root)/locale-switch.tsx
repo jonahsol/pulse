@@ -9,7 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { routing } from "@/i18n/routing";
+import { routing, type AppLocale } from "@/i18n/routing";
+
+const LOCALE_LABELS: Record<AppLocale, string> = {
+  en: "English",
+  es: "Español",
+  pt: "Português",
+  fr: "Français",
+  de: "Deutsch",
+};
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -33,7 +41,7 @@ export function LocaleSwitch() {
           <SelectLabel>Language</SelectLabel>
           {routing.locales.map((locale) => (
             <SelectItem key={locale} value={locale}>
-              {locale.toUpperCase()}
+              {LOCALE_LABELS[locale]}
             </SelectItem>
           ))}
         </SelectGroup>

@@ -1,0 +1,193 @@
+{
+  "AppShell": {
+    "madeWith": "Fait avec ❤️ par",
+    "savedTakes": "Prises enregistrées",
+    "viewRepo": "Open source sur"
+  },
+  "EditQuestions": {
+    "title": "Questions d'entretien",
+    "description": "Personnalisez votre série d'entraînement",
+    "closeAria": "Fermer l'éditeur de questions",
+    "addQuestion": "+ Ajouter une question",
+    "done": "Terminé",
+    "count": "{count, plural, one {# question} other {# questions}}",
+    "generation": {
+      "helper": "Collez une description de poste pour générer des questions d'entretien adaptées.",
+      "placeholder": "Collez la description du poste ici...",
+      "replaceHint": "Les questions générées remplacent la liste actuelle.",
+      "generate": "Générer des questions d'entretien",
+      "loading": "Génération des questions d'entretien...",
+      "error": "Impossible de générer les questions."
+    },
+    "replace": {
+      "title": "Remplacer les questions existantes ?",
+      "description": "Les questions générées remplaceront votre série d'entraînement actuelle.",
+      "cancel": "Annuler",
+      "confirm": "Remplacer"
+    },
+    "row": {
+      "placeholder": "Saisissez une question d'entretien...",
+      "label": "Question {index}",
+      "reorderAria": "Réorganiser la question {index}",
+      "deleteAria": "Supprimer la question {index}"
+    }
+  },
+  "failedToFetchVideo": "Impossible de récupérer la vidéo depuis le stockage",
+  "InterviewConfig": {
+    "countdownDuration": {
+      "label": "Compte à rebours",
+      "title": "Durée du compte à rebours",
+      "description": "Définissez le temps de compte à rebours avant le début de chaque question."
+    },
+    "responseDuration": {
+      "label": "Limite de réponse",
+      "title": "Durée de la réponse",
+      "description": "Définissez le temps maximum autorisé pour chaque réponse."
+    },
+    "questions": {
+      "label": "Questions",
+      "title": "Questions",
+      "description": "Définissez le nombre de questions à pratiquer."
+    }
+  },
+  "InterviewPhase": {
+    "questionHeading": {
+      "standard": "Question {current} sur {total}",
+      "retake": "Question {current}"
+    },
+    "badge": {
+      "retake": "Ajout d'une prise",
+      "live": "Entraînement en direct"
+    },
+    "intro": "Une question à la fois, enregistrement chronométré, puis révision. Commencez quand vous êtes prêt.",
+    "actions": {
+      "resume": "Reprendre",
+      "pause": "Pause",
+      "endEarly": "Terminer l'entraînement plus tôt",
+      "preparingCamera": "Préparation de la caméra…",
+      "start": "Commencer",
+      "done": "Terminer l'enregistrement"
+    },
+    "countdown": {
+      "paused": "En pause",
+      "startingIn": "Début dans"
+    },
+    "recording": {
+      "paused": "Enregistrement en pause",
+      "active": "Enregistrement",
+      "stopsAt": "S'arrête automatiquement à {limit}",
+      "timerPaused": "Le minuteur est en pause jusqu'à ce que vous repreniez."
+    },
+    "preview": {
+      "countdownPaused": "Compte à rebours en pause.",
+      "countdownAutoStart": "L'enregistrement commence automatiquement après le compte à rebours.",
+      "recordingPaused": "L'enregistrement est en pause. Reprenez pour continuer.",
+      "idle": "L'aperçu de la caméra apparaît au démarrage."
+    },
+    "errors": {
+      "title": "Impossible de continuer"
+    }
+  },
+  "InterviewTrainer": {
+    "errors": {
+      "transcriptionFailed": "Échec de la transcription."
+    }
+  },
+  "Landing": {
+    "headline": "Entraînez-vous à performer en entretien sous pression",
+    "supporting": "La plupart des entretiens échouent moins sur le fond que sur la façon de le présenter. La pression brise la structure, la clarté se dissout et le moment file. Pulse simule exactement cet instant pour que vous le maîtrisiez.",
+    "howItWorks": {
+      "title": "Comment ça marche",
+      "steps": [
+        "Compte à rebours de 5 s — réfléchissez vite",
+        "Enregistrez — réponse de 60 s",
+        "Révisez — regardez, lisez, progressez"
+      ]
+    },
+    "whatItTrains": {
+      "title": "Ce que ça entraîne",
+      "items": [
+        "Pensée structurée sous pression",
+        "Communication claire et assurée",
+        "Réduire les moments de blocage"
+      ]
+    }
+  },
+  "MockUI": {
+    "tooltip": "Démarrer un entraînement d'entretien chronométré",
+    "question": {
+      "label": "Question",
+      "prompt": "Parlez-moi d'une fois où vous avez dû prendre une décision avec des informations incomplètes."
+    },
+    "countdown": {
+      "startingIn": "Début dans"
+    },
+    "recording": {
+      "label": "Enregistrement"
+    },
+    "review": {
+      "label": "Révision",
+      "attempt": "Tentative 1",
+      "duration": "0:42",
+      "transcript": "Transcription",
+      "save": "Enregistrer"
+    }
+  },
+  "ReviewPhase": {
+    "title": "Révision",
+    "description": "Les prises restent en mémoire jusqu'à ce que vous démarriez une nouvelle session. Les prises enregistrées restent sur cet appareil.",
+    "endedEarly": {
+      "title": "Terminé plus tôt",
+      "description": "Les questions sans réponse sont marquées comme sans réponse."
+    },
+    "actions": {
+      "startNewInterview": "Nouvel entraînement"
+    },
+    "emptyState": "Aucune prise dans cette session pour l'instant. Démarrez un nouvel entretien depuis l'en-tête ou ouvrez les prises enregistrées ci-dessus."
+  },
+  "ReviewQuestionCard": {
+    "questionBadge": "Question {question}",
+    "limit": "Limite de {seconds} s",
+    "actions": {
+      "addTake": "Ajouter une prise"
+    },
+    "noResponse": {
+      "endedEarlyTitle": "Aucune réponse enregistrée",
+      "title": "Aucune prise pour l'instant",
+      "endedEarlyDescription": "L'entretien s'est terminé avant que cette question soit répondue.",
+      "description": "Enregistrez une réponse pour créer un historique pour cette question."
+    },
+    "take": "Prise {number}",
+    "latest": "Dernière",
+    "bookmark": {
+      "default": "Enregistrer cette prise",
+      "saved": "Prise enregistrée"
+    },
+    "transcript": {
+      "generating": "Génération de la transcription…",
+      "regenerate": "Régénérer la transcription",
+      "default": "Générer la transcription",
+      "copyTooltip": "Copier la transcription",
+      "copiedTooltip": "Transcription copiée",
+      "regenerateTooltip": "Régénérer la transcription",
+      "regeneratingTooltip": "Régénération de la transcription…",
+      "regeneratedTooltip": "Transcription régénérée"
+    }
+  },
+  "SavedTakesPage": {
+    "title": "Prises enregistrées",
+    "description": "Les prises enregistrées sont stockées dans le navigateur pour que vous puissiez les revoir plus tard.",
+    "deleteConfirmation": {
+      "title": "Supprimer la prise enregistrée ?",
+      "description": "Cela supprimera définitivement cette prise enregistrée.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    },
+    "emptyState": {
+      "title": "Aucune prise enregistrée",
+      "description1": "Vous n'avez encore enregistré aucune prise.",
+      "description2": "Démarrez un nouvel entraînement pour enregistrer votre première prise.",
+      "action": "Nouvel entraînement"
+    }
+  }
+}
