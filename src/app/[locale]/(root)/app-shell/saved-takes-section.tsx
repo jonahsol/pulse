@@ -3,30 +3,32 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ClientOnly } from "@/components/utils/client-only";
-import { savedTakesAtom } from "@/logic/atoms";
-import { atom, useAtomValue } from "jotai";
-import { BookmarkIcon, Link } from "lucide-react";
+import { previousInterviewAtom } from "@/logic/atoms";
+import { useAtomValue } from "jotai";
+import { BookmarkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-const hasSavedTakesAtom = atom((get) => get(savedTakesAtom).length > 0);
+import Link from "next/link";
 
 export function SavedTakesSection() {
-  const hasSavedTakes = useAtomValue(hasSavedTakesAtom);
+  const hasPreviousInterview = useAtomValue(previousInterviewAtom);
   const t = useTranslations("AppShell");
+  console.log("hasPreviousInterview", hasPreviousInterview);
 
-  if (!hasSavedTakes) return null;
+  if (!hasPreviousInterview) return null;
   return (
     <ClientOnly>
-      <Link
-        href="/saved"
-        className={buttonVariants({ variant: "ghost", size: "lg" })}
-        data-icon="inline-start"
-      >
-        <BookmarkIcon />
-        {t("savedTakes")}
-      </Link>
+      <div className="flex items-center">
+        <Link
+          href="/saved"
+          className={buttonVariants({ variant: "ghost", size: "lg" })}
+          data-icon="inline-start"
+        >
+          <BookmarkIcon />
+          {t("savedTakes")}
+        </Link>
 
-      <Separator orientation="vertical" className="ml-5 mr-8 hidden sm:block" />
+        <Separator orientation="vertical" className="ml-5 mr-8" />
+      </div>
     </ClientOnly>
   );
 }
