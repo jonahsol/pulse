@@ -1,6 +1,6 @@
 # Pulse
 
-Pulse is a browser-based interview practice app for recording and reviewing behavioural interview responses. The app keeps the main recording flow entirely client-side, while optional AI workflows like transcription and question generation run through server APIs.
+Pulse is a interview practice app for recording and reviewing behavioural interview responses. The app keeps the main recording flow entirely client-side, while optional AI workflows like transcription and question generation run through server APIs.
 
 ## Overview
 

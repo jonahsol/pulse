@@ -18,26 +18,23 @@ import {
 } from "@/components/ui/tooltip";
 import { useIsOverflow } from "@/lib/use-is-overflow";
 import { cn } from "@/lib/utils";
-import { currentInterviewAtom } from "@/logic/atoms";
+import { currentInterviewAtom, interviewRuntimeAtom } from "@/logic/atoms";
 import {
   useInterviewContext,
   useInterviewRuntimeContext,
 } from "@/logic/context";
 import { getInterviewConfigFromAtomState } from "@/logic/interview";
-import type { InterviewState } from "@/logic/types";
+import type { InterviewRuntime } from "@/logic/types";
 import { useMutation } from "@tanstack/react-query";
-import {
-  CheckIcon,
-  PauseIcon,
-  PlayIcon,
-  SquareIcon,
-} from "lucide-react";
 import { useAtomValue } from "jotai";
+import { CheckIcon, PauseIcon, PlayIcon, SquareIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function InterviewPhase() {
   const t = useTranslations("InterviewPhase");
   const interview = useAtomValue(currentInterviewAtom);
+  const interviewRuntime = useAtomValue(interviewRuntimeAtom);
+
   const {
     startInterview,
     isPaused,
@@ -52,7 +49,7 @@ export default function InterviewPhase() {
   return (
     <div className="flex-1 flex flex-col justify-center">
       <Card className="gap-5 relative w-full border-border/80 bg-card/80 shadow-none backdrop-blur-sm transition-opacity duration-300">
-        {interview.phase !== "preparing" && (
+        {interviewRuntime.phase !== "preparing" && (
           <CardHeader className="gap-4 space-y-0 px-0">
             <InterviewHeader
               canEndEarly={true}
@@ -68,7 +65,7 @@ export default function InterviewPhase() {
         )}
 
         <CardContent className="flex flex-col gap-6">
-          {interview.phase === "preparing" && (
+          {interviewRuntime.phase === "preparing" && (
             <StartInterviewSection
               isStarting={startInterviewMutation.isPending}
               onStart={() =>
@@ -77,29 +74,31 @@ export default function InterviewPhase() {
             />
           )}
 
-          {(interview.phase === "question" ||
-            interview.phase === "countdown") && (
+          {(interviewRuntime.phase === "question" ||
+            interviewRuntime.phase === "countdown") && (
             <div className="flex flex-col justify-center gap-6 h-60">
               <InterviewQuestion
                 prompt={
                   interview.questions[interview.currentQuestionIndex].prompt
                 }
                 variant={
-                  interview.phase === "question" ? "recording" : "standard"
+                  interviewRuntime.phase === "question"
+                    ? "recording"
+                    : "standard"
                 }
               />
-              {interview.phase === "question" && (
+              {interviewRuntime.phase === "question" && (
                 <RecordingTimer
                   isPaused={isPaused}
-                  recordingElapsedSeconds={interview.questionTime}
+                  recordingElapsedSeconds={interviewRuntime.questionTime}
                   recordingSeconds={interview.questionDuration}
                   onFinishResponse={endResponse}
                 />
               )}
-              {interview.phase === "countdown" && (
+              {interviewRuntime.phase === "countdown" && (
                 <Countdown
                   countdown={
-                    interview.countdownDuration - interview.countdownTime
+                    interview.countdownDuration - interviewRuntime.countdownTime
                   }
                   isPaused={isPaused}
                 />
@@ -107,10 +106,13 @@ export default function InterviewPhase() {
             </div>
           )}
 
-          <InterviewVideoPlayer phase={interview.phase} isPaused={isPaused} />
+          <InterviewVideoPlayer
+            phase={interviewRuntime.phase}
+            isPaused={isPaused}
+          />
         </CardContent>
 
-        {(interview.phase === "preparing" ||
+        {(interviewRuntime.phase === "preparing" ||
           startInterviewMutation.isError) && (
           <CardFooter>
             {startInterviewMutation.isError && (
@@ -121,7 +123,7 @@ export default function InterviewPhase() {
                 </AlertDescription>
               </Alert>
             )}
-            {interview.phase === "preparing" && <InterviewConfigForm />}
+            {interviewRuntime.phase === "preparing" && <InterviewConfigForm />}
           </CardFooter>
         )}
       </Card>
@@ -129,7 +131,7 @@ export default function InterviewPhase() {
   );
 }
 type InterviewVideoPlayerProps = {
-  phase: InterviewState["phase"];
+  phase: InterviewRuntime["phase"];
   isPaused: boolean;
 };
 function InterviewVideoPlayer({ phase, isPaused }: InterviewVideoPlayerProps) {

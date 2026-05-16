@@ -1,20 +1,22 @@
 export type Question = { id: string; prompt: string; index: number };
 
-export type InterviewState = {
-  // When phase is "preparing", the interview has not started yet. When phase is
-  // "complete", the interview has finished.
+// Ephemeral runtime state of the interview.
+export type InterviewRuntime = {
   phase: "preparing" | "countdown" | "question" | "complete";
-  // When phase is countdown, countdownTime starts at 0 and counts up to countdownDuration
-  countdownTime: number;
-  countdownDuration: number;
-  // When phase is question, questionTime starts at 0 and counts up to questionDuration
   questionTime: number;
+  countdownTime: number;
+};
+
+// Persistent state of the interview.
+export type Interview = {
+  // When phase is countdown, countdownDuration is the duration of the countdown.
+  countdownDuration: number;
+  // When phase is question, questionDuration is the duration of the question.
   questionDuration: number;
   // The index of the current question
   currentQuestionIndex: number;
   // The questions to be asked
   questions: Question[];
-  endedEarly: boolean;
   isRetaking: boolean;
   // { questionId: Response[] }
   responses: Record<string, Response[]>;

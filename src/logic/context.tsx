@@ -1,4 +1,4 @@
-import { useInterviewRuntime } from "@/logic/interview";
+import { useInterviewController } from "@/logic/interview";
 import type { ReactNode } from "react";
 import { createContext, useContext, useRef } from "react";
 
@@ -38,14 +38,14 @@ export const useInterviewContext = () => {
 };
 
 export const InterviewRuntimeContext = createContext<
-  ReturnType<typeof useInterviewRuntime> | undefined
+  ReturnType<typeof useInterviewController> | undefined
 >(undefined);
 export function InterviewRuntimeContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const interviewRuntime = useInterviewRuntime();
+  const interviewRuntime = useInterviewController();
   return (
     <InterviewRuntimeContext.Provider value={interviewRuntime}>
       {children}

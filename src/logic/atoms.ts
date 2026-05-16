@@ -1,6 +1,8 @@
-import type { InterviewState, SavedTake } from "@/logic/types";
-import { atom } from "jotai";
+import type { Interview, InterviewRuntime, SavedTake } from "@/logic/types";
+import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+
+export const store = getDefaultStore();
 
 // Input
 export const countdownDurationConfigAtom = atomWithStorage<number>(
@@ -23,26 +25,32 @@ export const questionsConfigAtom = atomWithStorage<string[]>(
 
 export const getInterviewDefault = () =>
   ({
-    phase: "preparing",
     currentQuestionIndex: 0,
     questions: [],
-    countdownTime: 0,
     countdownDuration: 0,
-    questionTime: 0,
     questionDuration: 0,
-    endedEarly: false,
     isRetaking: false,
     responses: {},
-  }) satisfies InterviewState;
+  }) satisfies Interview;
 export const getResponsesDefault = () => ({});
 
-export const currentInterviewAtom = atomWithStorage<InterviewState>(
+// Runtime state is ephemeral and shouldn't be persisted in local storage —
+// persisting leads to race conditions and other bugs if the user opens more
+// than one tab.
+export const interviewRuntimeAtom = atom<InterviewRuntime>({
+  phase: "preparing",
+  questionTime: 0,
+  countdownTime: 0,
+});
+
+export const currentInterviewAtom = atomWithStorage<Interview>(
   "currentInterview",
   getInterviewDefault(),
 );
-export const previousInterviewAtom = atomWithStorage<
-  InterviewState | undefined
->("previousInterview", undefined);
+export const previousInterviewAtom = atomWithStorage<Interview | undefined>(
+  "previousInterview",
+  undefined,
+);
 
 export const isProcessingResponseAtom = atom(false);
 

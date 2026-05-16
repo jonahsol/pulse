@@ -2,10 +2,12 @@ import {
   countdownDurationConfigAtom,
   currentInterviewAtom,
   getInterviewDefault,
+  interviewRuntimeAtom,
   isProcessingResponseAtom,
   previousInterviewAtom,
   questionsConfigAtom,
   responseDurationConfigAtom,
+  store,
 } from "@/logic/atoms";
 import { useInterviewRuntimeContext } from "@/logic/context";
 import {
@@ -14,7 +16,12 @@ import {
   useMediaRecorder,
 } from "@/logic/media";
 import { useSetResponseBlobMutation } from "@/logic/storage/queries";
-import { InterviewState, Question, Response } from "@/logic/types";
+import type {
+  Interview,
+  InterviewRuntime,
+  Question,
+  Response,
+} from "@/logic/types";
 import { useInterval } from "@/logic/use-interval";
 import {
   atom,
@@ -48,10 +55,10 @@ export type InterviewConfig = {
  * `useInterview` manages the interview runtime state and logic, as well as
  * emitting any side-effects. It is the main hook for the interview component.
  */
-export const interviewCompleteAtom = atom<boolean>(
-  (get) => get(currentInterviewAtom).phase === "complete",
+export const interviewCompleteAtom = atom(
+  (get) => get(interviewRuntimeAtom).phase === "complete",
 );
-type InterviewRuntime = {
+type InterviewController = {
   startInterview: (x: InterviewConfig) => Promise<void>;
   togglePauseInterview: () => void;
   isPaused: boolean;
@@ -59,18 +66,11 @@ type InterviewRuntime = {
   endInterviewEarly: () => void;
 };
 
-export function useInterviewRuntime(): InterviewRuntime {
-  const setCurrentInterview = useSetAtom(currentInterviewAtom);
-  const setPreviousInterview = useSetAtom(previousInterviewAtom);
-
-  // Hooks for controlling the interview lifecycle state
-  const { computeNextState } = useInterviewStateUpdater();
-  const handleTick = useCallback(() => {
-    // Compute the next state
-    setCurrentInterview((interview) => computeNextState(interview));
-  }, [computeNextState, setCurrentInterview]);
+export function useInterviewController(): InterviewController {
+  // Hooks for controlling the interview state
+  const { updateInterviewState } = useInterviewStateUpdater();
   const { startTicker, togglePause, isPaused } = useInterviewTicker({
-    onTick: handleTick,
+    onTick: updateInterviewState,
   });
 
   // Hooks for controlling the interview media recording
@@ -91,11 +91,13 @@ export function useInterviewRuntime(): InterviewRuntime {
       responses,
     }: InterviewConfig) => {
       // Set interview starting state based on the interview config
-      setCurrentInterview({
+      store.set(interviewRuntimeAtom, {
         phase: "countdown",
-        currentQuestionIndex: isRetaking ? retakeQuestionIndex : 0,
         countdownTime: 0,
         questionTime: 0,
+      });
+      store.set(currentInterviewAtom, {
+        currentQuestionIndex: isRetaking ? retakeQuestionIndex : 0,
         endedEarly: false,
         countdownDuration,
         questionDuration,
@@ -112,47 +114,36 @@ export function useInterviewRuntime(): InterviewRuntime {
       // Start interview ticker
       startTicker();
     },
-    [
-      initMediaRecorder,
-      initPreview,
-      initUserInputDevice,
-      setCurrentInterview,
-      startTicker,
-    ],
+    [initMediaRecorder, initPreview, initUserInputDevice, startTicker],
   );
 
   const endInterviewEarly = useCallback(() => {
-    setCurrentInterview((interview) => ({
-      ...interview,
+    store.set(interviewRuntimeAtom, (interviewRuntime) => ({
+      ...interviewRuntime,
       phase: "complete",
     }));
-  }, [setCurrentInterview]);
+  }, []);
 
   const endResponse = useCallback(() => {
-    setCurrentInterview((interview) => ({
-      ...interview,
-      questionTime: interview.questionDuration,
-    }));
-  }, [setCurrentInterview]);
+    // store.set(currentInterviewAtom, (interview) => ({
+    // store.set(interviewRuntimeAtom, (interviewRuntime) => ({
+    //   ...interviewRuntime,
+    //   questionTime: 0,
+    //   phase:
+    // }));
+  }, []);
 
   // End the interview when `interview.phase` is `complete`
   const interviewComplete = useAtomValue(interviewCompleteAtom);
   const router = useRouter();
   useEffect(() => {
     if (interviewComplete && !isRecording && !isProcessingResponse) {
-      setPreviousInterview(getDefaultStore().get(currentInterviewAtom));
+      store.set(previousInterviewAtom, store.get(currentInterviewAtom));
       // Reset the current interview state
-      setCurrentInterview(getInterviewDefault());
+      store.set(currentInterviewAtom, getInterviewDefault());
       router.push("/review");
     }
-  }, [
-    interviewComplete,
-    router,
-    setCurrentInterview,
-    setPreviousInterview,
-    isRecording,
-    isProcessingResponse,
-  ]);
+  }, [interviewComplete, router, isRecording, isProcessingResponse]);
 
   return {
     startInterview,
@@ -168,26 +159,27 @@ export function useInterviewRuntime(): InterviewRuntime {
  */
 function useInterviewTicker({ onTick }: { onTick: () => void }) {
   const [ticking, setTicking] = useState(false);
-  const [interview, setInterview] = useAtom(currentInterviewAtom);
+  const [interviewRuntimeState, setInterviewRuntimeState] =
+    useAtom(interviewRuntimeAtom);
 
   const handleTick = useCallback(() => {
     // If the interview is in the countdown phase, increment the countdown time
-    if (interview.phase === "countdown") {
-      setInterview((interview) => ({
-        ...interview,
-        countdownTime: interview.countdownTime + 1,
+    if (interviewRuntimeState.phase === "countdown") {
+      setInterviewRuntimeState((interviewRuntimeState) => ({
+        ...interviewRuntimeState,
+        countdownTime: interviewRuntimeState.countdownTime + 1,
       }));
       // If the interview is in the question phase, increment the question time
-    } else if (interview.phase === "question") {
-      setInterview((interview) => ({
-        ...interview,
-        questionTime: interview.questionTime + 1,
+    } else if (interviewRuntimeState.phase === "question") {
+      setInterviewRuntimeState((interviewRuntimeState) => ({
+        ...interviewRuntimeState,
+        questionTime: interviewRuntimeState.questionTime + 1,
       }));
     }
 
     // Call the onTick callback
     onTick();
-  }, [interview, setInterview, onTick]);
+  }, [interviewRuntimeState, setInterviewRuntimeState, onTick]);
 
   const intervalCallback = useCallback(() => {
     if (ticking) {
@@ -214,48 +206,77 @@ function useInterviewTicker({ onTick }: { onTick: () => void }) {
  * `useInterviewStateMachine` hook updates the state of the interview based on
  * the current state and the elapsed time.
  */
+
+type InterviewState = {
+  interview: Interview;
+  interviewRuntime: InterviewRuntime;
+};
+
 function useInterviewStateUpdater() {
   const computeNextState = useCallback(
-    (interview: InterviewState): InterviewState => {
+    (state: InterviewState): InterviewState => {
+      const { interview, interviewRuntime } = state;
+
       // Check if countdown is over
       if (
-        interview.phase === "countdown" &&
-        interview.countdownTime >= interview.countdownDuration
+        interviewRuntime.phase === "countdown" &&
+        interviewRuntime.countdownTime >= interview.countdownDuration
       ) {
         return {
-          ...interview,
-          countdownTime: 0,
-          phase: "question",
+          interview: {
+            ...interview,
+          },
+          interviewRuntime: {
+            ...interviewRuntime,
+            countdownTime: 0,
+            phase: "question",
+          },
         };
       } else if (
         // Check if question is over
-        interview.phase === "question" &&
-        interview.questionTime >= interview.questionDuration
+        interviewRuntime.phase === "question" &&
+        interviewRuntime.questionTime >= interview.questionDuration
       ) {
-        // If there are more questions, go to the next question
+        // Go to the next question. If the interview is complete, update the phase to complete.
         return {
-          ...interview,
-          currentQuestionIndex: interview.currentQuestionIndex + 1,
-          questionTime: 0,
-          phase:
-            interview.isRetaking ||
-            interview.currentQuestionIndex + 1 >= interview.questions.length
-              ? "complete"
-              : "countdown",
+          interview: {
+            ...interview,
+            currentQuestionIndex: interview.currentQuestionIndex + 1,
+          },
+          interviewRuntime: {
+            ...interviewRuntime,
+            questionTime: 0,
+            phase:
+              interview.isRetaking ||
+              interview.currentQuestionIndex + 1 >= interview.questions.length
+                ? "complete"
+                : "countdown",
+          },
         };
       }
 
-      return interview;
+      return { interview, interviewRuntime };
     },
     [],
   );
 
+  const updateInterviewState = useCallback(() => {
+    // Grab current state
+    const interview = store.get(currentInterviewAtom);
+    const interviewRuntime = store.get(interviewRuntimeAtom);
+    // Compute next state
+    const nextState = computeNextState({ interview, interviewRuntime });
+    // Update state
+    store.set(currentInterviewAtom, nextState.interview);
+    store.set(interviewRuntimeAtom, nextState.interviewRuntime);
+  }, [computeNextState]);
+
   return {
-    computeNextState,
+    updateInterviewState,
   };
 }
 
-const interviewPhaseAtom = atom((get) => get(currentInterviewAtom).phase);
+const interviewPhaseAtom = atom((get) => get(interviewRuntimeAtom).phase);
 
 /**
  * `useInterviewMediaRecorderController` hook controls the media recorder based
@@ -344,7 +365,7 @@ export function useAddTake() {
   const router = useRouter();
 
   const addTake = useCallback(
-    (interview: InterviewState, questionIndex: number) => {
+    (interview: Interview, questionIndex: number) => {
       interviewRuntime.startInterview({
         ...interview,
         isRetaking: true,

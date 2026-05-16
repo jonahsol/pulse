@@ -19,7 +19,6 @@ import { useTranslations } from "next-intl";
 import { ComponentProps, useLayoutEffect, useRef } from "react";
 
 type ReviewQuestionCardProps = {
-  endedEarly: boolean;
   question: Question;
   questionDuration: number;
   responses: Response[];
@@ -33,7 +32,6 @@ export function ReviewQuestionCard({
   question,
   responses,
   onResponses,
-  endedEarly,
 }: ReviewQuestionCardProps) {
   const t = useTranslations("ReviewQuestionCard");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -74,16 +72,8 @@ export function ReviewQuestionCard({
       <QuestionCard.Content>
         {hasNoResponse ? (
           <Alert>
-            <AlertTitle>
-              {endedEarly
-                ? t("noResponse.endedEarlyTitle")
-                : t("noResponse.title")}
-            </AlertTitle>
-            <AlertDescription>
-              {endedEarly
-                ? t("noResponse.endedEarlyDescription")
-                : t("noResponse.description")}
-            </AlertDescription>
+            <AlertTitle>{t("noResponse.title")}</AlertTitle>
+            <AlertDescription>{t("noResponse.description")}</AlertDescription>
           </Alert>
         ) : (
           <ScrollArea ref={scrollContainerRef} type="always">

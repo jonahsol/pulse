@@ -1,7 +1,6 @@
 "use client";
 
 import { ReviewQuestionCard } from "@/app/[locale]/review/review-question-card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,16 +14,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useIsClient } from "@/lib/client-utils";
 import { previousInterviewAtom } from "@/logic/atoms";
 import { useAddTake } from "@/logic/interview";
-import { InterviewState, Question, Response } from "@/logic/types";
-import { RefreshCwIcon } from "lucide-react";
+import { Interview, Question, Response } from "@/logic/types";
 import { useAtom } from "jotai";
+import { RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 export default function ReviewPhase() {
   const t = useTranslations("ReviewPhase");
   const router = useRouter();
-  const endedEarly = false;
   const [previousInterview, setPreviousInterview] = useAtom(
     previousInterviewAtom,
   );
@@ -33,7 +31,7 @@ export default function ReviewPhase() {
 
   function setResponsesForQuestion(questionId: string, responses: Response[]) {
     setPreviousInterview((prev) => ({
-      ...(prev as InterviewState),
+      ...(prev as Interview),
       responses: {
         ...(prev?.responses || {}),
         [questionId]: responses,
@@ -53,14 +51,6 @@ export default function ReviewPhase() {
             <Separator />
           </CardHeader>
           <CardContent className="space-y-4">
-            {endedEarly ? (
-              <Alert>
-                <AlertTitle>{t("endedEarly.title")}</AlertTitle>
-                <AlertDescription>
-                  {t("endedEarly.description")}
-                </AlertDescription>
-              </Alert>
-            ) : null}
             <Button
               className="w-full rounded-full sm:w-auto"
               onClick={() => {
@@ -93,7 +83,6 @@ export default function ReviewPhase() {
                   onResponses={(responses) =>
                     setResponsesForQuestion(questionId, responses)
                   }
-                  endedEarly={endedEarly}
                   key={questionId}
                 />
               );
