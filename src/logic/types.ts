@@ -1,11 +1,17 @@
 export type Question = { id: string; prompt: string; index: number };
 
 // Ephemeral runtime state of the interview.
-export type InterviewRuntime = {
-  phase: "preparing" | "countdown" | "question" | "complete";
-  questionTime: number;
-  countdownTime: number;
-};
+export type InterviewRuntime =
+  | {
+      phase: "preparing";
+    }
+  | {
+      phase: "question" | "countdown";
+      phaseStartedAt: number;
+      paused: boolean;
+      pauseStartedAt: number | null;
+      totalPauseTime: number;
+    };
 
 // Persistent state of the interview.
 export type Interview = {

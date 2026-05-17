@@ -39,12 +39,10 @@ export const getResponsesDefault = () => ({});
 // than one tab.
 export const interviewRuntimeAtom = atom<InterviewRuntime>({
   phase: "preparing",
-  questionTime: 0,
-  countdownTime: 0,
 });
 
-export const currentInterviewAtom = atomWithStorage<Interview>(
-  "currentInterview",
+export const interviewAtom = atomWithStorage<Interview>(
+  "interview",
   getInterviewDefault(),
 );
 export const previousInterviewAtom = atomWithStorage<Interview | undefined>(

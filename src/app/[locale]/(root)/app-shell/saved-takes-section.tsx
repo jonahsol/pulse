@@ -12,7 +12,6 @@ import Link from "next/link";
 export function SavedTakesSection() {
   const hasPreviousInterview = useAtomValue(previousInterviewAtom);
   const t = useTranslations("AppShell");
-  console.log("hasPreviousInterview", hasPreviousInterview);
 
   if (!hasPreviousInterview) return null;
   return (

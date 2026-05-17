@@ -1,7 +1,7 @@
 import {
   countdownDurationConfigAtom,
-  currentInterviewAtom,
   getInterviewDefault,
+  interviewAtom,
   interviewRuntimeAtom,
   isProcessingResponseAtom,
   previousInterviewAtom,
@@ -96,7 +96,7 @@ export function useInterviewController(): InterviewController {
         countdownTime: 0,
         questionTime: 0,
       });
-      store.set(currentInterviewAtom, {
+      store.set(interviewAtom, {
         currentQuestionIndex: isRetaking ? retakeQuestionIndex : 0,
         endedEarly: false,
         countdownDuration,
@@ -138,9 +138,9 @@ export function useInterviewController(): InterviewController {
   const router = useRouter();
   useEffect(() => {
     if (interviewComplete && !isRecording && !isProcessingResponse) {
-      store.set(previousInterviewAtom, store.get(currentInterviewAtom));
+      store.set(previousInterviewAtom, store.get(interviewAtom));
       // Reset the current interview state
-      store.set(currentInterviewAtom, getInterviewDefault());
+      store.set(interviewAtom, getInterviewDefault());
       router.push("/review");
     }
   }, [interviewComplete, router, isRecording, isProcessingResponse]);
@@ -262,12 +262,12 @@ function useInterviewStateUpdater() {
 
   const updateInterviewState = useCallback(() => {
     // Grab current state
-    const interview = store.get(currentInterviewAtom);
+    const interview = store.get(interviewAtom);
     const interviewRuntime = store.get(interviewRuntimeAtom);
     // Compute next state
     const nextState = computeNextState({ interview, interviewRuntime });
     // Update state
-    store.set(currentInterviewAtom, nextState.interview);
+    store.set(interviewAtom, nextState.interview);
     store.set(interviewRuntimeAtom, nextState.interviewRuntime);
   }, [computeNextState]);
 
@@ -285,8 +285,8 @@ const interviewPhaseAtom = atom((get) => get(interviewRuntimeAtom).phase);
  */
 function useInterviewPhaseMediaRecorder(mediaRecorder: MediaRecorder | null) {
   const interviewPhase = useAtomValue(interviewPhaseAtom);
-  const currentInterview = useAtomValue(currentInterviewAtom);
-  const setCurrentInterview = useSetAtom(currentInterviewAtom);
+  const currentInterview = useAtomValue(interviewAtom);
+  const setCurrentInterview = useSetAtom(interviewAtom);
 
   const setResponseBlobMutation = useSetResponseBlobMutation();
 
