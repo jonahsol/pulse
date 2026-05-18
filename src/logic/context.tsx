@@ -1,62 +1,63 @@
-import { useInterviewController } from "@/logic/interview";
+import { useInterviewController } from "@/logic/interview-controller";
 import type { ReactNode } from "react";
 import { createContext, useContext, useRef } from "react";
 
-type InterviewContextType = {
-  userMediaPreviewRef: React.RefObject<HTMLVideoElement | null>;
+type PlayerContextType = {
+  userMediaPlayerRef: React.RefObject<HTMLVideoElement | null>;
 };
-const InterviewContext = createContext<InterviewContextType | undefined>(
+const UserMediaPlayerContext = createContext<PlayerContextType | undefined>(
   undefined,
 );
 
-export function InterviewContextProvider({
+export function UserMediaContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const userMediaPreviewRef = useRef<HTMLVideoElement>(null);
+  const userMediaPlayerRef = useRef<HTMLVideoElement>(null);
 
   return (
-    <InterviewContext.Provider
+    <UserMediaPlayerContext.Provider
       value={{
-        userMediaPreviewRef,
+        userMediaPlayerRef,
       }}
     >
       {children}
-    </InterviewContext.Provider>
+    </UserMediaPlayerContext.Provider>
   );
 }
-export const useInterviewContext = () => {
-  const context = useContext(InterviewContext);
+export const userMediaPlayerContext = () => {
+  const context = useContext(UserMediaPlayerContext);
 
   if (!context) {
     throw new Error(
-      "useInterviewContext must be used within a InterviewContext",
+      "userMediaPlayerContext must be used within a UserMediaPlayerContext",
     );
   }
   return context;
 };
 
-export const InterviewRuntimeContext = createContext<
+export const InterviewControllerContext = createContext<
   ReturnType<typeof useInterviewController> | undefined
 >(undefined);
-export function InterviewRuntimeContextProvider({
+export function InterviewControllerContextProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const interviewRuntime = useInterviewController();
+  const interviewController = useInterviewController();
+
   return (
-    <InterviewRuntimeContext.Provider value={interviewRuntime}>
+    <InterviewControllerContext.Provider value={interviewController}>
       {children}
-    </InterviewRuntimeContext.Provider>
+    </InterviewControllerContext.Provider>
   );
 }
-export const useInterviewRuntimeContext = () => {
-  const context = useContext(InterviewRuntimeContext);
+export const useInterviewControllerContext = () => {
+  const context = useContext(InterviewControllerContext);
   if (!context) {
     throw new Error(
-      "useInterviewRuntimeContext must be used within a InterviewRuntimeContext",
+      "useInterviewControllerContext must be used within a InterviewControllerContext",
     );
   }
   return context;

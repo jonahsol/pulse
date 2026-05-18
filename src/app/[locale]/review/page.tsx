@@ -13,14 +13,13 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsClient } from "@/lib/client-utils";
 import { previousInterviewAtom } from "@/logic/atoms";
-import { useAddTake } from "@/logic/interview";
 import { Interview, Question, Response } from "@/logic/types";
 import { useAtom } from "jotai";
 import { RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-export default function ReviewPhase() {
+export default function ReviewPage() {
   const t = useTranslations("ReviewPhase");
   const router = useRouter();
   const [previousInterview, setPreviousInterview] = useAtom(

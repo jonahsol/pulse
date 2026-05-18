@@ -125,7 +125,7 @@ flowchart LR
 - Move ticker details out of `src/logic/interview.ts` into a focused hook.
 - Move recorder phase-to-command wiring out of the main runtime body into a focused hook.
 - Move completion navigation into a small helper/hook so the runtime does not inline the full completion effect.
-- Keep contexts thin: `InterviewContext` can keep `userMediaPreviewRef`; `InterviewRuntimeContext` can expose the runtime facade, but should not grow into a large state bag.
+- Keep contexts thin: `InterviewContext` can keep `userMediaPlayerRef`; `InterviewRuntimeContext` can expose the runtime facade, but should not grow into a large state bag.
 
 **Behavior preserved or intentionally changed:**
 

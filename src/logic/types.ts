@@ -1,3 +1,4 @@
+// An interview question.
 export type Question = { id: string; prompt: string; index: number };
 
 // Ephemeral runtime state of the interview.
@@ -25,6 +26,7 @@ export type Interview = {
   responses: Record<string, Response[]>;
 };
 
+// A response to a question.
 export type Response = {
   id: string;
   transcript?: string;
@@ -36,3 +38,22 @@ export type SavedTake = {
   question: Question;
   response: Response;
 };
+
+// Configuration for retaking a response.
+type RetakeInterviewConfig =
+  | {
+      isRetaking: true;
+      retakeQuestionIndex: number;
+    }
+  | {
+      isRetaking: false;
+      retakeQuestionIndex?: undefined;
+    };
+
+// Configuration for an interview.
+export type InterviewConfig = {
+  questions: Question[];
+  countdownDuration: number;
+  questionDuration: number;
+  responses: Record<string, Response[]>;
+} & RetakeInterviewConfig;

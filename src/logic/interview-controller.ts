@@ -5,10 +5,9 @@ import {
   previousInterviewAtom,
   store,
 } from "@/logic/atoms";
-import { InterviewConfig } from "@/logic/interview";
 import { initUserInputDevice, useInitPreview } from "@/logic/media";
 import { useSetResponseBlobMutation } from "@/logic/storage/queries";
-import type { Response } from "@/logic/types";
+import type { InterviewConfig, Response } from "@/logic/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -77,6 +76,7 @@ export function useInterviewController(): InterviewController {
       streamRef.current.getTracks().forEach((track) => {
         track.stop();
       });
+      streamRef.current = undefined;
     }
   }
 
@@ -104,9 +104,16 @@ export function useInterviewController(): InterviewController {
         mediaRecorderRef.current?.removeEventListener("start", handleStart);
       };
       mediaRecorderRef.current?.addEventListener("start", handleStart);
-      mediaRecorderRef.current?.start();
+
+      if (mediaRecorderRef.current?.state !== "inactive")
+        mediaRecorderRef.current?.start();
     });
   }
+
+  /**
+   * Recording persistence is intentionally awaited before advancing phases
+   * to guarantee deterministic interview ordering.
+   */
   async function stopMediaRecorder() {
     return new Promise<void>((resolve, reject) => {
       const mediaRecorder = mediaRecorderRef.current;
@@ -123,8 +130,10 @@ export function useInterviewController(): InterviewController {
             return;
           }
 
-          const blob = new Blob(chunksRef.current);
+          const chunks = chunksRef.current;
           chunksRef.current = [];
+
+          const blob = new Blob(chunks);
 
           const { questionId, responseId } = recordingSessionRef.current;
 
@@ -144,7 +153,7 @@ export function useInterviewController(): InterviewController {
 
       mediaRecorder.addEventListener("stop", handleStop);
 
-      mediaRecorder.stop();
+      if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
     });
   }
 
@@ -173,23 +182,23 @@ export function useInterviewController(): InterviewController {
       phase: "countdown",
       phaseStartedAt: Date.now(),
     });
-    startPhaseTimeout(countdownDuration * 1000);
+    schedulePhaseTransition(countdownDuration * 1000);
   }
 
-  function startPhaseTimeout(durationMs: number) {
-    clearPhaseTimeout();
+  function schedulePhaseTransition(durationMs: number) {
+    clearScheduledTransition();
 
     phaseTimeoutRef.current = setTimeout(() => {
-      handlePhaseTimeoutEnd();
+      advanceInterviewPhase();
     }, durationMs);
   }
-  function clearPhaseTimeout() {
+  function clearScheduledTransition() {
     if (phaseTimeoutRef.current) {
       clearTimeout(phaseTimeoutRef.current);
     }
   }
 
-  async function handlePhaseTimeoutEnd() {
+  async function advanceInterviewPhase() {
     const interviewRuntime = store.get(interviewRuntimeAtom);
     const interview = store.get(interviewAtom);
 
@@ -202,7 +211,7 @@ export function useInterviewController(): InterviewController {
           phase: "question",
           phaseStartedAt: Date.now(),
         });
-        startPhaseTimeout(interview.questionDuration * 1000);
+        schedulePhaseTransition(interview.questionDuration * 1000);
         break;
       }
       case "question": {
@@ -224,7 +233,7 @@ export function useInterviewController(): InterviewController {
             ...interview,
             currentQuestionIndex: interview.currentQuestionIndex + 1,
           }));
-          startPhaseTimeout(interview.countdownDuration * 1000);
+          schedulePhaseTransition(interview.countdownDuration * 1000);
         }
         break;
       }
@@ -232,10 +241,11 @@ export function useInterviewController(): InterviewController {
   }
 
   function cleanup() {
-    clearPhaseTimeout();
+    clearScheduledTransition();
     cleanupStream();
   }
 
+  // Cleanup the interview when the component unmounts
   useEffect(
     () => () => {
       cleanup();
@@ -243,26 +253,28 @@ export function useInterviewController(): InterviewController {
     [],
   );
 
-  async function endInterview() {
+  function resetInterview() {
     cleanup();
 
-    store.set(previousInterviewAtom, store.get(interviewAtom));
-    // Reset the current interview state
     store.set(interviewRuntimeAtom, {
       phase: "preparing",
     });
+    store.set(previousInterviewAtom, store.get(interviewAtom));
     store.set(interviewAtom, getInterviewDefault());
+  }
 
+  async function endInterview() {
+    resetInterview();
     router.push("/review");
   }
 
   async function endResponse() {
-    clearPhaseTimeout();
-    handlePhaseTimeoutEnd();
+    clearScheduledTransition();
+    advanceInterviewPhase();
   }
 
   async function endInterviewEarly() {
-    clearPhaseTimeout();
+    clearScheduledTransition();
     await stopMediaRecorder();
     endInterview();
   }

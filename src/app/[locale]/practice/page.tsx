@@ -20,22 +20,24 @@ import { useIsOverflow } from "@/lib/use-is-overflow";
 import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 import { interviewAtom, interviewRuntimeAtom } from "@/logic/atoms";
-import { useInterviewContext } from "@/logic/context";
-import { getInterviewConfigFromAtomState } from "@/logic/interview";
-import { useInterviewController } from "@/logic/interview-controller";
+import {
+  useInterviewControllerContext,
+  useUserMediaPlayerContext,
+} from "@/logic/context";
+import { getInterviewConfigFromAtomState } from "@/logic/interview-config";
 import type { InterviewRuntime } from "@/logic/types";
 import { useMutation } from "@tanstack/react-query";
 import { atom, useAtomValue } from "jotai";
 import { CheckIcon, SquareIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-export default function InterviewPhase() {
+export default function PracticePage() {
   const t = useTranslations("InterviewPhase");
   const interview = useAtomValue(interviewAtom);
   const interviewRuntime = useAtomValue(interviewRuntimeAtom);
 
   const { startInterview, endResponse, endInterviewEarly } =
-    useInterviewController();
+    useInterviewControllerContext();
   const startInterviewMutation = useMutation({
     mutationFn: startInterview,
   });
@@ -94,7 +96,7 @@ export default function InterviewPhase() {
             </div>
           )}
 
-          <InterviewVideoPlayer phase={interviewRuntime.phase} />
+          <UserMediaPlayer phase={interviewRuntime.phase} />
         </CardContent>
 
         {(interviewRuntime.phase === "preparing" ||
@@ -115,16 +117,13 @@ export default function InterviewPhase() {
     </div>
   );
 }
-type InterviewVideoPlayerProps = {
+type UserMediaPlayerProps = {
   phase: InterviewRuntime["phase"];
   isPaused?: boolean;
 };
-function InterviewVideoPlayer({
-  phase,
-  isPaused = false,
-}: InterviewVideoPlayerProps) {
+function UserMediaPlayer({ phase, isPaused = false }: UserMediaPlayerProps) {
   const t = useTranslations("InterviewPhase");
-  const { userMediaPreviewRef } = useInterviewContext();
+  const { setUserMediaPlayerRef } = useUserMediaPlayerContext();
 
   return (
     <div
@@ -139,7 +138,7 @@ function InterviewVideoPlayer({
         }`}
         muted
         playsInline
-        ref={userMediaPreviewRef}
+        ref={setUserMediaPlayerRef}
       />
       {phase === "countdown" ? (
         <div className="absolute inset-0 flex items-center justify-center bg-background/20 px-6 text-center text-sm leading-relaxed text-foreground">

@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getQueryClient } from "@/lib/react-query";
 import {
-  InterviewContextProvider,
-  InterviewRuntimeContextProvider,
+  InterviewControllerContextProvider,
+  UserMediaContextProvider,
 } from "@/logic/context";
 import { QueryClientProvider } from "@tanstack/react-query";
 
@@ -14,13 +14,19 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <TooltipProvider>
       <QueryClientProvider client={queryClient}>
-        <InterviewContextProvider>
-          <InterviewRuntimeContextProvider>
-            {children}
-            <Toaster position="top-center" />
-          </InterviewRuntimeContextProvider>
-        </InterviewContextProvider>
+        <UserMediaContextProvider>
+          <Inner>{children}</Inner>
+        </UserMediaContextProvider>
       </QueryClientProvider>
     </TooltipProvider>
+  );
+}
+
+function Inner({ children }: { children: React.ReactNode }) {
+  return (
+    <InterviewControllerContextProvider>
+      {children}
+      <Toaster position="top-center" />
+    </InterviewControllerContextProvider>
   );
 }
