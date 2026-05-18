@@ -8,9 +8,6 @@ export type InterviewRuntime =
   | {
       phase: "question" | "countdown";
       phaseStartedAt: number;
-      paused: boolean;
-      pauseStartedAt: number | null;
-      totalPauseTime: number;
     };
 
 // Persistent state of the interview.

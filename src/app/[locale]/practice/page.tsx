@@ -26,7 +26,7 @@ import { useInterviewController } from "@/logic/interview-controller";
 import type { InterviewRuntime } from "@/logic/types";
 import { useMutation } from "@tanstack/react-query";
 import { atom, useAtomValue } from "jotai";
-import { CheckIcon, PauseIcon, PlayIcon, SquareIcon } from "lucide-react";
+import { CheckIcon, SquareIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function InterviewPhase() {
@@ -34,7 +34,7 @@ export default function InterviewPhase() {
   const interview = useAtomValue(interviewAtom);
   const interviewRuntime = useAtomValue(interviewRuntimeAtom);
 
-  const { startInterview, togglePause, endResponse, endInterviewEarly } =
+  const { startInterview, endResponse, endInterviewEarly } =
     useInterviewController();
   const startInterviewMutation = useMutation({
     mutationFn: startInterview,
@@ -48,10 +48,8 @@ export default function InterviewPhase() {
             <InterviewHeader
               canEndEarly={true}
               currentQuestionIndex={interview.currentQuestionIndex}
-              isPaused={interviewRuntime.paused}
               isRetaking={interview.isRetaking}
               onEndEarly={endInterviewEarly}
-              onTogglePause={togglePause}
               questionCount={interview.questions.length}
             />
             <Separator />
@@ -83,9 +81,6 @@ export default function InterviewPhase() {
               />
               {interviewRuntime.phase === "question" && (
                 <RecordingTimer
-                  totalPauseTime={interviewRuntime.totalPauseTime}
-                  isPaused={interviewRuntime.paused}
-                  pauseStartedAt={interviewRuntime.pauseStartedAt}
                   recordingStartedAt={interviewRuntime.phaseStartedAt}
                   recordingSeconds={interview.questionDuration}
                   onFinishResponse={endResponse}
@@ -93,23 +88,13 @@ export default function InterviewPhase() {
               )}
               {interviewRuntime.phase === "countdown" && (
                 <Countdown
-                  totalPauseTime={interviewRuntime.totalPauseTime}
                   countdownStartedAt={interviewRuntime.phaseStartedAt}
-                  isPaused={interviewRuntime.paused}
-                  pauseStartedAt={interviewRuntime.pauseStartedAt}
                 />
               )}
             </div>
           )}
 
-          <InterviewVideoPlayer
-            phase={interviewRuntime.phase}
-            isPaused={
-              interviewRuntime.phase === "preparing"
-                ? false
-                : interviewRuntime.paused
-            }
-          />
+          <InterviewVideoPlayer phase={interviewRuntime.phase} />
         </CardContent>
 
         {(interviewRuntime.phase === "preparing" ||
@@ -132,9 +117,12 @@ export default function InterviewPhase() {
 }
 type InterviewVideoPlayerProps = {
   phase: InterviewRuntime["phase"];
-  isPaused: boolean;
+  isPaused?: boolean;
 };
-function InterviewVideoPlayer({ phase, isPaused }: InterviewVideoPlayerProps) {
+function InterviewVideoPlayer({
+  phase,
+  isPaused = false,
+}: InterviewVideoPlayerProps) {
   const t = useTranslations("InterviewPhase");
   const { userMediaPreviewRef } = useInterviewContext();
 
@@ -176,30 +164,17 @@ function InterviewVideoPlayer({ phase, isPaused }: InterviewVideoPlayerProps) {
 
 type CountdownProps = {
   countdownStartedAt: number;
-  isPaused: boolean;
-  totalPauseTime: number;
-  pauseStartedAt: number | null;
+  isPaused?: boolean;
 };
 const countdownDurationAtom = atom(
   (get) => get(interviewAtom).countdownDuration,
 );
-function Countdown({
-  countdownStartedAt,
-  isPaused,
-  totalPauseTime,
-  pauseStartedAt,
-}: CountdownProps) {
+function Countdown({ countdownStartedAt, isPaused = false }: CountdownProps) {
   const t = useTranslations("InterviewPhase");
   const now = useNow();
   const countdownDuration = useAtomValue(countdownDurationAtom);
-  const activePauseTime = isPaused && pauseStartedAt ? now - pauseStartedAt : 0;
   const remainingSeconds =
-    (countdownStartedAt +
-      countdownDuration * 1000 -
-      now +
-      totalPauseTime +
-      activePauseTime) /
-    1000;
+    (countdownStartedAt + countdownDuration * 1000 - now) / 1000;
 
   return (
     <div className="text-center">
@@ -217,20 +192,18 @@ function Countdown({
 type InterviewHeaderProps = {
   canEndEarly: boolean;
   currentQuestionIndex: number;
-  isPaused: boolean;
+  isPaused?: boolean;
   isRetaking: boolean;
   onEndEarly: () => void;
-  onTogglePause: () => void;
   questionCount: number;
 };
 function InterviewHeader({
   canEndEarly,
   currentQuestionIndex,
-  isPaused,
   isRetaking,
   onEndEarly,
-  onTogglePause,
   questionCount,
+  isPaused = false,
 }: InterviewHeaderProps) {
   const t = useTranslations("InterviewPhase");
 
@@ -258,7 +231,8 @@ function InterviewHeader({
         </Badge>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <Button
+        {/* TODO: Add pause logic. For now, we don't pause but leave this UI for future use. */}
+        {/* <Button
           onClick={onTogglePause}
           data-icon="inline-start"
           size="sm"
@@ -267,7 +241,7 @@ function InterviewHeader({
         >
           {isPaused ? <PlayIcon /> : <PauseIcon />}
           {isPaused ? t("actions.resume") : t("actions.pause")}
-        </Button>
+        </Button> */}
         {canEndEarly && (
           <Button
             onClick={onEndEarly}
@@ -367,26 +341,20 @@ function formatSeconds(totalSeconds: number) {
 }
 
 type RecordingTimerProps = {
-  totalPauseTime: number;
-  isPaused: boolean;
   recordingStartedAt: number;
   recordingSeconds: number;
   onFinishResponse: () => void;
-  pauseStartedAt: number | null;
+  isPaused?: boolean;
 };
 function RecordingTimer({
-  totalPauseTime,
-  isPaused,
   recordingStartedAt,
   recordingSeconds,
   onFinishResponse,
-  pauseStartedAt,
+  isPaused = false,
 }: RecordingTimerProps) {
   const t = useTranslations("InterviewPhase");
   const now = useNow();
-  const activePauseTime = isPaused && pauseStartedAt ? now - pauseStartedAt : 0;
-  const elapsedSeconds =
-    (now - recordingStartedAt - totalPauseTime - activePauseTime) / 1000;
+  const elapsedSeconds = (now - recordingStartedAt) / 1000;
 
   return (
     <div className="flex flex-col items-center gap-6 transition-opacity duration-300">

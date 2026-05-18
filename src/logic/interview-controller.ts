@@ -16,7 +16,6 @@ import { ulid } from "ulid";
 
 type InterviewController = {
   startInterview: (x: InterviewConfig) => Promise<void>;
-  togglePause: () => void;
   endResponse: () => void;
   endInterviewEarly: () => void;
 };
@@ -173,9 +172,6 @@ export function useInterviewController(): InterviewController {
     store.set(interviewRuntimeAtom, {
       phase: "countdown",
       phaseStartedAt: Date.now(),
-      paused: false,
-      pauseStartedAt: null,
-      totalPauseTime: 0,
     });
     startPhaseTimeout(countdownDuration * 1000);
   }
@@ -211,9 +207,6 @@ export function useInterviewController(): InterviewController {
           store.set(interviewRuntimeAtom, {
             phase: "question",
             phaseStartedAt: Date.now(),
-            paused: false,
-            pauseStartedAt: null,
-            totalPauseTime: 0,
           });
           startPhaseTimeout(interview.questionDuration * 1000);
         }
@@ -238,9 +231,6 @@ export function useInterviewController(): InterviewController {
               ...interviewRuntime,
               phase: "countdown",
               phaseStartedAt: Date.now(),
-              paused: false,
-              pauseStartedAt: null,
-              totalPauseTime: 0,
             }));
             // Advance to the next question
             store.set(interviewAtom, (interview) => ({
@@ -252,68 +242,6 @@ export function useInterviewController(): InterviewController {
         }
         break;
     }
-  }
-
-  function togglePause() {
-    const interviewRuntime = store.get(interviewRuntimeAtom);
-    if (interviewRuntime.phase === "preparing") return;
-    else if (interviewRuntime.paused) endPause();
-    else startPause();
-  }
-  function startPause() {
-    clearPhaseTimeout();
-    store.set(interviewRuntimeAtom, (interviewRuntime) => {
-      if (interviewRuntime.phase === "preparing") return interviewRuntime;
-      else
-        return {
-          ...interviewRuntime,
-          paused: true,
-          pauseStartedAt: Date.now(),
-        };
-    });
-  }
-  function endPause() {
-    const interview = store.get(interviewAtom);
-    const interviewRuntime = store.get(interviewRuntimeAtom);
-    const now = Date.now();
-
-    if (
-      interviewRuntime.phase === "preparing" ||
-      !interviewRuntime.pauseStartedAt
-    )
-      return;
-
-    const phaseDuration =
-      interviewRuntime.phase === "countdown"
-        ? interview.countdownDuration
-        : interview.questionDuration;
-    const phaseTimeUsed = now - interviewRuntime.phaseStartedAt;
-    const pauseDuration = now - interviewRuntime.pauseStartedAt;
-
-    startPhaseTimeout(
-      // Phase duration - time already used - duration of this pause - duration of previous pauses
-      phaseDuration * 1000 -
-        phaseTimeUsed -
-        pauseDuration -
-        interviewRuntime.totalPauseTime,
-    );
-
-    store.set(interviewRuntimeAtom, (interviewRuntime) => {
-      if (
-        interviewRuntime.phase === "preparing" ||
-        !interviewRuntime.pauseStartedAt
-      )
-        return interviewRuntime;
-      else
-        return {
-          ...interviewRuntime,
-          paused: false,
-          pauseStartedAt: null,
-          totalPauseTime:
-            interviewRuntime.totalPauseTime +
-            (now - interviewRuntime.pauseStartedAt),
-        };
-    });
   }
 
   function cleanup() {
@@ -343,7 +271,6 @@ export function useInterviewController(): InterviewController {
 
   return {
     startInterview,
-    togglePause,
     endResponse: () => {},
     endInterviewEarly: () => {},
   };
