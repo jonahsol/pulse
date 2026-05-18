@@ -194,53 +194,40 @@ export function useInterviewController(): InterviewController {
     const interview = store.get(interviewAtom);
 
     switch (interviewRuntime.phase) {
-      case "countdown":
-        if (
-          (Date.now() - interviewRuntime.phaseStartedAt) / 1000 >=
-          interview.countdownDuration
-        ) {
-          // Countdown is over — start the question
+      case "countdown": {
+        await startRecordingSession(
+          interview.questions[interview.currentQuestionIndex].id,
+        );
+        store.set(interviewRuntimeAtom, {
+          phase: "question",
+          phaseStartedAt: Date.now(),
+        });
+        startPhaseTimeout(interview.questionDuration * 1000);
+        break;
+      }
+      case "question": {
+        await stopMediaRecorder();
 
-          await startRecordingSession(
-            interview.questions[interview.currentQuestionIndex].id,
-          );
-          store.set(interviewRuntimeAtom, {
-            phase: "question",
+        const currentQuestionIndex =
+          store.get(interviewAtom).currentQuestionIndex;
+
+        if (currentQuestionIndex + 1 >= interview.questions.length) {
+          await endInterview();
+        } else {
+          store.set(interviewRuntimeAtom, (interviewRuntime) => ({
+            ...interviewRuntime,
+            phase: "countdown",
             phaseStartedAt: Date.now(),
-          });
-          startPhaseTimeout(interview.questionDuration * 1000);
-        }
-        return;
-
-      case "question":
-        if (
-          (Date.now() - interviewRuntime.phaseStartedAt) / 1000 >=
-          interview.questionDuration
-        ) {
-          // Question is over — cleanup and start the countdown
-
-          await stopMediaRecorder();
-
-          const currentQuestionIndex =
-            store.get(interviewAtom).currentQuestionIndex;
-
-          if (currentQuestionIndex + 1 >= interview.questions.length) {
-            await endInterview();
-          } else {
-            store.set(interviewRuntimeAtom, (interviewRuntime) => ({
-              ...interviewRuntime,
-              phase: "countdown",
-              phaseStartedAt: Date.now(),
-            }));
-            // Advance to the next question
-            store.set(interviewAtom, (interview) => ({
-              ...interview,
-              currentQuestionIndex: interview.currentQuestionIndex + 1,
-            }));
-            startPhaseTimeout(interview.countdownDuration * 1000);
-          }
+          }));
+          // Advance to the next question
+          store.set(interviewAtom, (interview) => ({
+            ...interview,
+            currentQuestionIndex: interview.currentQuestionIndex + 1,
+          }));
+          startPhaseTimeout(interview.countdownDuration * 1000);
         }
         break;
+      }
     }
   }
 
@@ -269,9 +256,20 @@ export function useInterviewController(): InterviewController {
     router.push("/review");
   }
 
+  async function endResponse() {
+    clearPhaseTimeout();
+    handlePhaseTimeoutEnd();
+  }
+
+  async function endInterviewEarly() {
+    clearPhaseTimeout();
+    await stopMediaRecorder();
+    endInterview();
+  }
+
   return {
     startInterview,
-    endResponse: () => {},
-    endInterviewEarly: () => {},
+    endResponse,
+    endInterviewEarly,
   };
 }
