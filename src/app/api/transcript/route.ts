@@ -1,8 +1,9 @@
+import PostHogClient from "@/services/analyticsService.server";
+import { OpenAIWhisperAudio } from "@langchain/community/document_loaders/fs/openai_whisper_audio";
+import { NextResponse } from "next/server";
 import { unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
-import { OpenAIWhisperAudio } from "@langchain/community/document_loaders/fs/openai_whisper_audio";
-import { NextResponse } from "next/server";
 
 const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 const FALLBACK_EXTENSION = ".webm";
@@ -129,6 +130,8 @@ export async function POST(request: Request) {
           { status: 502 },
         );
       }
+
+      PostHogClient().capture({ event: "transcript_generated" });
 
       return NextResponse.json({
         transcript,

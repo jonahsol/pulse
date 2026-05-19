@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
 import {
   type GenerateQuestionsRequest,
   generateInterviewQuestions,
   normalizeLocale,
 } from "@/app/api/question-generation";
+import PostHogClient from "@/services/analyticsService.server";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
       jobDescription,
       locale,
     });
+    PostHogClient().capture({ event: "questions_generated" });
 
     return NextResponse.json({
       questions,

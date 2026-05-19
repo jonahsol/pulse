@@ -8,6 +8,7 @@ import {
 import { initUserInputDevice, useInitPreview } from "@/logic/media";
 import { useSetResponseBlobMutation } from "@/logic/storage/queries";
 import type { InterviewConfig, Response } from "@/logic/types";
+import { captureAnalyticsEvent } from "@/services/analyticsService";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -191,6 +192,10 @@ export function useInterviewController(): InterviewController {
       phaseStartedAt: Date.now(),
     });
     schedulePhaseTransition(countdownDuration * 1000);
+
+    if (isRetaking) captureAnalyticsEvent("response_retake");
+
+    captureAnalyticsEvent("interview_started");
   }
 
   function schedulePhaseTransition(durationMs: number) {
@@ -277,6 +282,7 @@ export function useInterviewController(): InterviewController {
   async function endInterview() {
     resetInterview();
     router.push("/review");
+    captureAnalyticsEvent("interview_ended");
   }
 
   async function endResponse() {
@@ -288,6 +294,7 @@ export function useInterviewController(): InterviewController {
     clearScheduledTransition();
     await stopMediaRecorder();
     endInterview();
+    captureAnalyticsEvent("interview_ended_early");
   }
 
   return {

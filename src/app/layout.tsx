@@ -14,17 +14,18 @@ export const metadata: Metadata = {
 type RootLayoutProps = {
   children: ReactNode;
   params: Promise<{ locale: string }>;
+  //   params: Promise<{ locale: string }>;
 };
 
 export default async function RootLayout({
   children,
-  params,
+  //   params,
 }: RootLayoutProps) {
-  const { locale } = await params;
+  //   const { locale } = await params;
 
   return (
     <html
-      lang={locale}
+      //   lang={locale}
       className={cn("dark font-sans")}
       suppressHydrationWarning
     >
