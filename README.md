@@ -17,7 +17,8 @@ The initial prototype was generated using Cursor + GPT-5.5, but the generated im
 ```mermaid
 flowchart TD
   User[User] --> UI[Next.js App Router UI]
-  UI --> Context[InterviewControllerContext]
+  UI --> Practice[Practice Experience]
+  Practice --> Context[InterviewControllerContext]
   Context --> Controller[useInterviewController]
   Controller --> Timer[Scheduled Phase Transitions]
   Controller --> SessionState["Session State [Jotai atoms]"]
@@ -28,12 +29,15 @@ flowchart TD
   Blob --> Query[TanStack Query]
   Query --> IDB[(IndexedDB via idb)]
 
-  UI --> Review[Review Experience]
-  Review --> Query
+  UI --> Review[Review Surface]
+  Review --> Blob
   Review --> TranscriptAPI[/POST /api/transcript/]
   TranscriptAPI --> Whisper[LangChain + OpenAI Whisper]
 
-  UI --> QuestionsAPI[/POST /api/question-generation/]
+  UI --> SavedTakes[Saved Takes Surface]
+  SavedTakes --> Blob
+
+  Practice --> QuestionsAPI[/POST /api/question-generation/]
   QuestionsAPI --> LLM[LangChain + OpenAI]
 
   subgraph Browser
@@ -47,6 +51,9 @@ flowchart TD
     LocalStorage
     IDB
     Review
+    Practice
+    SavedTakes
+    Blob
   end
 
   subgraph Server
