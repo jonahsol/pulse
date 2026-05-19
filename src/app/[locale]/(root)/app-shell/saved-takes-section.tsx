@@ -26,7 +26,10 @@ export function SavedTakesSection() {
           {t("savedTakes")}
         </Link>
 
-        <Separator orientation="vertical" className="ml-5 mr-8" />
+        <Separator
+          orientation="vertical"
+          className="ml-5 mr-8 hidden sm:flex"
+        />
       </div>
     </ClientOnly>
   );
