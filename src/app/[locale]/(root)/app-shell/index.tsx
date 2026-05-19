@@ -90,7 +90,7 @@ async function BackLinks() {
         {t("viewRepo")}{" "}
         <Button variant="link" asChild className="p-0" data-icon="inline-start">
           <a
-            href="https://github.com/jonahsol/pulse-interview-trainer"
+            href="https://github.com/jonahsol/pulse"
             target="_blank"
             rel="noopener noreferrer"
           >
