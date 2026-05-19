@@ -1,6 +1,6 @@
 # Pulse
 
-Pulse is a interview practice app for recording and reviewing behavioural interview responses. The app keeps the main recording flow entirely client-side, while optional AI workflows like transcription and question generation run through server APIs.
+Pulse is a local-first interview practice app built around in-browser video recording, review workflows, and optional AI-assisted feedback. The app keeps the main recording flow client-side, while AI workflows like transcription and question generation run through server APIs.
 
 ## Overview
 
@@ -8,19 +8,20 @@ The goal of the project was to make interview practice feel fast and local-first
 
 Recordings are captured directly in the browser with `MediaRecorder`, stored locally in IndexedDB, and loaded back into the review UI through TanStack Query. AI features are opt-in rather than part of the core recording flow.
 
-The project started as an AI-generated prototype with tightly coupled recording logic and monolithic component state, then gradually evolved into a more structured runtime for managing timing, recording, persistence, and review flows.
+The initial prototype was generated using Cursor + GPT-5.5, but the generated implementation quickly hit scaling limits around state coupling, recording orchestration, and async coordination. The project was later restructured around a dedicated interview runtime `useInterviewController()` with clearer separation between timing, media, persistence, and review flows.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
   User[User] --> UI[Next.js App Router UI]
-  UI --> Runtime[Interview Runtime]
-  Runtime --> Ticker[Interval Ticker]
-  Runtime --> State[Jotai Runtime State]
-  Runtime --> Media[MediaRecorder Controller]
+  UI --> Context[InterviewControllerContext]
+  Context --> Controller[useInterviewController()]
+  Controller --> Timer[Scheduled Phase Transitions]
+  Controller --> Session State[Jotai atoms]
+  Controller --> Media[MediaRecorder Controller]
 
-  State --> LocalStorage[(localStorage)]
+  Session State --> LocalStorage[(localStorage)]
   Media --> Blob[Response Blob]
   Blob --> Query[TanStack Query]
   Query --> IDB[(IndexedDB via idb)]
@@ -35,8 +36,9 @@ flowchart TD
 
   subgraph Browser
     UI
-    Runtime
-    Ticker
+    Context
+    Controller
+    Timer
     State
     Media
     Query
@@ -53,30 +55,23 @@ flowchart TD
   end
 ```
 
-## Runtime
+## Interview Controller
 
-The interview flow is coordinated through a small runtime layer `/src/logic/interview.ts`.
+The interview flow is coordinated through `useInterviewController()` in `/src/logic/interview-controller.ts` and provided to the UI through `InterviewControllerContext`.
 
-Components interact with the runtime API for actions like:
+`useInterviewController()` centralizes timing, recording lifecycle, persistence coordination, and review handoff behind a single runtime abstraction, reducing coupling between UI, media APIs, and persistence flows.
 
-* starting and ending responses;
-* pausing interview sessions;
-* retaking answers;
-* progressing between interview phases.
-
-Internally, the runtime manages:
+Internally, the controller manages:
 
 * countdown and recording state;
-* timer progression through a shared ticker;
+* phase progression through scheduled transitions;
 * camera and microphone setup with `getUserMedia`;
 * recording lifecycle events from `MediaRecorder`;
 * persistence when recordings are finalized.
 
-Refactoring the AI-generated prototype moved the project away from 20+ scattered `useState` hooks and large prop chains into more isolated timing, media, and persistence layers.
-
 ## Persistence
 
-Interview sessions contain both lightweight application state and large blob recordings, so the app uses separate storage layers for each.
+Interview sessions contain both lightweight application state and large blob recordings, so the app uses separate storage layers for each. Keeping recordings local allows review sessions to load immediately without waiting for uploads or remote processing.
 
 | Data                                       | Storage                |
 | ------------------------------------------ | ---------------------- |
@@ -90,8 +85,8 @@ The review UI loads recordings through queries and mutations rather than reachin
 
 1. The user configures an interview session.
 2. The browser requests camera and microphone access.
-3. The runtime initializes a `MediaRecorder` instance and local preview stream.
-4. A shared ticker advances countdown and recording phases.
+3. `useInterviewController()` initializes a `MediaRecorder` instance and local preview stream.
+4. Scheduled transitions advance countdown and recording phases.
 5. When a response ends, the finalized blob is written to IndexedDB and linked to session metadata.
 6. The review UI loads recordings locally for playback.
 7. Optional transcription uploads a selected recording to a server-side API powered by OpenAI and LangChain.
@@ -103,7 +98,7 @@ A few implementation details that shaped the project:
 * recorded blobs are persisted separately from session metadata to avoid `localStorage` size and serialization limits;
 * browser object URLs are cleaned up during review flows to avoid leaking memory;
 * retakes coordinate async recorder teardown before replacing existing recordings;
-* TanStack Query is used for local async state so loading/error flows behave consistently across the app;
+* TanStack Query is used as the async coordination layer for blob persistence so loading, mutation, and retry flows behave consistently across local and server-backed features;
 * transcription and AI question generation are isolated from the main loop so the core interview flow still works without uploading takes to the server.
 
 ## Tech Stack
@@ -117,6 +112,7 @@ A few implementation details that shaped the project:
 * **UI:** Tailwind CSS, shadcn/ui, Framer Motion
 * **Internationalization:** `next-intl`
 * **Deployment:** OpenNext on Cloudflare Workers
+* **Analytics:** Posthog
 
 ## Running Locally
 
