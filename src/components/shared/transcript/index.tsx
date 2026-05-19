@@ -88,11 +88,15 @@ export function TranscriptButton({
   const t = useTranslations("ReviewQuestionCard");
   const responseBlobQuery = useResponseBlobQuery(response.id);
 
-  const transcriptMutation = useMutation<TranscriptApiJson, Error>({
+  const transcriptMutation = useMutation<
+    TranscriptApiJson,
+    Error,
+    { blob: Blob }
+  >({
     mutationKey: ["transcript", response.id],
-    mutationFn: async () => {
+    mutationFn: async ({ blob }: { blob: Blob }) => {
       const formData = new FormData();
-      formData.append("file", responseBlobQuery.data as Blob);
+      formData.append("file", blob);
       const resp = await fetch("/api/transcript", {
         method: "POST",
         body: formData,
@@ -132,7 +136,11 @@ export function TranscriptButton({
             variant="ghost"
             size="icon-lg"
             className="-mt-1 -mr-1"
-            onClick={() => transcriptMutation.mutate()}
+            onClick={() => {
+              if (!responseBlobQuery.data) return;
+              transcriptMutation.mutate({ blob: responseBlobQuery.data });
+            }}
+            disabled={!responseBlobQuery.data || transcriptMutation.isPending}
             {...buttonProps}
           >
             {iconNode}
@@ -144,9 +152,10 @@ export function TranscriptButton({
 
   return (
     <Button
-      disabled={transcriptMutation.isPending}
+      disabled={!responseBlobQuery.data || transcriptMutation.isPending}
       onClick={() => {
-        transcriptMutation.mutate();
+        if (!responseBlobQuery.data) return;
+        transcriptMutation.mutate({ blob: responseBlobQuery.data });
       }}
       variant="ghost"
       {...buttonProps}
