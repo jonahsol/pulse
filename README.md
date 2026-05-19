@@ -2,6 +2,8 @@
 
 Pulse is a local-first interview practice app built around in-browser video recording, review workflows, and optional AI-assisted feedback. The app keeps the main recording flow client-side, while AI workflows like transcription and question generation run through server APIs.
 
+https://github.com/user-attachments/assets/39d79409-1e49-4383-9f28-3466839ba30c
+
 ## Overview
 
 The goal of the project was to make interview practice feel fast and local-first without relying on continuous video uploads or server-managed recording sessions.
@@ -16,12 +18,12 @@ The initial prototype was generated using Cursor + GPT-5.5, but the generated im
 flowchart TD
   User[User] --> UI[Next.js App Router UI]
   UI --> Context[InterviewControllerContext]
-  Context --> Controller[useInterviewController()]
+  Context --> Controller[useInterviewController]
   Controller --> Timer[Scheduled Phase Transitions]
-  Controller --> Session State[Jotai atoms]
+  Controller --> SessionState["Session State [Jotai atoms]"]
   Controller --> Media[MediaRecorder Controller]
 
-  Session State --> LocalStorage[(localStorage)]
+  SessionState --> LocalStorage[(localStorage)]
   Media --> Blob[Response Blob]
   Blob --> Query[TanStack Query]
   Query --> IDB[(IndexedDB via idb)]
@@ -39,7 +41,7 @@ flowchart TD
     Context
     Controller
     Timer
-    State
+    SessionState
     Media
     Query
     LocalStorage
