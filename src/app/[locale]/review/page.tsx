@@ -13,6 +13,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsClient } from "@/lib/client-utils";
 import { previousInterviewAtom } from "@/logic/atoms";
+import {
+  useInterviewControllerContext,
+  useUserMediaPlayerContext,
+} from "@/logic/context";
 import { Interview, Question, Response } from "@/logic/types";
 import { useAtom } from "jotai";
 import { RefreshCwIcon } from "lucide-react";
@@ -26,7 +30,24 @@ export default function ReviewPage() {
     previousInterviewAtom,
   );
   const isClient = useIsClient();
-  const { addTake } = useAddTake();
+  const { startInterview } = useInterviewControllerContext();
+  const { waitForUserMediaPlayer } = useUserMediaPlayerContext();
+
+  async function handleRetake(questionIndex: number) {
+    if (!previousInterview) return;
+
+    router.push("/practice");
+
+    await waitForUserMediaPlayer();
+    startInterview({
+      questions: previousInterview.questions,
+      countdownDuration: previousInterview.countdownDuration,
+      questionDuration: previousInterview.questionDuration,
+      isRetaking: true,
+      retakeQuestionIndex: questionIndex,
+      responses: previousInterview.responses,
+    });
+  }
 
   function setResponsesForQuestion(questionId: string, responses: Response[]) {
     setPreviousInterview((prev) => ({
@@ -75,7 +96,7 @@ export default function ReviewPage() {
 
               return (
                 <ReviewQuestionCard
-                  onAddTake={() => addTake(previousInterview, question.index)}
+                  onAddTake={() => handleRetake(question.index)}
                   questionDuration={previousInterview.questionDuration}
                   question={question}
                   responses={responses}

@@ -1,9 +1,11 @@
 import { useInterviewController } from "@/logic/interview-controller";
 import type { ReactNode } from "react";
-import { createContext, useContext, useRef } from "react";
+import { createContext, useCallback, useContext, useRef } from "react";
 
 type PlayerContextType = {
   userMediaPlayerRef: React.RefObject<HTMLVideoElement | null>;
+  setUserMediaPlayerRef: (el: HTMLVideoElement) => void;
+  waitForUserMediaPlayer: () => Promise<void>;
 };
 const UserMediaPlayerContext = createContext<PlayerContextType | undefined>(
   undefined,
@@ -14,19 +16,42 @@ export function UserMediaContextProvider({
 }: {
   children: ReactNode;
 }) {
-  const userMediaPlayerRef = useRef<HTMLVideoElement>(null);
+  const userMediaPlayerRef = useRef<HTMLVideoElement | null>(null);
+  const waitersRef = useRef<Array<(el: HTMLVideoElement) => void>>([]);
+
+  const setUserMediaPlayerRef = useCallback((el: HTMLVideoElement | null) => {
+    userMediaPlayerRef.current = el;
+
+    if (el) {
+      waitersRef.current.splice(0).forEach((resolve) => {
+        resolve(el);
+      });
+    }
+  }, []);
+
+  function waitForUserMediaPlayer(): Promise<void> {
+    if (userMediaPlayerRef.current) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      waitersRef.current.push(() => resolve());
+    });
+  }
 
   return (
     <UserMediaPlayerContext.Provider
       value={{
         userMediaPlayerRef,
+        waitForUserMediaPlayer,
+        setUserMediaPlayerRef,
       }}
     >
       {children}
     </UserMediaPlayerContext.Provider>
   );
 }
-export const userMediaPlayerContext = () => {
+export const useUserMediaPlayerContext = () => {
   const context = useContext(UserMediaPlayerContext);
 
   if (!context) {

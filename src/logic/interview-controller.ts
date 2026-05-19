@@ -103,10 +103,14 @@ export function useInterviewController(): InterviewController {
         resolve();
         mediaRecorderRef.current?.removeEventListener("start", handleStart);
       };
-      mediaRecorderRef.current?.addEventListener("start", handleStart);
 
-      if (mediaRecorderRef.current?.state !== "inactive")
+      if (mediaRecorderRef.current?.state !== "inactive") {
+        resolve();
+        return;
+      } else {
+        mediaRecorderRef.current?.addEventListener("start", handleStart);
         mediaRecorderRef.current?.start();
+      }
     });
   }
 
@@ -151,9 +155,13 @@ export function useInterviewController(): InterviewController {
         }
       };
 
-      mediaRecorder.addEventListener("stop", handleStop);
-
-      if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
+      if (mediaRecorder.state === "inactive") {
+        resolve();
+        return;
+      } else {
+        mediaRecorder.addEventListener("stop", handleStop);
+        mediaRecorder.stop();
+      }
     });
   }
 
@@ -220,7 +228,10 @@ export function useInterviewController(): InterviewController {
         const currentQuestionIndex =
           store.get(interviewAtom).currentQuestionIndex;
 
-        if (currentQuestionIndex + 1 >= interview.questions.length) {
+        if (
+          currentQuestionIndex + 1 >= interview.questions.length ||
+          interview.isRetaking
+        ) {
           await endInterview();
         } else {
           store.set(interviewRuntimeAtom, (interviewRuntime) => ({
